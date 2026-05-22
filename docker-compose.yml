@@ -8,7 +8,14 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/init:/docker-entrypoint-initdb.d
+      - ./database/init/000-create-database.sql:/docker-entrypoint-initdb.d/000-create-database.sql:ro
+      - ./database/init/001-enums.sql:/docker-entrypoint-initdb.d/001-enums.sql:ro
+      - ./database/init/002-tables.sql:/docker-entrypoint-initdb.d/002-tables.sql:ro
+      - ./database/seeds/001-seed-general-catalogs.sql:/docker-entrypoint-initdb.d/003-seed-general-catalogs.sql:ro
+      - ./database/seeds/002-seed-security.sql:/docker-entrypoint-initdb.d/004-seed-security.sql:ro
+      - ./database/seeds/003-seed-operational-types.sql:/docker-entrypoint-initdb.d/005-seed-operational-types.sql:ro
+      - ./database/seeds/004-seed-message-templates.sql:/docker-entrypoint-initdb.d/006-seed-message-templates.sql:ro
+      - ./database/seeds/005-seed-plans.sql:/docker-entrypoint-initdb.d/007-seed-plans.sql:ro
     networks:
       - klyro-network
     healthcheck:
