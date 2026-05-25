@@ -9,7 +9,7 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'auth_provider_enum') THEN
-        CREATE TYPE auth_provider_enum AS ENUM ('local', 'google');
+        CREATE TYPE auth_provider_enum AS ENUM ('local', 'firebase');
 
 END IF;
 
