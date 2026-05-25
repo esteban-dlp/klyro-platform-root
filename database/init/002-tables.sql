@@ -234,6 +234,7 @@ CREATE TABLE IF NOT EXISTS branches (
     phone_prefix_id UUID,
     phone_number VARCHAR(30),
     phone_e164 VARCHAR(30),
+    color VARCHAR(20),
     status branch_status_enum NOT NULL DEFAULT 'active',
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -265,6 +266,10 @@ CREATE TABLE IF NOT EXISTS branches (
     CONSTRAINT chk_branches_phone_e164_format CHECK (
         phone_e164 IS NULL
         OR phone_e164 ~ '^[+][0-9]{7,20}$'
+    ),
+    CONSTRAINT chk_branches_color_format CHECK (
+        color IS NULL
+        OR color ~ '^#[0-9A-Fa-f]{6}$'
     )
 );
 
@@ -416,6 +421,8 @@ CREATE TABLE IF NOT EXISTS services (
     business_id UUID NOT NULL,
     name VARCHAR(150) NOT NULL,
     description TEXT,
+    icon_key VARCHAR(50),
+    color VARCHAR(20),
     base_price NUMERIC(10, 2),
     duration_minutes INTEGER NOT NULL,
     buffer_before_minutes INTEGER NOT NULL DEFAULT 0,
@@ -436,7 +443,11 @@ CREATE TABLE IF NOT EXISTS services (
         AND duration_minutes <= 1440
     ),
     CONSTRAINT chk_services_buffer_before CHECK (buffer_before_minutes >= 0),
-    CONSTRAINT chk_services_buffer_after CHECK (buffer_after_minutes >= 0)
+    CONSTRAINT chk_services_buffer_after CHECK (buffer_after_minutes >= 0),
+    CONSTRAINT chk_services_color_format CHECK (
+        color IS NULL
+        OR color ~ '^#[0-9A-Fa-f]{6}$'
+    )
 );
 
 CREATE TABLE IF NOT EXISTS service_aliases (
@@ -637,6 +648,7 @@ CREATE TABLE IF NOT EXISTS appointments (
     client_id UUID NOT NULL,
     worker_id UUID NOT NULL,
     service_id UUID NOT NULL,
+    color VARCHAR(20),
     conversation_id UUID,
     start_at TIMESTAMPTZ NOT NULL,
     end_at TIMESTAMPTZ NOT NULL,
@@ -681,6 +693,10 @@ CREATE TABLE IF NOT EXISTS appointments (
         OR (
             created_by_type IN ('ai', 'system')
         )
+    ),
+    CONSTRAINT chk_appointments_color_format CHECK (
+        color IS NULL
+        OR color ~ '^#[0-9A-Fa-f]{6}$'
     )
 );
 
