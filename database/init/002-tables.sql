@@ -159,20 +159,14 @@ CREATE TABLE IF NOT EXISTS businesses (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
     name VARCHAR(200) NOT NULL,
     slug VARCHAR(120) NOT NULL,
+    description TEXT,
     business_type_id UUID,
     country_id UUID NOT NULL,
     currency_code CHAR(3) NOT NULL,
     default_language_code VARCHAR(10) NOT NULL,
     timezone VARCHAR(80) NOT NULL,
     logo_url TEXT,
-    address TEXT,
-    google_maps_url TEXT,
-    waze_url TEXT,
-    latitude NUMERIC(10, 7),
-    longitude NUMERIC(10, 7),
-    phone_prefix_id UUID,
-    phone_number VARCHAR(30),
-    phone_e164 VARCHAR(30),
+    default_phone_number_id UUID,
     status business_status_enum NOT NULL DEFAULT 'active',
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -181,7 +175,6 @@ CREATE TABLE IF NOT EXISTS businesses (
     CONSTRAINT fk_businesses_country FOREIGN KEY (country_id) REFERENCES countries (id),
     CONSTRAINT fk_businesses_currency FOREIGN KEY (currency_code) REFERENCES currencies (code),
     CONSTRAINT fk_businesses_language FOREIGN KEY (default_language_code) REFERENCES languages (code),
-    CONSTRAINT fk_businesses_phone_prefix FOREIGN KEY (phone_prefix_id) REFERENCES phone_prefixes (id),
     CONSTRAINT uq_businesses_id_business_id UNIQUE (id),
     CONSTRAINT chk_businesses_name_length CHECK (length(trim(name)) >= 2),
     CONSTRAINT chk_businesses_slug_format CHECK (
@@ -192,31 +185,64 @@ CREATE TABLE IF NOT EXISTS businesses (
         logo_url IS NULL
         OR logo_url ~* '^https?://'
     ),
-    CONSTRAINT chk_businesses_google_maps_url_format CHECK (
-        google_maps_url IS NULL
-        OR google_maps_url ~* '^https?://'
-    ),
-    CONSTRAINT chk_businesses_waze_url_format CHECK (
-        waze_url IS NULL
-        OR waze_url ~* '^https?://'
-    ),
-    CONSTRAINT chk_businesses_latitude CHECK (
-        latitude IS NULL
-        OR latitude BETWEEN -90 AND 90
-    ),
-    CONSTRAINT chk_businesses_longitude CHECK (
-        longitude IS NULL
-        OR longitude BETWEEN -180 AND 180
-    ),
-    CONSTRAINT chk_businesses_phone_number_format CHECK (
+    CONSTRAINT chk_businesses_description_length CHECK (
+        description IS NULL
+        OR (
+            length(trim(description)) >= 10
+            AND length(trim(description)) <= 1200
+        )
+    )
+);
+
+CREATE TABLE IF NOT EXISTS business_phone_numbers (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    business_id UUID NOT NULL,
+    phone_prefix_id UUID,
+    phone_number VARCHAR(30),
+    phone_e164 VARCHAR(30) NOT NULL,
+    label VARCHAR(100),
+    is_whatsapp_enabled BOOLEAN NOT NULL DEFAULT false,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    deleted_at TIMESTAMPTZ,
+    CONSTRAINT uq_business_phone_numbers_id_business_id UNIQUE (id, business_id),
+    CONSTRAINT fk_business_phone_numbers_business FOREIGN KEY (business_id) REFERENCES businesses (id),
+    CONSTRAINT fk_business_phone_numbers_phone_prefix FOREIGN KEY (phone_prefix_id) REFERENCES phone_prefixes (id),
+    CONSTRAINT chk_business_phone_numbers_phone_number_format CHECK (
         phone_number IS NULL
         OR phone_number ~ '^[0-9]{6,20}$'
     ),
-    CONSTRAINT chk_businesses_phone_e164_format CHECK (
-        phone_e164 IS NULL
-        OR phone_e164 ~ '^[+][0-9]{7,20}$'
+    CONSTRAINT chk_business_phone_numbers_phone_e164_format CHECK (
+        phone_e164 ~ '^[+][0-9]{7,20}$'
+    ),
+    CONSTRAINT chk_business_phone_numbers_label_length CHECK (
+        label IS NULL
+        OR length(trim(label)) >= 2
     )
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS business_phone_numbers_business_phone_unique_idx ON business_phone_numbers (business_id, phone_e164)
+WHERE
+    deleted_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS business_phone_numbers_business_idx ON business_phone_numbers (business_id)
+WHERE
+    deleted_at IS NULL;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM pg_constraint
+        WHERE conname = 'fk_businesses_default_phone_number'
+    ) THEN
+        ALTER TABLE businesses
+        ADD CONSTRAINT fk_businesses_default_phone_number
+        FOREIGN KEY (default_phone_number_id, id)
+        REFERENCES business_phone_numbers (id, business_id);
+    END IF;
+END $$;
 
 CREATE UNIQUE INDEX IF NOT EXISTS businesses_slug_unique_idx ON businesses (slug)
 WHERE
@@ -231,9 +257,7 @@ CREATE TABLE IF NOT EXISTS branches (
     waze_url TEXT,
     latitude NUMERIC(10, 7),
     longitude NUMERIC(10, 7),
-    phone_prefix_id UUID,
-    phone_number VARCHAR(30),
-    phone_e164 VARCHAR(30),
+    business_phone_number_id UUID,
     color VARCHAR(20),
     status branch_status_enum NOT NULL DEFAULT 'active',
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -241,7 +265,7 @@ CREATE TABLE IF NOT EXISTS branches (
     deleted_at TIMESTAMPTZ,
     CONSTRAINT uq_branches_id_business_id UNIQUE (id, business_id),
     CONSTRAINT fk_branches_business FOREIGN KEY (business_id) REFERENCES businesses (id),
-    CONSTRAINT fk_branches_phone_prefix FOREIGN KEY (phone_prefix_id) REFERENCES phone_prefixes (id),
+    CONSTRAINT fk_branches_business_phone_number FOREIGN KEY (business_phone_number_id, business_id) REFERENCES business_phone_numbers (id, business_id),
     CONSTRAINT chk_branches_name_length CHECK (length(trim(name)) >= 2),
     CONSTRAINT chk_branches_google_maps_url_format CHECK (
         google_maps_url IS NULL
@@ -259,14 +283,6 @@ CREATE TABLE IF NOT EXISTS branches (
         longitude IS NULL
         OR longitude BETWEEN -180 AND 180
     ),
-    CONSTRAINT chk_branches_phone_number_format CHECK (
-        phone_number IS NULL
-        OR phone_number ~ '^[0-9]{6,20}$'
-    ),
-    CONSTRAINT chk_branches_phone_e164_format CHECK (
-        phone_e164 IS NULL
-        OR phone_e164 ~ '^[+][0-9]{7,20}$'
-    ),
     CONSTRAINT chk_branches_color_format CHECK (
         color IS NULL
         OR color ~ '^#[0-9A-Fa-f]{6}$'
@@ -276,6 +292,43 @@ CREATE TABLE IF NOT EXISTS branches (
 CREATE UNIQUE INDEX IF NOT EXISTS branches_business_name_unique_idx ON branches (business_id, lower(name))
 WHERE
     deleted_at IS NULL;
+
+CREATE TABLE IF NOT EXISTS branch_opening_hours (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    business_id UUID NOT NULL,
+    branch_id UUID NOT NULL,
+    day_of_week SMALLINT NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    deleted_at TIMESTAMPTZ,
+    CONSTRAINT fk_branch_opening_hours_business FOREIGN KEY (business_id) REFERENCES businesses (id),
+    CONSTRAINT fk_branch_opening_hours_branch_business FOREIGN KEY (branch_id, business_id) REFERENCES branches (id, business_id),
+    CONSTRAINT chk_branch_opening_hours_day_of_week CHECK (day_of_week BETWEEN 1 AND 7),
+    CONSTRAINT chk_branch_opening_hours_time_range CHECK (start_time < end_time)
+);
+
+CREATE TABLE IF NOT EXISTS branch_availability_overrides (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    business_id UUID NOT NULL,
+    branch_id UUID NOT NULL,
+    override_type_id UUID NOT NULL,
+    start_at TIMESTAMPTZ NOT NULL,
+    end_at TIMESTAMPTZ NOT NULL,
+    reason TEXT,
+    source source_enum NOT NULL DEFAULT 'manual',
+    created_by_user_id UUID,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    deleted_at TIMESTAMPTZ,
+    CONSTRAINT fk_branch_availability_overrides_business FOREIGN KEY (business_id) REFERENCES businesses (id),
+    CONSTRAINT fk_branch_availability_overrides_branch_business FOREIGN KEY (branch_id, business_id) REFERENCES branches (id, business_id),
+    CONSTRAINT fk_branch_availability_overrides_type FOREIGN KEY (override_type_id) REFERENCES availability_override_types (id),
+    CONSTRAINT fk_branch_availability_overrides_created_by_user FOREIGN KEY (created_by_user_id) REFERENCES users (id),
+    CONSTRAINT chk_branch_availability_overrides_time_range CHECK (start_at < end_at)
+);
 
 CREATE TABLE IF NOT EXISTS roles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
@@ -363,7 +416,6 @@ CREATE TABLE IF NOT EXISTS workers (
     user_id UUID,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100),
-    public_name VARCHAR(150),
     email VARCHAR(255),
     phone_prefix_id UUID,
     phone_number VARCHAR(30),
@@ -795,13 +847,10 @@ CREATE TABLE IF NOT EXISTS business_ai_settings (
 CREATE TABLE IF NOT EXISTS business_whatsapp_accounts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
     business_id UUID NOT NULL,
-    branch_id UUID,
+    business_phone_number_id UUID NOT NULL,
     waba_id VARCHAR(255),
-    phone_number_id VARCHAR(255) NOT NULL UNIQUE,
+    meta_phone_number_id VARCHAR(255) NOT NULL UNIQUE,
     display_phone_number VARCHAR(40),
-    phone_prefix_id UUID,
-    phone_number VARCHAR(30),
-    phone_e164 VARCHAR(30),
     access_token_encrypted TEXT,
     status whatsapp_account_status_enum NOT NULL DEFAULT 'pending',
     connected_at TIMESTAMPTZ,
@@ -810,27 +859,20 @@ CREATE TABLE IF NOT EXISTS business_whatsapp_accounts (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     deleted_at TIMESTAMPTZ,
     CONSTRAINT fk_business_whatsapp_accounts_business FOREIGN KEY (business_id) REFERENCES businesses (id),
-    CONSTRAINT fk_business_whatsapp_accounts_branch_business FOREIGN KEY (branch_id, business_id) REFERENCES branches (id, business_id),
-    CONSTRAINT fk_business_whatsapp_accounts_phone_prefix FOREIGN KEY (phone_prefix_id) REFERENCES phone_prefixes (id),
-    CONSTRAINT chk_business_whatsapp_accounts_phone_number_format CHECK (
-        phone_number IS NULL
-        OR phone_number ~ '^[0-9]{6,20}$'
-    ),
-    CONSTRAINT chk_business_whatsapp_accounts_phone_e164_format CHECK (
-        phone_e164 IS NULL
-        OR phone_e164 ~ '^[+][0-9]{7,20}$'
+    CONSTRAINT fk_business_whatsapp_accounts_phone_number_business FOREIGN KEY (business_phone_number_id, business_id) REFERENCES business_phone_numbers (id, business_id),
+    CONSTRAINT chk_business_whatsapp_accounts_display_phone_number_length CHECK (
+        display_phone_number IS NULL
+        OR length(trim(display_phone_number)) >= 5
     )
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS business_whatsapp_accounts_global_per_business_idx ON business_whatsapp_accounts (business_id)
+CREATE UNIQUE INDEX IF NOT EXISTS business_whatsapp_accounts_business_phone_unique_idx ON business_whatsapp_accounts (business_id, business_phone_number_id)
 WHERE
-    branch_id IS NULL
-    AND deleted_at IS NULL;
+    deleted_at IS NULL;
 
-CREATE UNIQUE INDEX IF NOT EXISTS business_whatsapp_accounts_branch_unique_idx ON business_whatsapp_accounts (business_id, branch_id)
+CREATE INDEX IF NOT EXISTS business_whatsapp_accounts_business_idx ON business_whatsapp_accounts (business_id)
 WHERE
-    branch_id IS NOT NULL
-    AND deleted_at IS NULL;
+    deleted_at IS NULL;
 
 CREATE TABLE IF NOT EXISTS calendar_connections (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
@@ -1287,9 +1329,38 @@ CREATE INDEX IF NOT EXISTS businesses_country_idx ON businesses (country_id);
 
 CREATE INDEX IF NOT EXISTS branches_business_idx ON branches (business_id);
 
+CREATE INDEX IF NOT EXISTS branches_business_phone_number_idx ON branches (business_phone_number_id)
+WHERE
+    business_phone_number_id IS NOT NULL
+    AND deleted_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS branch_opening_hours_branch_day_idx ON branch_opening_hours (branch_id, day_of_week)
+WHERE
+    deleted_at IS NULL
+    AND is_active = true;
+
+CREATE INDEX IF NOT EXISTS branch_availability_overrides_branch_time_idx ON branch_availability_overrides (branch_id, start_at, end_at)
+WHERE
+    deleted_at IS NULL;
+
 CREATE INDEX IF NOT EXISTS workers_business_idx ON workers (business_id);
 
 CREATE INDEX IF NOT EXISTS services_business_idx ON services (business_id);
+
+CREATE INDEX IF NOT EXISTS worker_schedules_worker_day_idx ON worker_schedules (worker_id, day_of_week)
+WHERE
+    deleted_at IS NULL
+    AND is_active = true;
+
+CREATE INDEX IF NOT EXISTS worker_schedules_branch_day_idx ON worker_schedules (branch_id, day_of_week)
+WHERE
+    branch_id IS NOT NULL
+    AND deleted_at IS NULL
+    AND is_active = true;
+
+CREATE INDEX IF NOT EXISTS worker_availability_overrides_worker_time_idx ON worker_availability_overrides (worker_id, start_at, end_at)
+WHERE
+    deleted_at IS NULL;
 
 CREATE INDEX IF NOT EXISTS clients_business_idx ON clients (business_id);
 
@@ -1370,10 +1441,31 @@ BEFORE UPDATE ON businesses
 FOR EACH ROW
 EXECUTE FUNCTION set_updated_at();
 
+DROP TRIGGER IF EXISTS trg_business_phone_numbers_set_updated_at ON business_phone_numbers;
+
+CREATE TRIGGER trg_business_phone_numbers_set_updated_at
+BEFORE UPDATE ON business_phone_numbers
+FOR EACH ROW
+EXECUTE FUNCTION set_updated_at();
+
 DROP TRIGGER IF EXISTS trg_branches_set_updated_at ON branches;
 
 CREATE TRIGGER trg_branches_set_updated_at
 BEFORE UPDATE ON branches
+FOR EACH ROW
+EXECUTE FUNCTION set_updated_at();
+
+DROP TRIGGER IF EXISTS trg_branch_opening_hours_set_updated_at ON branch_opening_hours;
+
+CREATE TRIGGER trg_branch_opening_hours_set_updated_at
+BEFORE UPDATE ON branch_opening_hours
+FOR EACH ROW
+EXECUTE FUNCTION set_updated_at();
+
+DROP TRIGGER IF EXISTS trg_branch_availability_overrides_set_updated_at ON branch_availability_overrides;
+
+CREATE TRIGGER trg_branch_availability_overrides_set_updated_at
+BEFORE UPDATE ON branch_availability_overrides
 FOR EACH ROW
 EXECUTE FUNCTION set_updated_at();
 
