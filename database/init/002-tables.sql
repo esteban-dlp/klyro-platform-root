@@ -253,6 +253,10 @@ CREATE TABLE IF NOT EXISTS branches (
     business_id UUID NOT NULL,
     name VARCHAR(160) NOT NULL,
     address TEXT,
+    country_id UUID NOT NULL,
+    currency_code CHAR(3) NOT NULL,
+    default_language_code VARCHAR(10) NOT NULL,
+    timezone VARCHAR(80) NOT NULL,
     google_maps_url TEXT,
     waze_url TEXT,
     latitude NUMERIC(10, 7),
@@ -267,6 +271,10 @@ CREATE TABLE IF NOT EXISTS branches (
     CONSTRAINT fk_branches_business FOREIGN KEY (business_id) REFERENCES businesses (id),
     CONSTRAINT fk_branches_business_phone_number FOREIGN KEY (business_phone_number_id, business_id) REFERENCES business_phone_numbers (id, business_id),
     CONSTRAINT chk_branches_name_length CHECK (length(trim(name)) >= 2),
+    CONSTRAINT fk_branches_country FOREIGN KEY (country_id) REFERENCES countries (id),
+    CONSTRAINT fk_branches_currency FOREIGN KEY (currency_code) REFERENCES currencies (code),
+    CONSTRAINT fk_branches_language FOREIGN KEY (default_language_code) REFERENCES languages (code),
+    CONSTRAINT chk_branches_timezone_length CHECK (length(trim(timezone)) >= 3),
     CONSTRAINT chk_branches_google_maps_url_format CHECK (
         google_maps_url IS NULL
         OR google_maps_url ~* '^https?://'
