@@ -129,6 +129,27 @@ erDiagram
         timestamptz deleted_at
     }
 
+    branch_availability_overrides {
+        uuid id PK
+        uuid business_id FK
+        uuid override_type_id FK
+        timestamptz start_at
+        timestamptz end_at
+        text reason
+        source_enum source
+        uuid created_by_user_id FK
+        timestamptz created_at
+        timestamptz updated_at
+        timestamptz deleted_at
+    }
+
+    branch_availability_override_branches {
+        uuid override_id PK,FK
+        uuid branch_id PK,FK
+        uuid business_id FK
+        timestamptz created_at
+    }
+
     roles {
         uuid id PK
         uuid business_id FK
@@ -291,8 +312,6 @@ erDiagram
     worker_availability_overrides {
         uuid id PK
         uuid business_id FK
-        uuid worker_id FK
-        uuid branch_id FK
         uuid override_type_id FK
         timestamptz start_at
         timestamptz end_at
@@ -302,6 +321,13 @@ erDiagram
         timestamptz created_at
         timestamptz updated_at
         timestamptz deleted_at
+    }
+
+    worker_availability_override_workers {
+        uuid override_id PK,FK
+        uuid worker_id PK,FK
+        uuid business_id FK
+        timestamptz created_at
     }
 
     clients {
@@ -634,6 +660,11 @@ erDiagram
     %% =====================================================
 
     businesses ||--o{ branches : "has"
+    businesses ||--o{ branch_availability_overrides : "has branch overrides"
+    branch_availability_overrides ||--o{ branch_availability_override_branches : "targets"
+    branches ||--o{ branch_availability_override_branches : "receives overrides"
+    availability_override_types ||--o{ branch_availability_overrides : "type"
+    users ||--o{ branch_availability_overrides : "created by"
     businesses ||--o{ roles : "custom roles future"
     roles ||--o{ role_permissions : "has"
     permissions ||--o{ role_permissions : "granted through"
@@ -668,8 +699,9 @@ erDiagram
     services ||--o{ branch_services : "available at"
     workers ||--o{ worker_schedules : "has schedule blocks"
     branches ||--o{ worker_schedules : "schedule branch"
-    workers ||--o{ worker_availability_overrides : "has overrides"
-    branches ||--o{ worker_availability_overrides : "override branch"
+    businesses ||--o{ worker_availability_overrides : "has worker overrides"
+    worker_availability_overrides ||--o{ worker_availability_override_workers : "targets"
+    workers ||--o{ worker_availability_override_workers : "receives overrides"
     availability_override_types ||--o{ worker_availability_overrides : "type"
     users ||--o{ worker_availability_overrides : "created by"
 

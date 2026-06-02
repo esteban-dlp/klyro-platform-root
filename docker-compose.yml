@@ -11,6 +11,7 @@ services:
       - ./database/init/000-create-database.sql:/docker-entrypoint-initdb.d/000-create-database.sql:ro
       - ./database/init/001-enums.sql:/docker-entrypoint-initdb.d/001-enums.sql:ro
       - ./database/init/002-tables.sql:/docker-entrypoint-initdb.d/002-tables.sql:ro
+      - ./database/init/003-scheduling-functions.sql:/docker-entrypoint-initdb.d/003-scheduling-functions.sql:ro
       - ./database/seeds/001-seed-general-catalogs.sql:/docker-entrypoint-initdb.d/003-seed-general-catalogs.sql:ro
       - ./database/seeds/002-seed-security.sql:/docker-entrypoint-initdb.d/004-seed-security.sql:ro
       - ./database/seeds/003-seed-operational-types.sql:/docker-entrypoint-initdb.d/005-seed-operational-types.sql:ro

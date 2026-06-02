@@ -321,8 +321,8 @@ CREATE TABLE IF NOT EXISTS branch_opening_hours (
 CREATE TABLE IF NOT EXISTS branch_availability_overrides (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
     business_id UUID NOT NULL,
-    branch_id UUID NOT NULL,
     override_type_id UUID NOT NULL,
+    label VARCHAR(100),
     start_at TIMESTAMPTZ NOT NULL,
     end_at TIMESTAMPTZ NOT NULL,
     reason TEXT,
@@ -331,11 +331,21 @@ CREATE TABLE IF NOT EXISTS branch_availability_overrides (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     deleted_at TIMESTAMPTZ,
+    CONSTRAINT uq_branch_availability_overrides_id_business_id UNIQUE (id, business_id),
     CONSTRAINT fk_branch_availability_overrides_business FOREIGN KEY (business_id) REFERENCES businesses (id),
-    CONSTRAINT fk_branch_availability_overrides_branch_business FOREIGN KEY (branch_id, business_id) REFERENCES branches (id, business_id),
     CONSTRAINT fk_branch_availability_overrides_type FOREIGN KEY (override_type_id) REFERENCES availability_override_types (id),
     CONSTRAINT fk_branch_availability_overrides_created_by_user FOREIGN KEY (created_by_user_id) REFERENCES users (id),
     CONSTRAINT chk_branch_availability_overrides_time_range CHECK (start_at < end_at)
+);
+
+CREATE TABLE IF NOT EXISTS branch_availability_override_branches (
+    override_id UUID NOT NULL,
+    branch_id UUID NOT NULL,
+    business_id UUID NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (override_id, branch_id),
+    CONSTRAINT fk_branch_availability_override_branches_override_business FOREIGN KEY (override_id, business_id) REFERENCES branch_availability_overrides (id, business_id),
+    CONSTRAINT fk_branch_availability_override_branches_branch_business FOREIGN KEY (branch_id, business_id) REFERENCES branches (id, business_id)
 );
 
 CREATE TABLE IF NOT EXISTS roles (
@@ -551,9 +561,8 @@ CREATE TABLE IF NOT EXISTS worker_schedules (
 CREATE TABLE IF NOT EXISTS worker_availability_overrides (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
     business_id UUID NOT NULL,
-    worker_id UUID NOT NULL,
-    branch_id UUID,
     override_type_id UUID NOT NULL,
+    label VARCHAR(100),
     start_at TIMESTAMPTZ NOT NULL,
     end_at TIMESTAMPTZ NOT NULL,
     reason TEXT,
@@ -562,12 +571,21 @@ CREATE TABLE IF NOT EXISTS worker_availability_overrides (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     deleted_at TIMESTAMPTZ,
+    CONSTRAINT uq_worker_availability_overrides_id_business_id UNIQUE (id, business_id),
     CONSTRAINT fk_worker_availability_overrides_business FOREIGN KEY (business_id) REFERENCES businesses (id),
-    CONSTRAINT fk_worker_availability_overrides_worker_business FOREIGN KEY (worker_id, business_id) REFERENCES workers (id, business_id),
-    CONSTRAINT fk_worker_availability_overrides_branch_business FOREIGN KEY (branch_id, business_id) REFERENCES branches (id, business_id),
     CONSTRAINT fk_worker_availability_overrides_type FOREIGN KEY (override_type_id) REFERENCES availability_override_types (id),
     CONSTRAINT fk_worker_availability_overrides_created_by_user FOREIGN KEY (created_by_user_id) REFERENCES users (id),
     CONSTRAINT chk_worker_availability_overrides_time_range CHECK (start_at < end_at)
+);
+
+CREATE TABLE IF NOT EXISTS worker_availability_override_workers (
+    override_id UUID NOT NULL,
+    worker_id UUID NOT NULL,
+    business_id UUID NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (override_id, worker_id),
+    CONSTRAINT fk_worker_availability_override_workers_override_business FOREIGN KEY (override_id, business_id) REFERENCES worker_availability_overrides (id, business_id),
+    CONSTRAINT fk_worker_availability_override_workers_worker_business FOREIGN KEY (worker_id, business_id) REFERENCES workers (id, business_id)
 );
 
 CREATE TABLE IF NOT EXISTS clients (
@@ -765,6 +783,11 @@ WHERE
     idempotency_key IS NOT NULL;
 
 CREATE INDEX IF NOT EXISTS appointments_worker_time_idx ON appointments (worker_id, start_at, end_at)
+WHERE
+    deleted_at IS NULL
+    AND status IN ('pending', 'confirmed');
+
+CREATE INDEX IF NOT EXISTS appointments_business_worker_active_time_idx ON appointments (business_id, worker_id, start_at, end_at)
 WHERE
     deleted_at IS NULL
     AND status IN ('pending', 'confirmed');
@@ -1347,9 +1370,13 @@ WHERE
     deleted_at IS NULL
     AND is_active = true;
 
-CREATE INDEX IF NOT EXISTS branch_availability_overrides_branch_time_idx ON branch_availability_overrides (branch_id, start_at, end_at)
+CREATE INDEX IF NOT EXISTS branch_availability_overrides_business_time_idx ON branch_availability_overrides (business_id, start_at, end_at)
 WHERE
     deleted_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS branch_availability_override_branches_branch_idx ON branch_availability_override_branches (branch_id, override_id);
+
+CREATE INDEX IF NOT EXISTS branch_availability_override_branches_business_branch_idx ON branch_availability_override_branches (business_id, branch_id);
 
 CREATE INDEX IF NOT EXISTS workers_business_idx ON workers (business_id);
 
@@ -1366,9 +1393,13 @@ WHERE
     AND deleted_at IS NULL
     AND is_active = true;
 
-CREATE INDEX IF NOT EXISTS worker_availability_overrides_worker_time_idx ON worker_availability_overrides (worker_id, start_at, end_at)
+CREATE INDEX IF NOT EXISTS worker_availability_overrides_business_time_idx ON worker_availability_overrides (business_id, start_at, end_at)
 WHERE
     deleted_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS worker_availability_override_workers_worker_idx ON worker_availability_override_workers (worker_id, override_id);
+
+CREATE INDEX IF NOT EXISTS worker_availability_override_workers_business_worker_idx ON worker_availability_override_workers (business_id, worker_id);
 
 CREATE INDEX IF NOT EXISTS clients_business_idx ON clients (business_id);
 
