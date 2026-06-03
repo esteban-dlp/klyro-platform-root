@@ -894,6 +894,14 @@ CREATE TABLE IF NOT EXISTS business_whatsapp_accounts (
     CONSTRAINT chk_business_whatsapp_accounts_display_phone_number_length CHECK (
         display_phone_number IS NULL
         OR length(trim(display_phone_number)) >= 5
+    ),
+    CONSTRAINT chk_bwa_connected_requires_token CHECK (
+        status <> 'connected'
+        OR (access_token_encrypted IS NOT NULL AND connected_at IS NOT NULL)
+    ),
+    CONSTRAINT chk_bwa_disconnected_requires_ts CHECK (
+        status <> 'disconnected'
+        OR disconnected_at IS NOT NULL
     )
 );
 
@@ -1405,6 +1413,11 @@ CREATE INDEX IF NOT EXISTS clients_business_idx ON clients (business_id);
 
 CREATE INDEX IF NOT EXISTS conversations_business_client_idx ON conversations (business_id, client_id);
 
+-- At most one OPEN conversation per client + channel (race guard for concurrent inbound webhooks).
+CREATE UNIQUE INDEX IF NOT EXISTS conversations_open_channel_unique_idx
+ON conversations (business_id, client_id, channel)
+WHERE status = 'open' AND deleted_at IS NULL;
+
 CREATE INDEX IF NOT EXISTS messages_conversation_created_idx ON messages (conversation_id, created_at);
 
 CREATE INDEX IF NOT EXISTS appointments_business_start_idx ON appointments (business_id, start_at);
@@ -1668,3 +1681,38 @@ CREATE TRIGGER trg_outbox_events_set_updated_at
 BEFORE UPDATE ON outbox_events
 FOR EACH ROW
 EXECUTE FUNCTION set_updated_at();
+
+-- Enforce monotonic, lifecycle-correct message status transitions.
+CREATE OR REPLACE FUNCTION enforce_message_status_transition()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF NEW.status IS NOT DISTINCT FROM OLD.status THEN
+        RETURN NEW; -- idempotent no-op
+    END IF;
+
+    IF (OLD.status, NEW.status) IN (
+        -- inbound lifecycle
+        ('received','processing'), ('received','processed'), ('received','ignored'), ('received','failed'),
+        ('processing','processed'), ('processing','ignored'), ('processing','failed'),
+        -- outbound lifecycle
+        ('queued','sent'), ('queued','failed'),
+        ('sent','delivered'), ('sent','read'), ('sent','failed'),
+        ('delivered','read'),
+        -- explicit recovery
+        ('failed','queued'), ('failed','processing')
+    ) THEN
+        RETURN NEW;
+    END IF;
+
+    RAISE EXCEPTION 'Illegal message status transition % -> %', OLD.status, NEW.status
+        USING ERRCODE = 'check_violation';
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_messages_status_transition ON messages;
+CREATE TRIGGER trg_messages_status_transition
+BEFORE UPDATE OF status ON messages
+FOR EACH ROW
+EXECUTE FUNCTION enforce_message_status_transition();
