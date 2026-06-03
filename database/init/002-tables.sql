@@ -880,7 +880,7 @@ CREATE TABLE IF NOT EXISTS business_whatsapp_accounts (
     business_id UUID NOT NULL,
     business_phone_number_id UUID NOT NULL,
     waba_id VARCHAR(255),
-    meta_phone_number_id VARCHAR(255) NOT NULL UNIQUE,
+    meta_phone_number_id VARCHAR(255) NOT NULL,
     display_phone_number VARCHAR(40),
     access_token_encrypted TEXT,
     status whatsapp_account_status_enum NOT NULL DEFAULT 'pending',
@@ -910,6 +910,12 @@ WHERE
     deleted_at IS NULL;
 
 CREATE INDEX IF NOT EXISTS business_whatsapp_accounts_business_idx ON business_whatsapp_accounts (business_id)
+WHERE
+    deleted_at IS NULL;
+
+-- meta_phone_number_id is the webhook routing key; unique only among non-deleted
+-- rows so a disconnected (soft-deleted) account can be reconnected later.
+CREATE UNIQUE INDEX IF NOT EXISTS business_whatsapp_accounts_meta_phone_unique_idx ON business_whatsapp_accounts (meta_phone_number_id)
 WHERE
     deleted_at IS NULL;
 

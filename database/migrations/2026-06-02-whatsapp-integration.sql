@@ -46,3 +46,9 @@ CREATE TRIGGER trg_messages_status_transition
 BEFORE UPDATE OF status ON messages
 FOR EACH ROW
 EXECUTE FUNCTION enforce_message_status_transition();
+
+-- Reconnect-after-disconnect: meta_phone_number_id uniqueness must ignore soft-deleted rows
+ALTER TABLE business_whatsapp_accounts DROP CONSTRAINT IF EXISTS business_whatsapp_accounts_meta_phone_number_id_key;
+CREATE UNIQUE INDEX IF NOT EXISTS business_whatsapp_accounts_meta_phone_unique_idx
+ON business_whatsapp_accounts (meta_phone_number_id)
+WHERE deleted_at IS NULL;
