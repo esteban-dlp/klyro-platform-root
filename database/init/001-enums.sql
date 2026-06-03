@@ -231,6 +231,8 @@ CREATE TYPE message_status_enum AS ENUM(
     'processing',
     'processed',
     'sent',
+    'delivered',
+    'read',
     'failed',
     'ignored'
 );
