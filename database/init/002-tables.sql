@@ -856,6 +856,7 @@ CREATE TABLE IF NOT EXISTS business_ai_settings (
     ai_name VARCHAR(100) NOT NULL,
     default_language_code VARCHAR(10) NOT NULL,
     tone ai_tone_enum NOT NULL DEFAULT 'friendly',
+    emoji_usage ai_emoji_usage_enum NOT NULL DEFAULT 'normal',
     business_context TEXT,
     welcome_template_id UUID,
     handoff_template_id UUID,

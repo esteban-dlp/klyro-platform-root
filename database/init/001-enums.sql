@@ -322,6 +322,20 @@ IF NOT EXISTS (
     SELECT 1
     FROM pg_type
     WHERE
+        typname = 'ai_emoji_usage_enum'
+) THEN
+CREATE TYPE ai_emoji_usage_enum AS ENUM(
+    'never',
+    'few',
+    'normal'
+);
+
+END IF;
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM pg_type
+    WHERE
         typname = 'tool_overflow_behavior_enum'
 ) THEN
 CREATE TYPE tool_overflow_behavior_enum AS ENUM(
