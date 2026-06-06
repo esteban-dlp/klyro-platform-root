@@ -1,6 +1,8 @@
--- 013-seed-message-templates.sql
+-- 004-seed-message-templates.sql
 -- Klyro global message templates.
 -- These are internal defaults. Business-specific templates can override them later.
+-- English is the single source of truth; other languages are produced on demand
+-- by the AI and cached in message_template_translations.
 -- Safe to run multiple times.
 
 \connect klyro
@@ -8,88 +10,7 @@
 BEGIN;
 
 -- =========================================================
--- Spanish global templates
--- =========================================================
-
-INSERT INTO message_templates (
-    business_id,
-    provider,
-    type,
-    name,
-    external_template_name,
-    language_code,
-    subject,
-    body,
-    status,
-    variables_schema
-)
-SELECT
-    NULL,
-    'internal',
-    v.type::template_type_enum,
-    v.name,
-    NULL,
-    'es',
-    v.subject,
-    v.body,
-    'active',
-    v.variables_schema::jsonb
-FROM (
-    VALUES
-        (
-            'welcome',
-            'global_welcome_es',
-            NULL,
-            'Hola, soy {{ai_name}}, el asistente virtual de {{business_name}}. ¿En qué puedo ayudarte?',
-            '{"ai_name":"string","business_name":"string"}'
-        ),
-        (
-            'confirmation',
-            'global_appointment_confirmation_es',
-            NULL,
-            'Listo, tu cita quedó confirmada para {{appointment_date}} a las {{appointment_time}} con {{worker_name}} para {{service_name}}.',
-            '{"appointment_date":"string","appointment_time":"string","worker_name":"string","service_name":"string"}'
-        ),
-        (
-            'reminder',
-            'global_appointment_reminder_es',
-            NULL,
-            'Recordatorio: tienes una cita en {{business_name}} el {{appointment_date}} a las {{appointment_time}} con {{worker_name}}.',
-            '{"business_name":"string","appointment_date":"string","appointment_time":"string","worker_name":"string"}'
-        ),
-        (
-            'cancellation',
-            'global_appointment_cancellation_es',
-            NULL,
-            'Tu cita del {{appointment_date}} a las {{appointment_time}} fue cancelada. Si quieres, puedo ayudarte a buscar otro horario.',
-            '{"appointment_date":"string","appointment_time":"string"}'
-        ),
-        (
-            'reschedule',
-            'global_appointment_reschedule_es',
-            NULL,
-            'Tu cita fue reprogramada para {{appointment_date}} a las {{appointment_time}} con {{worker_name}}.',
-            '{"appointment_date":"string","appointment_time":"string","worker_name":"string"}'
-        ),
-        (
-            'handoff',
-            'global_handoff_es',
-            NULL,
-            'Voy a pasar tu conversación con una persona del equipo para que puedan ayudarte mejor.',
-            '{}'
-        )
-) AS v(type, name, subject, body, variables_schema)
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM message_templates mt
-    WHERE mt.business_id IS NULL
-      AND mt.provider = 'internal'
-      AND mt.language_code = 'es'
-      AND mt.name = v.name
-);
-
--- =========================================================
--- English global templates
+-- English global templates (source of truth)
 -- =========================================================
 
 INSERT INTO message_templates (
@@ -121,7 +42,7 @@ FROM (
             'welcome',
             'global_welcome_en',
             NULL,
-            'Hi, I am {{ai_name}}, the virtual assistant for {{business_name}}. How can I help you?',
+            'Hi, I’m {{ai_name}}, the virtual assistant for {{business_name}}. I’m here and ready to help.',
             '{"ai_name":"string","business_name":"string"}'
         ),
         (

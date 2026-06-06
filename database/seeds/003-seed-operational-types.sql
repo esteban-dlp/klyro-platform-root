@@ -270,6 +270,13 @@ VALUES (
         'Increments usage counters for billing and limits.',
         'normal',
         5
+    ),
+    (
+        'conversation.handoff',
+        'Conversation handoff',
+        'Triggered when the AI hands a conversation to a human.',
+        'high',
+        5
     )
 ON CONFLICT (code) DO NOTHING;
 

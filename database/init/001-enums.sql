@@ -13,6 +13,11 @@ BEGIN
 
 END IF;
 
+IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'ai_provider_enum') THEN
+    CREATE TYPE ai_provider_enum AS ENUM ('openai', 'google');
+
+END IF;
+
 IF NOT EXISTS (
     SELECT 1
     FROM pg_type
@@ -231,6 +236,8 @@ CREATE TYPE message_status_enum AS ENUM(
     'processing',
     'processed',
     'sent',
+    'delivered',
+    'read',
     'failed',
     'ignored'
 );
@@ -312,6 +319,20 @@ CREATE TYPE ai_tone_enum AS ENUM(
     'professional',
     'casual',
     'formal'
+);
+
+END IF;
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM pg_type
+    WHERE
+        typname = 'ai_emoji_usage_enum'
+) THEN
+CREATE TYPE ai_emoji_usage_enum AS ENUM(
+    'never',
+    'few',
+    'normal'
 );
 
 END IF;

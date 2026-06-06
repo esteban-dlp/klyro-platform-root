@@ -14,7 +14,15 @@ Los seeds no son datos demo de una barbería o negocio específico. Son datos de
 003-seed-operational-types.sql
 004-seed-message-templates.sql
 005-seed-plans.sql
+006-seed-ai-model-catalog.sql   (corre DESPUÉS de las migraciones)
 ```
+
+> **Excepción de orden:** `006-seed-ai-model-catalog.sql` depende de la tabla
+> `ai_model_catalog` y del enum `ai_provider_enum` que crea la migración
+> `2026-06-05-ai-provider-model-and-catalog.sql`. Por eso en `docker-compose.yml`
+> se monta con un número (`028-...`) **posterior** al de las migraciones, para que
+> en una base nueva se ejecute después de ellas. En una base existente, aplícalo
+> manualmente con `psql` (igual que una migración).
 
 ---
 
@@ -125,12 +133,8 @@ usage_limit_warning
 
 Inserta templates globales internos.
 
-Incluye templates en:
-
-```txt
-es
-en
-```
+Solo en **inglés** (fuente de verdad). Las traducciones a otros idiomas las
+genera la IA bajo demanda y se cachean en `message_template_translations`.
 
 Tipos de template:
 
@@ -144,6 +148,22 @@ handoff
 ```
 
 Estos templates son globales. Más adelante un negocio puede crear sus propios templates personalizados.
+
+---
+
+## 006-seed-ai-model-catalog.sql
+
+Inserta el catálogo de modelos de IA (precios informativos en USD por 1K tokens)
+usado por el selector de modelo y la estimación de costo:
+
+```txt
+openai · gpt-5
+openai · gpt-5-mini
+google · gemini-2.5-flash
+```
+
+Depende del schema creado por la migración de provider/model, por lo que se
+ejecuta después de las migraciones (ver "Excepción de orden" arriba).
 
 ---
 

@@ -742,6 +742,7 @@ CREATE TABLE IF NOT EXISTS appointments (
     cancel_reason TEXT,
     expires_at TIMESTAMPTZ,
     idempotency_key VARCHAR(255),
+    is_simulated BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     deleted_at TIMESTAMPTZ,
@@ -781,6 +782,11 @@ CREATE TABLE IF NOT EXISTS appointments (
 CREATE UNIQUE INDEX IF NOT EXISTS appointments_idempotency_unique_idx ON appointments (idempotency_key)
 WHERE
     idempotency_key IS NOT NULL;
+
+-- Real calendar/listing queries filter out simulator bookings; keep them fast.
+CREATE INDEX IF NOT EXISTS appointments_real_start_idx ON appointments (business_id, start_at)
+WHERE
+    is_simulated = false;
 
 CREATE INDEX IF NOT EXISTS appointments_worker_time_idx ON appointments (worker_id, start_at, end_at)
 WHERE
@@ -856,6 +862,9 @@ CREATE TABLE IF NOT EXISTS business_ai_settings (
     ai_name VARCHAR(100) NOT NULL,
     default_language_code VARCHAR(10) NOT NULL,
     tone ai_tone_enum NOT NULL DEFAULT 'friendly',
+    emoji_usage ai_emoji_usage_enum NOT NULL DEFAULT 'normal',
+    provider ai_provider_enum NOT NULL DEFAULT 'openai',
+    model VARCHAR(80) NOT NULL DEFAULT 'gpt-5-mini',
     business_context TEXT,
     welcome_template_id UUID,
     handoff_template_id UUID,
@@ -875,12 +884,38 @@ CREATE TABLE IF NOT EXISTS business_ai_settings (
     )
 );
 
+-- English-only templates: cached AI translations to other languages.
+CREATE TABLE IF NOT EXISTS message_template_translations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    template_id UUID NOT NULL,
+    language_code VARCHAR(10) NOT NULL,
+    content_hash VARCHAR(64) NOT NULL,
+    translated_body TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT fk_mtt_template FOREIGN KEY (template_id) REFERENCES message_templates (id) ON DELETE CASCADE,
+    CONSTRAINT uq_mtt_template_lang_hash UNIQUE (template_id, language_code, content_hash)
+);
+
+-- Informative AI model pricing (USD base) for the model selector + cost estimate.
+CREATE TABLE IF NOT EXISTS ai_model_catalog (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    provider ai_provider_enum NOT NULL,
+    model VARCHAR(80) NOT NULL,
+    display_name VARCHAR(120) NOT NULL,
+    input_cost_per_1k_usd NUMERIC(12, 6) NOT NULL DEFAULT 0,
+    output_cost_per_1k_usd NUMERIC(12, 6) NOT NULL DEFAULT 0,
+    is_enabled BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT uq_ai_model_catalog_provider_model UNIQUE (provider, model)
+);
+
 CREATE TABLE IF NOT EXISTS business_whatsapp_accounts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
     business_id UUID NOT NULL,
     business_phone_number_id UUID NOT NULL,
     waba_id VARCHAR(255),
-    meta_phone_number_id VARCHAR(255) NOT NULL UNIQUE,
+    meta_phone_number_id VARCHAR(255) NOT NULL,
     display_phone_number VARCHAR(40),
     access_token_encrypted TEXT,
     status whatsapp_account_status_enum NOT NULL DEFAULT 'pending',
@@ -894,6 +929,14 @@ CREATE TABLE IF NOT EXISTS business_whatsapp_accounts (
     CONSTRAINT chk_business_whatsapp_accounts_display_phone_number_length CHECK (
         display_phone_number IS NULL
         OR length(trim(display_phone_number)) >= 5
+    ),
+    CONSTRAINT chk_bwa_connected_requires_token CHECK (
+        status <> 'connected'
+        OR (access_token_encrypted IS NOT NULL AND connected_at IS NOT NULL)
+    ),
+    CONSTRAINT chk_bwa_disconnected_requires_ts CHECK (
+        status <> 'disconnected'
+        OR disconnected_at IS NOT NULL
     )
 );
 
@@ -902,6 +945,12 @@ WHERE
     deleted_at IS NULL;
 
 CREATE INDEX IF NOT EXISTS business_whatsapp_accounts_business_idx ON business_whatsapp_accounts (business_id)
+WHERE
+    deleted_at IS NULL;
+
+-- meta_phone_number_id is the webhook routing key; unique only among non-deleted
+-- rows so a disconnected (soft-deleted) account can be reconnected later.
+CREATE UNIQUE INDEX IF NOT EXISTS business_whatsapp_accounts_meta_phone_unique_idx ON business_whatsapp_accounts (meta_phone_number_id)
 WHERE
     deleted_at IS NULL;
 
@@ -1405,6 +1454,11 @@ CREATE INDEX IF NOT EXISTS clients_business_idx ON clients (business_id);
 
 CREATE INDEX IF NOT EXISTS conversations_business_client_idx ON conversations (business_id, client_id);
 
+-- At most one OPEN conversation per client + channel (race guard for concurrent inbound webhooks).
+CREATE UNIQUE INDEX IF NOT EXISTS conversations_open_channel_unique_idx
+ON conversations (business_id, client_id, channel)
+WHERE status = 'open' AND deleted_at IS NULL;
+
 CREATE INDEX IF NOT EXISTS messages_conversation_created_idx ON messages (conversation_id, created_at);
 
 CREATE INDEX IF NOT EXISTS appointments_business_start_idx ON appointments (business_id, start_at);
@@ -1422,10 +1476,20 @@ CREATE INDEX IF NOT EXISTS outbox_event_types_code_idx ON outbox_event_types (co
 WHERE
     deleted_at IS NULL;
 
+-- Idempotency uniqueness applies only to ACTIVE events. Terminal events
+-- (completed/cancelled/dead_letter) must not block re-scheduling a key that is
+-- deliberately reused per window (e.g. the conversation.process debounce key,
+-- `conversation.process:<conv>:<lastProcessedAt>`). Otherwise a completed turn
+-- would poison the key and the next inbound message would never be processed.
 CREATE UNIQUE INDEX IF NOT EXISTS outbox_events_idempotency_unique_idx ON outbox_events (idempotency_key)
 WHERE
     idempotency_key IS NOT NULL
-    AND deleted_at IS NULL;
+    AND deleted_at IS NULL
+    AND status NOT IN (
+        'completed'::outbox_event_status_enum,
+        'cancelled'::outbox_event_status_enum,
+        'dead_letter'::outbox_event_status_enum
+    );
 
 CREATE INDEX IF NOT EXISTS outbox_events_pending_idx ON outbox_events (
     status,
@@ -1668,3 +1732,38 @@ CREATE TRIGGER trg_outbox_events_set_updated_at
 BEFORE UPDATE ON outbox_events
 FOR EACH ROW
 EXECUTE FUNCTION set_updated_at();
+
+-- Enforce monotonic, lifecycle-correct message status transitions.
+CREATE OR REPLACE FUNCTION enforce_message_status_transition()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF NEW.status IS NOT DISTINCT FROM OLD.status THEN
+        RETURN NEW; -- idempotent no-op
+    END IF;
+
+    IF (OLD.status, NEW.status) IN (
+        -- inbound lifecycle
+        ('received','processing'), ('received','processed'), ('received','ignored'), ('received','failed'),
+        ('processing','processed'), ('processing','ignored'), ('processing','failed'),
+        -- outbound lifecycle
+        ('queued','sent'), ('queued','failed'),
+        ('sent','delivered'), ('sent','read'), ('sent','failed'),
+        ('delivered','read'),
+        -- explicit recovery
+        ('failed','queued'), ('failed','processing')
+    ) THEN
+        RETURN NEW;
+    END IF;
+
+    RAISE EXCEPTION 'Illegal message status transition % -> %', OLD.status, NEW.status
+        USING ERRCODE = 'check_violation';
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_messages_status_transition ON messages;
+CREATE TRIGGER trg_messages_status_transition
+BEFORE UPDATE OF status ON messages
+FOR EACH ROW
+EXECUTE FUNCTION enforce_message_status_transition();
