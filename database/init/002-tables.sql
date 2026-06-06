@@ -742,6 +742,7 @@ CREATE TABLE IF NOT EXISTS appointments (
     cancel_reason TEXT,
     expires_at TIMESTAMPTZ,
     idempotency_key VARCHAR(255),
+    is_simulated BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     deleted_at TIMESTAMPTZ,
@@ -781,6 +782,11 @@ CREATE TABLE IF NOT EXISTS appointments (
 CREATE UNIQUE INDEX IF NOT EXISTS appointments_idempotency_unique_idx ON appointments (idempotency_key)
 WHERE
     idempotency_key IS NOT NULL;
+
+-- Real calendar/listing queries filter out simulator bookings; keep them fast.
+CREATE INDEX IF NOT EXISTS appointments_real_start_idx ON appointments (business_id, start_at)
+WHERE
+    is_simulated = false;
 
 CREATE INDEX IF NOT EXISTS appointments_worker_time_idx ON appointments (worker_id, start_at, end_at)
 WHERE
@@ -857,6 +863,8 @@ CREATE TABLE IF NOT EXISTS business_ai_settings (
     default_language_code VARCHAR(10) NOT NULL,
     tone ai_tone_enum NOT NULL DEFAULT 'friendly',
     emoji_usage ai_emoji_usage_enum NOT NULL DEFAULT 'normal',
+    provider ai_provider_enum NOT NULL DEFAULT 'openai',
+    model VARCHAR(80) NOT NULL DEFAULT 'gpt-5-mini',
     business_context TEXT,
     welcome_template_id UUID,
     handoff_template_id UUID,
@@ -874,6 +882,32 @@ CREATE TABLE IF NOT EXISTS business_ai_settings (
     CONSTRAINT chk_business_ai_settings_max_tool_calls CHECK (
         max_tool_calls BETWEEN 1 AND 10
     )
+);
+
+-- English-only templates: cached AI translations to other languages.
+CREATE TABLE IF NOT EXISTS message_template_translations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    template_id UUID NOT NULL,
+    language_code VARCHAR(10) NOT NULL,
+    content_hash VARCHAR(64) NOT NULL,
+    translated_body TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT fk_mtt_template FOREIGN KEY (template_id) REFERENCES message_templates (id) ON DELETE CASCADE,
+    CONSTRAINT uq_mtt_template_lang_hash UNIQUE (template_id, language_code, content_hash)
+);
+
+-- Informative AI model pricing (USD base) for the model selector + cost estimate.
+CREATE TABLE IF NOT EXISTS ai_model_catalog (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    provider ai_provider_enum NOT NULL,
+    model VARCHAR(80) NOT NULL,
+    display_name VARCHAR(120) NOT NULL,
+    input_cost_per_1k_usd NUMERIC(12, 6) NOT NULL DEFAULT 0,
+    output_cost_per_1k_usd NUMERIC(12, 6) NOT NULL DEFAULT 0,
+    is_enabled BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT uq_ai_model_catalog_provider_model UNIQUE (provider, model)
 );
 
 CREATE TABLE IF NOT EXISTS business_whatsapp_accounts (
@@ -1442,10 +1476,20 @@ CREATE INDEX IF NOT EXISTS outbox_event_types_code_idx ON outbox_event_types (co
 WHERE
     deleted_at IS NULL;
 
+-- Idempotency uniqueness applies only to ACTIVE events. Terminal events
+-- (completed/cancelled/dead_letter) must not block re-scheduling a key that is
+-- deliberately reused per window (e.g. the conversation.process debounce key,
+-- `conversation.process:<conv>:<lastProcessedAt>`). Otherwise a completed turn
+-- would poison the key and the next inbound message would never be processed.
 CREATE UNIQUE INDEX IF NOT EXISTS outbox_events_idempotency_unique_idx ON outbox_events (idempotency_key)
 WHERE
     idempotency_key IS NOT NULL
-    AND deleted_at IS NULL;
+    AND deleted_at IS NULL
+    AND status NOT IN (
+        'completed'::outbox_event_status_enum,
+        'cancelled'::outbox_event_status_enum,
+        'dead_letter'::outbox_event_status_enum
+    );
 
 CREATE INDEX IF NOT EXISTS outbox_events_pending_idx ON outbox_events (
     status,

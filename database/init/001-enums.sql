@@ -13,6 +13,11 @@ BEGIN
 
 END IF;
 
+IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'ai_provider_enum') THEN
+    CREATE TYPE ai_provider_enum AS ENUM ('openai', 'google');
+
+END IF;
+
 IF NOT EXISTS (
     SELECT 1
     FROM pg_type

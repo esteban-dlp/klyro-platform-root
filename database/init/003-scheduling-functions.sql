@@ -177,6 +177,7 @@ AS $$
         WHERE appointment.business_id = p_business_id
           AND appointment.worker_id = p_worker_id
           AND appointment.deleted_at IS NULL
+          AND appointment.is_simulated = false
           AND appointment.status IN (
               'pending'::public.appointment_status_enum,
               'confirmed'::public.appointment_status_enum
