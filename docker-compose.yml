@@ -24,6 +24,7 @@ services:
       - ./database/migrations/2026-06-05-appointments-is-simulated.sql:/docker-entrypoint-initdb.d/023-appointments-is-simulated.sql:ro
       - ./database/migrations/2026-06-05-ai-provider-model-and-catalog.sql:/docker-entrypoint-initdb.d/024-ai-provider-model-and-catalog.sql:ro
       - ./database/migrations/2026-06-05-message-template-translations.sql:/docker-entrypoint-initdb.d/025-message-template-translations.sql:ro
+      - ./database/migrations/2026-06-06-media-assets.sql:/docker-entrypoint-initdb.d/026-media-assets.sql:ro
 
       - ./database/migrations/2026-06-06-outbox-idempotency-active-only.sql:/docker-entrypoint-initdb.d/027-outbox-idempotency-active-only.sql:ro
 

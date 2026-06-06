@@ -97,6 +97,8 @@ erDiagram
         varchar default_language_code FK
         varchar timezone
         text logo_url
+        uuid logo_asset_id FK
+        uuid catalog_asset_id FK
         text address
         text google_maps_url
         text waze_url
@@ -108,6 +110,21 @@ erDiagram
         business_status_enum status
         timestamptz created_at
         timestamptz updated_at
+        timestamptz deleted_at
+    }
+
+    media_assets {
+        uuid id PK
+        uuid business_id FK
+        media_asset_kind_enum kind
+        text r2_key UK
+        text public_url
+        varchar mime_type
+        integer size_bytes
+        integer width
+        integer height
+        uuid created_by_user_id FK
+        timestamptz created_at
         timestamptz deleted_at
     }
 
@@ -123,6 +140,7 @@ erDiagram
         uuid phone_prefix_id FK
         varchar phone_number
         varchar phone_e164
+        uuid catalog_asset_id FK
         branch_status_enum status
         timestamptz created_at
         timestamptz updated_at
@@ -258,6 +276,7 @@ erDiagram
         uuid business_id FK
         varchar name
         text description
+        uuid image_asset_id FK
         numeric base_price
         integer duration_minutes
         integer buffer_before_minutes
@@ -777,3 +796,8 @@ erDiagram
     users ||--o{ audit_logs : "audit user"
     clients ||--o{ audit_logs : "audit client"
     conversations ||--o{ audit_logs : "audit conversation"
+    businesses ||--o{ media_assets : "owns assets"
+    users ||--o{ media_assets : "uploaded"
+    media_assets ||--o| businesses : "logo/catalog"
+    media_assets ||--o| services : "service image"
+    media_assets ||--o| branches : "branch catalog"

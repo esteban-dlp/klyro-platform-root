@@ -569,4 +569,19 @@ CREATE TYPE outbox_event_priority_enum AS ENUM(
 
 END IF;
 
+IF NOT EXISTS (
+    SELECT 1
+    FROM pg_type
+    WHERE
+        typname = 'media_asset_kind_enum'
+) THEN
+CREATE TYPE media_asset_kind_enum AS ENUM(
+    'business_logo',
+    'service_image',
+    'business_catalog',
+    'branch_catalog'
+);
+
+END IF;
+
 END $$;

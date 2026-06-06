@@ -166,6 +166,8 @@ CREATE TABLE IF NOT EXISTS businesses (
     default_language_code VARCHAR(10) NOT NULL,
     timezone VARCHAR(80) NOT NULL,
     logo_url TEXT,
+    logo_asset_id UUID,
+    catalog_asset_id UUID,
     default_phone_number_id UUID,
     status business_status_enum NOT NULL DEFAULT 'active',
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -263,6 +265,7 @@ CREATE TABLE IF NOT EXISTS branches (
     longitude NUMERIC(10, 7),
     business_phone_number_id UUID,
     color VARCHAR(20),
+    catalog_asset_id UUID,
     status branch_status_enum NOT NULL DEFAULT 'active',
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -493,6 +496,7 @@ CREATE TABLE IF NOT EXISTS services (
     description TEXT,
     icon_key VARCHAR(50),
     color VARCHAR(20),
+    image_asset_id UUID,
     base_price NUMERIC(10, 2),
     duration_minutes INTEGER NOT NULL,
     buffer_before_minutes INTEGER NOT NULL DEFAULT 0,
@@ -1767,3 +1771,43 @@ CREATE TRIGGER trg_messages_status_transition
 BEFORE UPDATE OF status ON messages
 FOR EACH ROW
 EXECUTE FUNCTION enforce_message_status_transition();
+
+-- ---------------------------------------------------------------------------
+-- media_assets: optional images (optimized webp) stored in Cloudflare R2.
+-- Owning entities reference an asset via the nullable *_asset_id columns above
+-- (businesses.logo_asset_id / businesses.catalog_asset_id / services.image_asset_id /
+-- branches.catalog_asset_id). Created after the owning tables so the FKs resolve.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS media_assets (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    business_id UUID NOT NULL,
+    kind media_asset_kind_enum NOT NULL,
+    r2_key TEXT NOT NULL,
+    public_url TEXT NOT NULL,
+    mime_type VARCHAR(120) NOT NULL DEFAULT 'image/webp',
+    size_bytes INTEGER,
+    width INTEGER,
+    height INTEGER,
+    created_by_user_id UUID,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    deleted_at TIMESTAMPTZ,
+    CONSTRAINT fk_media_assets_business FOREIGN KEY (business_id) REFERENCES businesses (id),
+    CONSTRAINT fk_media_assets_created_by FOREIGN KEY (created_by_user_id) REFERENCES users (id),
+    CONSTRAINT chk_media_assets_public_url_format CHECK (public_url ~* '^https?://')
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS media_assets_r2_key_unique_idx ON media_assets (r2_key);
+CREATE INDEX IF NOT EXISTS media_assets_business_idx ON media_assets (business_id);
+
+ALTER TABLE businesses
+    ADD CONSTRAINT fk_businesses_logo_asset
+    FOREIGN KEY (logo_asset_id) REFERENCES media_assets (id) ON DELETE SET NULL;
+ALTER TABLE businesses
+    ADD CONSTRAINT fk_businesses_catalog_asset
+    FOREIGN KEY (catalog_asset_id) REFERENCES media_assets (id) ON DELETE SET NULL;
+ALTER TABLE services
+    ADD CONSTRAINT fk_services_image_asset
+    FOREIGN KEY (image_asset_id) REFERENCES media_assets (id) ON DELETE SET NULL;
+ALTER TABLE branches
+    ADD CONSTRAINT fk_branches_catalog_asset
+    FOREIGN KEY (catalog_asset_id) REFERENCES media_assets (id) ON DELETE SET NULL;
