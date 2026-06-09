@@ -7,37 +7,37 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./database/init/000-create-database.sql:/docker-entrypoint-initdb.d/000-create-database.sql:ro
-      - ./database/init/001-enums.sql:/docker-entrypoint-initdb.d/001-enums.sql:ro
-      - ./database/init/002-tables.sql:/docker-entrypoint-initdb.d/002-tables.sql:ro
-      - ./database/init/003-scheduling-functions.sql:/docker-entrypoint-initdb.d/003-scheduling-functions.sql:ro
+      - ../backend/database/init/000-create-database.sql:/docker-entrypoint-initdb.d/000-create-database.sql:ro
+      - ../backend/database/init/001-enums.sql:/docker-entrypoint-initdb.d/001-enums.sql:ro
+      - ../backend/database/init/002-tables.sql:/docker-entrypoint-initdb.d/002-tables.sql:ro
+      - ../backend/database/init/003-scheduling-functions.sql:/docker-entrypoint-initdb.d/003-scheduling-functions.sql:ro
 
-      - ./database/seeds/001-seed-general-catalogs.sql:/docker-entrypoint-initdb.d/004-seed-general-catalogs.sql:ro
-      - ./database/seeds/002-seed-security.sql:/docker-entrypoint-initdb.d/005-seed-security.sql:ro
-      - ./database/seeds/003-seed-operational-types.sql:/docker-entrypoint-initdb.d/006-seed-operational-types.sql:ro
-      - ./database/seeds/004-seed-message-templates.sql:/docker-entrypoint-initdb.d/007-seed-message-templates.sql:ro
-      - ./database/seeds/005-seed-plans.sql:/docker-entrypoint-initdb.d/008-seed-plans.sql:ro
+      - ../backend/database/seeds/001-seed-general-catalogs.sql:/docker-entrypoint-initdb.d/004-seed-general-catalogs.sql:ro
+      - ../backend/database/seeds/002-seed-security.sql:/docker-entrypoint-initdb.d/005-seed-security.sql:ro
+      - ../backend/database/seeds/003-seed-operational-types.sql:/docker-entrypoint-initdb.d/006-seed-operational-types.sql:ro
+      - ../backend/database/seeds/004-seed-message-templates.sql:/docker-entrypoint-initdb.d/007-seed-message-templates.sql:ro
+      - ../backend/database/seeds/005-seed-plans.sql:/docker-entrypoint-initdb.d/008-seed-plans.sql:ro
 
-      - ./database/migrations/2026-06-02-whatsapp-integration.sql:/docker-entrypoint-initdb.d/020-whatsapp-integration.sql:ro
-      - ./database/migrations/2026-06-03-ai-runtime.sql:/docker-entrypoint-initdb.d/021-ai-runtime.sql:ro
-      - ./database/migrations/2026-06-05-ai-emoji-usage.sql:/docker-entrypoint-initdb.d/022-ai-emoji-usage.sql:ro
-      - ./database/migrations/2026-06-05-appointments-is-simulated.sql:/docker-entrypoint-initdb.d/023-appointments-is-simulated.sql:ro
-      - ./database/migrations/2026-06-05-ai-provider-model-and-catalog.sql:/docker-entrypoint-initdb.d/024-ai-provider-model-and-catalog.sql:ro
-      - ./database/migrations/2026-06-05-message-template-translations.sql:/docker-entrypoint-initdb.d/025-message-template-translations.sql:ro
-      - ./database/migrations/2026-06-06-media-assets.sql:/docker-entrypoint-initdb.d/026-media-assets.sql:ro
+      - ../backend/database/migrations/2026-06-02-whatsapp-integration.sql:/docker-entrypoint-initdb.d/020-whatsapp-integration.sql:ro
+      - ../backend/database/migrations/2026-06-03-ai-runtime.sql:/docker-entrypoint-initdb.d/021-ai-runtime.sql:ro
+      - ../backend/database/migrations/2026-06-05-ai-emoji-usage.sql:/docker-entrypoint-initdb.d/022-ai-emoji-usage.sql:ro
+      - ../backend/database/migrations/2026-06-05-appointments-is-simulated.sql:/docker-entrypoint-initdb.d/023-appointments-is-simulated.sql:ro
+      - ../backend/database/migrations/2026-06-05-ai-provider-model-and-catalog.sql:/docker-entrypoint-initdb.d/024-ai-provider-model-and-catalog.sql:ro
+      - ../backend/database/migrations/2026-06-05-message-template-translations.sql:/docker-entrypoint-initdb.d/025-message-template-translations.sql:ro
+      - ../backend/database/migrations/2026-06-06-media-assets.sql:/docker-entrypoint-initdb.d/026-media-assets.sql:ro
 
-      - ./database/migrations/2026-06-06-outbox-idempotency-active-only.sql:/docker-entrypoint-initdb.d/027-outbox-idempotency-active-only.sql:ro
+      - ../backend/database/migrations/2026-06-06-outbox-idempotency-active-only.sql:/docker-entrypoint-initdb.d/027-outbox-idempotency-active-only.sql:ro
 
       # Seeds that depend on migration-created schema run AFTER the migrations.
-      - ./database/seeds/006-seed-ai-model-catalog.sql:/docker-entrypoint-initdb.d/028-seed-ai-model-catalog.sql:ro
-      - ./database/migrations/2026-06-08-scheduling-enums.sql:/docker-entrypoint-initdb.d/029-scheduling-enums.sql:ro
-      - ./database/migrations/2026-06-08-services-duration-options-extras.sql:/docker-entrypoint-initdb.d/030-services-duration-options-extras.sql:ro
-      - ./database/migrations/2026-06-08-appointment-options-extras.sql:/docker-entrypoint-initdb.d/031-appointment-options-extras.sql:ro
-      - ./database/migrations/2026-06-08-holiday-templates.sql:/docker-entrypoint-initdb.d/032-holiday-templates.sql:ro
-      - ./database/migrations/2026-06-08-branch-holidays-overrides.sql:/docker-entrypoint-initdb.d/033-branch-holidays-overrides.sql:ro
-      - ./database/migrations/2026-06-08-worker-breaks-overrides.sql:/docker-entrypoint-initdb.d/034-worker-breaks-overrides.sql:ro
-      - ./database/migrations/2026-06-08-scheduling-functions-open-period.sql:/docker-entrypoint-initdb.d/035-scheduling-functions-open-period.sql:ro
-      - ./database/migrations/2026-06-08-offers.sql:/docker-entrypoint-initdb.d/036-offers.sql:ro
+      - ../backend/database/seeds/006-seed-ai-model-catalog.sql:/docker-entrypoint-initdb.d/028-seed-ai-model-catalog.sql:ro
+      - ../backend/database/migrations/2026-06-08-scheduling-enums.sql:/docker-entrypoint-initdb.d/029-scheduling-enums.sql:ro
+      - ../backend/database/migrations/2026-06-08-services-duration-options-extras.sql:/docker-entrypoint-initdb.d/030-services-duration-options-extras.sql:ro
+      - ../backend/database/migrations/2026-06-08-appointment-options-extras.sql:/docker-entrypoint-initdb.d/031-appointment-options-extras.sql:ro
+      - ../backend/database/migrations/2026-06-08-holiday-templates.sql:/docker-entrypoint-initdb.d/032-holiday-templates.sql:ro
+      - ../backend/database/migrations/2026-06-08-branch-holidays-overrides.sql:/docker-entrypoint-initdb.d/033-branch-holidays-overrides.sql:ro
+      - ../backend/database/migrations/2026-06-08-worker-breaks-overrides.sql:/docker-entrypoint-initdb.d/034-worker-breaks-overrides.sql:ro
+      - ../backend/database/migrations/2026-06-08-scheduling-functions-open-period.sql:/docker-entrypoint-initdb.d/035-scheduling-functions-open-period.sql:ro
+      - ../backend/database/migrations/2026-06-08-offers.sql:/docker-entrypoint-initdb.d/036-offers.sql:ro
     networks:
       - klyro-network
     healthcheck:
