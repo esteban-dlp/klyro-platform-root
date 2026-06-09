@@ -38,6 +38,9 @@ services:
       - ../backend/database/migrations/2026-06-08-worker-breaks-overrides.sql:/docker-entrypoint-initdb.d/034-worker-breaks-overrides.sql:ro
       - ../backend/database/migrations/2026-06-08-scheduling-functions-open-period.sql:/docker-entrypoint-initdb.d/035-scheduling-functions-open-period.sql:ro
       - ../backend/database/migrations/2026-06-08-offers.sql:/docker-entrypoint-initdb.d/036-offers.sql:ro
+      - ../backend/database/migrations/2026-06-09-service-extra-quantity.sql:/docker-entrypoint-initdb.d/037-service-extra-quantity.sql:ro
+      - ../backend/database/migrations/2026-06-09-offer-branches-visuals.sql:/docker-entrypoint-initdb.d/038-offer-branches-visuals.sql:ro
+      - ../backend/database/migrations/2026-06-09-holiday-rules-applicability-visuals.sql:/docker-entrypoint-initdb.d/039-holiday-rules-applicability-visuals.sql:ro
     networks:
       - klyro-network
     healthcheck:
