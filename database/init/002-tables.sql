@@ -87,14 +87,81 @@ CREATE TABLE IF NOT EXISTS payment_providers (
     CONSTRAINT chk_payment_providers_name_length CHECK (length(trim(name)) >= 2)
 );
 
-CREATE TABLE IF NOT EXISTS availability_override_types (
+CREATE TABLE IF NOT EXISTS branch_override_types (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
     code VARCHAR(80) NOT NULL UNIQUE,
     name VARCHAR(120) NOT NULL,
-    blocks_availability BOOLEAN NOT NULL DEFAULT true,
     is_active BOOLEAN NOT NULL DEFAULT true,
-    CONSTRAINT chk_availability_override_types_code_format CHECK (code ~ '^[a-z0-9_]+$'),
-    CONSTRAINT chk_availability_override_types_name_length CHECK (length(trim(name)) >= 2)
+    CONSTRAINT chk_branch_override_types_code_format CHECK (code ~ '^[a-z0-9_]+$'),
+    CONSTRAINT chk_branch_override_types_name_length CHECK (length(trim(name)) >= 2)
+);
+
+CREATE TABLE IF NOT EXISTS worker_override_types (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    code VARCHAR(80) NOT NULL UNIQUE,
+    name VARCHAR(120) NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    CONSTRAINT chk_worker_override_types_code_format CHECK (code ~ '^[a-z0-9_]+$'),
+    CONSTRAINT chk_worker_override_types_name_length CHECK (length(trim(name)) >= 2)
+);
+
+CREATE TABLE IF NOT EXISTS break_types (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    code VARCHAR(80) NOT NULL UNIQUE,
+    name VARCHAR(120) NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    CONSTRAINT chk_break_types_code_format CHECK (code ~ '^[a-z0-9_]+$'),
+    CONSTRAINT chk_break_types_name_length CHECK (length(trim(name)) >= 2)
+);
+
+CREATE TABLE IF NOT EXISTS holiday_templates (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    code VARCHAR(80) NOT NULL UNIQUE,
+    name VARCHAR(120) NOT NULL,
+    description TEXT,
+    recurrence_type VARCHAR(20) NOT NULL DEFAULT 'fixed_date',
+    start_month SMALLINT,
+    start_day SMALLINT,
+    end_month SMALLINT,
+    end_day SMALLINT,
+    weekday SMALLINT,
+    week_of_month SMALLINT,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT chk_holiday_templates_code_format CHECK (code ~ '^[a-z0-9_]+$'),
+    CONSTRAINT chk_holiday_templates_recurrence CHECK (
+        recurrence_type IN ('fixed_date', 'nth_weekday')
+    ),
+    CONSTRAINT chk_holiday_templates_month CHECK (
+        start_month IS NULL
+        OR start_month BETWEEN 1 AND 12
+    ),
+    CONSTRAINT chk_holiday_templates_day CHECK (
+        start_day IS NULL
+        OR start_day BETWEEN 1 AND 31
+    ),
+    CONSTRAINT chk_holiday_templates_end_month CHECK (
+        end_month IS NULL
+        OR end_month BETWEEN 1 AND 12
+    ),
+    CONSTRAINT chk_holiday_templates_end_day CHECK (
+        end_day IS NULL
+        OR end_day BETWEEN 1 AND 31
+    ),
+    CONSTRAINT chk_holiday_templates_weekday CHECK (
+        weekday IS NULL
+        OR weekday BETWEEN 1 AND 7
+    )
+);
+
+CREATE TABLE IF NOT EXISTS holiday_template_countries (
+    template_id UUID NOT NULL,
+    country_id UUID NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (template_id, country_id),
+    CONSTRAINT fk_holiday_template_countries_template FOREIGN KEY (template_id) REFERENCES holiday_templates (id),
+    CONSTRAINT fk_holiday_template_countries_country FOREIGN KEY (country_id) REFERENCES countries (id)
 );
 
 CREATE TABLE IF NOT EXISTS notification_types (
@@ -321,13 +388,60 @@ CREATE TABLE IF NOT EXISTS branch_opening_hours (
     CONSTRAINT chk_branch_opening_hours_time_range CHECK (start_time < end_time)
 );
 
+CREATE TABLE IF NOT EXISTS branch_holidays (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    business_id UUID NOT NULL,
+    branch_id UUID NOT NULL,
+    source_template_id UUID,
+    name VARCHAR(120) NOT NULL,
+    description TEXT,
+    start_month SMALLINT NOT NULL,
+    start_day SMALLINT NOT NULL,
+    end_month SMALLINT NOT NULL,
+    end_day SMALLINT NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    deleted_at TIMESTAMPTZ,
+    CONSTRAINT uq_branch_holidays_id_business UNIQUE (id, business_id),
+    CONSTRAINT fk_branch_holidays_business FOREIGN KEY (business_id) REFERENCES businesses (id),
+    CONSTRAINT fk_branch_holidays_branch_business FOREIGN KEY (branch_id, business_id) REFERENCES branches (id, business_id),
+    CONSTRAINT fk_branch_holidays_template FOREIGN KEY (source_template_id) REFERENCES holiday_templates (id),
+    CONSTRAINT chk_branch_holidays_start_month CHECK (start_month BETWEEN 1 AND 12),
+    CONSTRAINT chk_branch_holidays_end_month CHECK (end_month BETWEEN 1 AND 12),
+    CONSTRAINT chk_branch_holidays_start_day CHECK (start_day BETWEEN 1 AND 31),
+    CONSTRAINT chk_branch_holidays_end_day CHECK (end_day BETWEEN 1 AND 31),
+    CONSTRAINT chk_branch_holidays_name_length CHECK (length(trim(name)) >= 2)
+);
+
+CREATE INDEX IF NOT EXISTS branch_holidays_branch_idx ON branch_holidays (branch_id)
+WHERE
+    deleted_at IS NULL;
+
+CREATE TABLE IF NOT EXISTS branch_holiday_open_periods (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    holiday_id UUID NOT NULL,
+    business_id UUID NOT NULL,
+    month SMALLINT NOT NULL,
+    day SMALLINT NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT fk_branch_holiday_open_periods_holiday_business FOREIGN KEY (holiday_id, business_id) REFERENCES branch_holidays (id, business_id) ON DELETE CASCADE,
+    CONSTRAINT chk_branch_holiday_open_periods_month CHECK (month BETWEEN 1 AND 12),
+    CONSTRAINT chk_branch_holiday_open_periods_day CHECK (day BETWEEN 1 AND 31),
+    CONSTRAINT chk_branch_holiday_open_periods_time CHECK (start_time < end_time)
+);
+
+CREATE INDEX IF NOT EXISTS branch_holiday_open_periods_holiday_idx ON branch_holiday_open_periods (holiday_id);
+
 CREATE TABLE IF NOT EXISTS branch_availability_overrides (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
     business_id UUID NOT NULL,
-    override_type_id UUID NOT NULL,
+    branch_override_type_id UUID NOT NULL,
     label VARCHAR(100),
-    start_at TIMESTAMPTZ NOT NULL,
-    end_at TIMESTAMPTZ NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
     reason TEXT,
     source source_enum NOT NULL DEFAULT 'manual',
     created_by_user_id UUID,
@@ -336,10 +450,24 @@ CREATE TABLE IF NOT EXISTS branch_availability_overrides (
     deleted_at TIMESTAMPTZ,
     CONSTRAINT uq_branch_availability_overrides_id_business_id UNIQUE (id, business_id),
     CONSTRAINT fk_branch_availability_overrides_business FOREIGN KEY (business_id) REFERENCES businesses (id),
-    CONSTRAINT fk_branch_availability_overrides_type FOREIGN KEY (override_type_id) REFERENCES availability_override_types (id),
+    CONSTRAINT fk_branch_availability_overrides_branch_type FOREIGN KEY (branch_override_type_id) REFERENCES branch_override_types (id),
     CONSTRAINT fk_branch_availability_overrides_created_by_user FOREIGN KEY (created_by_user_id) REFERENCES users (id),
-    CONSTRAINT chk_branch_availability_overrides_time_range CHECK (start_at < end_at)
+    CONSTRAINT chk_branch_availability_overrides_date_range CHECK (start_date <= end_date)
 );
+
+CREATE TABLE IF NOT EXISTS branch_availability_override_periods (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    override_id UUID NOT NULL,
+    business_id UUID NOT NULL,
+    on_date DATE NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT fk_branch_override_periods_override_business FOREIGN KEY (override_id, business_id) REFERENCES branch_availability_overrides (id, business_id) ON DELETE CASCADE,
+    CONSTRAINT chk_branch_override_periods_time CHECK (start_time < end_time)
+);
+
+CREATE INDEX IF NOT EXISTS branch_override_periods_override_idx ON branch_availability_override_periods (override_id);
 
 CREATE TABLE IF NOT EXISTS branch_availability_override_branches (
     override_id UUID NOT NULL,
@@ -498,7 +626,9 @@ CREATE TABLE IF NOT EXISTS services (
     color VARCHAR(20),
     image_asset_id UUID,
     base_price NUMERIC(10, 2),
-    duration_minutes INTEGER NOT NULL,
+    duration_type service_duration_type_enum NOT NULL DEFAULT 'fixed',
+    duration_min INTEGER NOT NULL,
+    duration_max INTEGER NOT NULL,
     buffer_before_minutes INTEGER NOT NULL DEFAULT 0,
     buffer_after_minutes INTEGER NOT NULL DEFAULT 0,
     status service_status_enum NOT NULL DEFAULT 'active',
@@ -512,9 +642,18 @@ CREATE TABLE IF NOT EXISTS services (
         base_price IS NULL
         OR base_price >= 0
     ),
-    CONSTRAINT chk_services_duration_minutes CHECK (
-        duration_minutes > 0
-        AND duration_minutes <= 1440
+    CONSTRAINT chk_services_duration_min CHECK (
+        duration_min >= 0
+        AND duration_min <= 1440
+    ),
+    CONSTRAINT chk_services_duration_max CHECK (
+        duration_max >= 1
+        AND duration_max <= 1440
+    ),
+    CONSTRAINT chk_services_duration_order CHECK (duration_min <= duration_max),
+    CONSTRAINT chk_services_duration_fixed CHECK (
+        duration_type <> 'fixed'
+        OR duration_min = duration_max
     ),
     CONSTRAINT chk_services_buffer_before CHECK (buffer_before_minutes >= 0),
     CONSTRAINT chk_services_buffer_after CHECK (buffer_after_minutes >= 0),
@@ -523,6 +662,153 @@ CREATE TABLE IF NOT EXISTS services (
         OR color ~ '^#[0-9A-Fa-f]{6}$'
     )
 );
+
+CREATE TABLE IF NOT EXISTS services_options (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    business_id UUID NOT NULL,
+    service_id UUID NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    description TEXT,
+    duration_type service_duration_type_enum NOT NULL DEFAULT 'fixed',
+    duration_min INTEGER NOT NULL,
+    duration_max INTEGER NOT NULL,
+    price_delta NUMERIC(10, 2),
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    deleted_at TIMESTAMPTZ,
+    CONSTRAINT uq_services_options_id_business UNIQUE (id, business_id),
+    CONSTRAINT uq_services_options_id_service UNIQUE (id, service_id),
+    CONSTRAINT fk_services_options_business FOREIGN KEY (business_id) REFERENCES businesses (id),
+    CONSTRAINT fk_services_options_service_business FOREIGN KEY (service_id, business_id) REFERENCES services (id, business_id),
+    CONSTRAINT chk_services_options_name_length CHECK (length(trim(name)) >= 1),
+    CONSTRAINT chk_services_options_duration_min CHECK (
+        duration_min >= 0
+        AND duration_min <= 1440
+    ),
+    CONSTRAINT chk_services_options_duration_max CHECK (
+        duration_max >= 0
+        AND duration_max <= 1440
+    ),
+    CONSTRAINT chk_services_options_duration_order CHECK (duration_min <= duration_max),
+    CONSTRAINT chk_services_options_duration_fixed CHECK (
+        duration_type <> 'fixed'
+        OR duration_min = duration_max
+    ),
+    CONSTRAINT chk_services_options_price_delta CHECK (
+        price_delta IS NULL
+        OR price_delta >= 0
+    )
+);
+
+CREATE INDEX IF NOT EXISTS services_options_service_idx ON services_options (service_id)
+WHERE
+    deleted_at IS NULL;
+
+CREATE TABLE IF NOT EXISTS services_extras (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    business_id UUID NOT NULL,
+    service_id UUID NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    description TEXT,
+    duration_type service_duration_type_enum NOT NULL DEFAULT 'fixed',
+    duration_min INTEGER NOT NULL,
+    duration_max INTEGER NOT NULL,
+    price_delta NUMERIC(10, 2),
+    is_required BOOLEAN NOT NULL DEFAULT false,
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    deleted_at TIMESTAMPTZ,
+    CONSTRAINT uq_services_extras_id_business UNIQUE (id, business_id),
+    CONSTRAINT uq_services_extras_id_service UNIQUE (id, service_id),
+    CONSTRAINT fk_services_extras_business FOREIGN KEY (business_id) REFERENCES businesses (id),
+    CONSTRAINT fk_services_extras_service_business FOREIGN KEY (service_id, business_id) REFERENCES services (id, business_id),
+    CONSTRAINT chk_services_extras_name_length CHECK (length(trim(name)) >= 1),
+    CONSTRAINT chk_services_extras_duration_min CHECK (
+        duration_min >= 0
+        AND duration_min <= 1440
+    ),
+    CONSTRAINT chk_services_extras_duration_max CHECK (
+        duration_max >= 0
+        AND duration_max <= 1440
+    ),
+    CONSTRAINT chk_services_extras_duration_order CHECK (duration_min <= duration_max),
+    CONSTRAINT chk_services_extras_duration_fixed CHECK (
+        duration_type <> 'fixed'
+        OR duration_min = duration_max
+    ),
+    CONSTRAINT chk_services_extras_price_delta CHECK (
+        price_delta IS NULL
+        OR price_delta >= 0
+    )
+);
+
+CREATE INDEX IF NOT EXISTS services_extras_service_idx ON services_extras (service_id)
+WHERE
+    deleted_at IS NULL;
+
+CREATE TABLE IF NOT EXISTS offers (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    business_id UUID NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    description TEXT,
+    discount_type offer_discount_type_enum NOT NULL,
+    discount_value NUMERIC(10, 2),
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    deleted_at TIMESTAMPTZ,
+    CONSTRAINT uq_offers_id_business UNIQUE (id, business_id),
+    CONSTRAINT fk_offers_business FOREIGN KEY (business_id) REFERENCES businesses (id),
+    CONSTRAINT chk_offers_name_length CHECK (length(trim(name)) >= 2),
+    CONSTRAINT chk_offers_date_range CHECK (start_date <= end_date),
+    CONSTRAINT chk_offers_value_required CHECK (
+        discount_type = 'fixed_price'
+        OR discount_value IS NOT NULL
+    ),
+    CONSTRAINT chk_offers_percentage CHECK (
+        discount_type <> 'percentage'
+        OR (
+            discount_value > 0
+            AND discount_value <= 100
+        )
+    ),
+    CONSTRAINT chk_offers_fixed_amount CHECK (
+        discount_type <> 'fixed_amount'
+        OR discount_value > 0
+    ),
+    CONSTRAINT chk_offers_fixed_price_null CHECK (
+        discount_type <> 'fixed_price'
+        OR discount_value IS NULL
+    )
+);
+
+CREATE INDEX IF NOT EXISTS offers_business_active_idx ON offers (business_id)
+WHERE
+    deleted_at IS NULL
+    AND is_active = true;
+
+CREATE TABLE IF NOT EXISTS offer_services (
+    offer_id UUID NOT NULL,
+    service_id UUID NOT NULL,
+    business_id UUID NOT NULL,
+    fixed_price NUMERIC(10, 2),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (offer_id, service_id),
+    CONSTRAINT fk_offer_services_offer_business FOREIGN KEY (offer_id, business_id) REFERENCES offers (id, business_id) ON DELETE CASCADE,
+    CONSTRAINT fk_offer_services_service_business FOREIGN KEY (service_id, business_id) REFERENCES services (id, business_id),
+    CONSTRAINT chk_offer_services_fixed_price CHECK (
+        fixed_price IS NULL
+        OR fixed_price >= 0
+    )
+);
+
+CREATE INDEX IF NOT EXISTS offer_services_service_idx ON offer_services (service_id);
 
 CREATE TABLE IF NOT EXISTS service_aliases (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
@@ -562,13 +848,41 @@ CREATE TABLE IF NOT EXISTS worker_schedules (
     CONSTRAINT chk_worker_schedules_time_range CHECK (start_time < end_time)
 );
 
+CREATE TABLE IF NOT EXISTS worker_schedule_breaks (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    business_id UUID NOT NULL,
+    worker_id UUID NOT NULL,
+    branch_id UUID,
+    break_type_id UUID NOT NULL,
+    day_of_week SMALLINT NOT NULL,
+    start_time TIME NOT NULL,
+    duration_minutes INTEGER NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    deleted_at TIMESTAMPTZ,
+    CONSTRAINT fk_worker_schedule_breaks_business FOREIGN KEY (business_id) REFERENCES businesses (id),
+    CONSTRAINT fk_worker_schedule_breaks_worker_business FOREIGN KEY (worker_id, business_id) REFERENCES workers (id, business_id),
+    CONSTRAINT fk_worker_schedule_breaks_branch_business FOREIGN KEY (branch_id, business_id) REFERENCES branches (id, business_id),
+    CONSTRAINT fk_worker_schedule_breaks_type FOREIGN KEY (break_type_id) REFERENCES break_types (id),
+    CONSTRAINT chk_worker_schedule_breaks_day CHECK (day_of_week BETWEEN 1 AND 7),
+    CONSTRAINT chk_worker_schedule_breaks_duration CHECK (
+        duration_minutes > 0
+        AND duration_minutes <= 1440
+    )
+);
+
+CREATE INDEX IF NOT EXISTS worker_schedule_breaks_worker_day_idx ON worker_schedule_breaks (worker_id, day_of_week)
+WHERE
+    deleted_at IS NULL;
+
 CREATE TABLE IF NOT EXISTS worker_availability_overrides (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
     business_id UUID NOT NULL,
-    override_type_id UUID NOT NULL,
+    worker_override_type_id UUID NOT NULL,
     label VARCHAR(100),
-    start_at TIMESTAMPTZ NOT NULL,
-    end_at TIMESTAMPTZ NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
     reason TEXT,
     source source_enum NOT NULL DEFAULT 'manual',
     created_by_user_id UUID,
@@ -577,10 +891,24 @@ CREATE TABLE IF NOT EXISTS worker_availability_overrides (
     deleted_at TIMESTAMPTZ,
     CONSTRAINT uq_worker_availability_overrides_id_business_id UNIQUE (id, business_id),
     CONSTRAINT fk_worker_availability_overrides_business FOREIGN KEY (business_id) REFERENCES businesses (id),
-    CONSTRAINT fk_worker_availability_overrides_type FOREIGN KEY (override_type_id) REFERENCES availability_override_types (id),
+    CONSTRAINT fk_worker_availability_overrides_worker_type FOREIGN KEY (worker_override_type_id) REFERENCES worker_override_types (id),
     CONSTRAINT fk_worker_availability_overrides_created_by_user FOREIGN KEY (created_by_user_id) REFERENCES users (id),
-    CONSTRAINT chk_worker_availability_overrides_time_range CHECK (start_at < end_at)
+    CONSTRAINT chk_worker_availability_overrides_date_range CHECK (start_date <= end_date)
 );
+
+CREATE TABLE IF NOT EXISTS worker_availability_override_periods (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    override_id UUID NOT NULL,
+    business_id UUID NOT NULL,
+    on_date DATE NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT fk_worker_override_periods_override_business FOREIGN KEY (override_id, business_id) REFERENCES worker_availability_overrides (id, business_id) ON DELETE CASCADE,
+    CONSTRAINT chk_worker_override_periods_time CHECK (start_time < end_time)
+);
+
+CREATE INDEX IF NOT EXISTS worker_override_periods_override_idx ON worker_availability_override_periods (override_id);
 
 CREATE TABLE IF NOT EXISTS worker_availability_override_workers (
     override_id UUID NOT NULL,
@@ -730,12 +1058,16 @@ CREATE TABLE IF NOT EXISTS appointments (
     client_id UUID NOT NULL,
     worker_id UUID NOT NULL,
     service_id UUID NOT NULL,
+    service_option_id UUID,
     color VARCHAR(20),
     conversation_id UUID,
     start_at TIMESTAMPTZ NOT NULL,
     end_at TIMESTAMPTZ NOT NULL,
+    actual_end_at TIMESTAMPTZ,
     status appointment_status_enum NOT NULL DEFAULT 'confirmed',
     quoted_price NUMERIC(10, 2),
+    original_price NUMERIC(10, 2),
+    applied_offer_id UUID,
     currency_code CHAR(3),
     notes TEXT,
     source source_enum NOT NULL,
@@ -756,13 +1088,26 @@ CREATE TABLE IF NOT EXISTS appointments (
     CONSTRAINT fk_appointments_client_business FOREIGN KEY (client_id, business_id) REFERENCES clients (id, business_id),
     CONSTRAINT fk_appointments_worker_business FOREIGN KEY (worker_id, business_id) REFERENCES workers (id, business_id),
     CONSTRAINT fk_appointments_service_business FOREIGN KEY (service_id, business_id) REFERENCES services (id, business_id),
+    CONSTRAINT fk_appointments_service_option_business FOREIGN KEY (service_option_id, business_id) REFERENCES services_options (id, business_id),
+    CONSTRAINT fk_appointments_applied_offer_business FOREIGN KEY (applied_offer_id, business_id) REFERENCES offers (id, business_id),
     CONSTRAINT fk_appointments_conversation_business FOREIGN KEY (conversation_id, business_id) REFERENCES conversations (id, business_id),
     CONSTRAINT fk_appointments_currency FOREIGN KEY (currency_code) REFERENCES currencies (code),
     CONSTRAINT fk_appointments_created_by_user FOREIGN KEY (created_by_user_id) REFERENCES users (id),
     CONSTRAINT chk_appointments_time_range CHECK (start_at < end_at),
+    CONSTRAINT chk_appointments_actual_end_at CHECK (
+        actual_end_at IS NULL
+        OR (
+            actual_end_at > start_at
+            AND actual_end_at <= end_at
+        )
+    ),
     CONSTRAINT chk_appointments_quoted_price CHECK (
         quoted_price IS NULL
         OR quoted_price >= 0
+    ),
+    CONSTRAINT chk_appointments_original_price CHECK (
+        original_price IS NULL
+        OR original_price >= 0
     ),
     CONSTRAINT chk_appointments_expires_at CHECK (
         expires_at IS NULL
@@ -801,6 +1146,16 @@ CREATE INDEX IF NOT EXISTS appointments_business_worker_active_time_idx ON appoi
 WHERE
     deleted_at IS NULL
     AND status IN ('pending', 'confirmed');
+
+CREATE TABLE IF NOT EXISTS appointment_extras (
+    appointment_id UUID NOT NULL,
+    extra_id UUID NOT NULL,
+    business_id UUID NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (appointment_id, extra_id),
+    CONSTRAINT fk_appointment_extras_appointment_business FOREIGN KEY (appointment_id, business_id) REFERENCES appointments (id, business_id),
+    CONSTRAINT fk_appointment_extras_extra_business FOREIGN KEY (extra_id, business_id) REFERENCES services_extras (id, business_id)
+);
 
 CREATE TABLE IF NOT EXISTS appointment_events (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
@@ -1423,7 +1778,7 @@ WHERE
     deleted_at IS NULL
     AND is_active = true;
 
-CREATE INDEX IF NOT EXISTS branch_availability_overrides_business_time_idx ON branch_availability_overrides (business_id, start_at, end_at)
+CREATE INDEX IF NOT EXISTS branch_availability_overrides_business_date_idx ON branch_availability_overrides (business_id, start_date, end_date)
 WHERE
     deleted_at IS NULL;
 
@@ -1446,7 +1801,7 @@ WHERE
     AND deleted_at IS NULL
     AND is_active = true;
 
-CREATE INDEX IF NOT EXISTS worker_availability_overrides_business_time_idx ON worker_availability_overrides (business_id, start_at, end_at)
+CREATE INDEX IF NOT EXISTS worker_availability_overrides_business_date_idx ON worker_availability_overrides (business_id, start_date, end_date)
 WHERE
     deleted_at IS NULL;
 
@@ -1562,10 +1917,24 @@ BEFORE UPDATE ON branches
 FOR EACH ROW
 EXECUTE FUNCTION set_updated_at();
 
+DROP TRIGGER IF EXISTS trg_holiday_templates_set_updated_at ON holiday_templates;
+
+CREATE TRIGGER trg_holiday_templates_set_updated_at
+BEFORE UPDATE ON holiday_templates
+FOR EACH ROW
+EXECUTE FUNCTION set_updated_at();
+
 DROP TRIGGER IF EXISTS trg_branch_opening_hours_set_updated_at ON branch_opening_hours;
 
 CREATE TRIGGER trg_branch_opening_hours_set_updated_at
 BEFORE UPDATE ON branch_opening_hours
+FOR EACH ROW
+EXECUTE FUNCTION set_updated_at();
+
+DROP TRIGGER IF EXISTS trg_branch_holidays_set_updated_at ON branch_holidays;
+
+CREATE TRIGGER trg_branch_holidays_set_updated_at
+BEFORE UPDATE ON branch_holidays
 FOR EACH ROW
 EXECUTE FUNCTION set_updated_at();
 
@@ -1604,10 +1973,38 @@ BEFORE UPDATE ON services
 FOR EACH ROW
 EXECUTE FUNCTION set_updated_at();
 
+DROP TRIGGER IF EXISTS trg_services_options_set_updated_at ON services_options;
+
+CREATE TRIGGER trg_services_options_set_updated_at
+BEFORE UPDATE ON services_options
+FOR EACH ROW
+EXECUTE FUNCTION set_updated_at();
+
+DROP TRIGGER IF EXISTS trg_services_extras_set_updated_at ON services_extras;
+
+CREATE TRIGGER trg_services_extras_set_updated_at
+BEFORE UPDATE ON services_extras
+FOR EACH ROW
+EXECUTE FUNCTION set_updated_at();
+
+DROP TRIGGER IF EXISTS trg_offers_set_updated_at ON offers;
+
+CREATE TRIGGER trg_offers_set_updated_at
+BEFORE UPDATE ON offers
+FOR EACH ROW
+EXECUTE FUNCTION set_updated_at();
+
 DROP TRIGGER IF EXISTS trg_worker_schedules_set_updated_at ON worker_schedules;
 
 CREATE TRIGGER trg_worker_schedules_set_updated_at
 BEFORE UPDATE ON worker_schedules
+FOR EACH ROW
+EXECUTE FUNCTION set_updated_at();
+
+DROP TRIGGER IF EXISTS trg_worker_schedule_breaks_set_updated_at ON worker_schedule_breaks;
+
+CREATE TRIGGER trg_worker_schedule_breaks_set_updated_at
+BEFORE UPDATE ON worker_schedule_breaks
 FOR EACH ROW
 EXECUTE FUNCTION set_updated_at();
 

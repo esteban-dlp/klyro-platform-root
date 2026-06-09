@@ -30,6 +30,14 @@ services:
 
       # Seeds that depend on migration-created schema run AFTER the migrations.
       - ./database/seeds/006-seed-ai-model-catalog.sql:/docker-entrypoint-initdb.d/028-seed-ai-model-catalog.sql:ro
+      - ./database/migrations/2026-06-08-scheduling-enums.sql:/docker-entrypoint-initdb.d/029-scheduling-enums.sql:ro
+      - ./database/migrations/2026-06-08-services-duration-options-extras.sql:/docker-entrypoint-initdb.d/030-services-duration-options-extras.sql:ro
+      - ./database/migrations/2026-06-08-appointment-options-extras.sql:/docker-entrypoint-initdb.d/031-appointment-options-extras.sql:ro
+      - ./database/migrations/2026-06-08-holiday-templates.sql:/docker-entrypoint-initdb.d/032-holiday-templates.sql:ro
+      - ./database/migrations/2026-06-08-branch-holidays-overrides.sql:/docker-entrypoint-initdb.d/033-branch-holidays-overrides.sql:ro
+      - ./database/migrations/2026-06-08-worker-breaks-overrides.sql:/docker-entrypoint-initdb.d/034-worker-breaks-overrides.sql:ro
+      - ./database/migrations/2026-06-08-scheduling-functions-open-period.sql:/docker-entrypoint-initdb.d/035-scheduling-functions-open-period.sql:ro
+      - ./database/migrations/2026-06-08-offers.sql:/docker-entrypoint-initdb.d/036-offers.sql:ro
     networks:
       - klyro-network
     healthcheck:

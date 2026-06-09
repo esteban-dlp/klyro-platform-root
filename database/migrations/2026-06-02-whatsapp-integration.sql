@@ -10,9 +10,11 @@ ON conversations (business_id, client_id, channel)
 WHERE status = 'open' AND deleted_at IS NULL;
 
 -- WhatsApp account state consistency
+ALTER TABLE business_whatsapp_accounts DROP CONSTRAINT IF EXISTS chk_bwa_connected_requires_token;
 ALTER TABLE business_whatsapp_accounts
     ADD CONSTRAINT chk_bwa_connected_requires_token CHECK (
         status <> 'connected' OR (access_token_encrypted IS NOT NULL AND connected_at IS NOT NULL));
+ALTER TABLE business_whatsapp_accounts DROP CONSTRAINT IF EXISTS chk_bwa_disconnected_requires_ts;
 ALTER TABLE business_whatsapp_accounts
     ADD CONSTRAINT chk_bwa_disconnected_requires_ts CHECK (
         status <> 'disconnected' OR disconnected_at IS NOT NULL);

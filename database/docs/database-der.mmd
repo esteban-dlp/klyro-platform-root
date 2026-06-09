@@ -52,12 +52,48 @@ erDiagram
         boolean is_active
     }
 
-    availability_override_types {
+    branch_override_types {
         uuid id PK
         varchar code UK
         varchar name
-        boolean blocks_availability
         boolean is_active
+    }
+
+    worker_override_types {
+        uuid id PK
+        varchar code UK
+        varchar name
+        boolean is_active
+    }
+
+    break_types {
+        uuid id PK
+        varchar code UK
+        varchar name
+        boolean is_active
+    }
+
+    holiday_templates {
+        uuid id PK
+        varchar code UK
+        varchar name
+        text description
+        varchar recurrence_type
+        smallint start_month
+        smallint start_day
+        smallint end_month
+        smallint end_day
+        smallint weekday
+        smallint week_of_month
+        boolean is_active
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    holiday_template_countries {
+        uuid template_id PK,FK
+        uuid country_id PK,FK
+        timestamptz created_at
     }
 
     notification_types {
@@ -150,16 +186,54 @@ erDiagram
     branch_availability_overrides {
         uuid id PK
         uuid business_id FK
-        uuid override_type_id FK
+        uuid branch_override_type_id FK
         varchar label
-        timestamptz start_at
-        timestamptz end_at
+        date start_date
+        date end_date
         text reason
         source_enum source
         uuid created_by_user_id FK
         timestamptz created_at
         timestamptz updated_at
         timestamptz deleted_at
+    }
+
+    branch_holidays {
+        uuid id PK
+        uuid business_id FK
+        uuid branch_id FK
+        uuid source_template_id FK
+        varchar name
+        text description
+        smallint start_month
+        smallint start_day
+        smallint end_month
+        smallint end_day
+        boolean is_active
+        timestamptz created_at
+        timestamptz updated_at
+        timestamptz deleted_at
+    }
+
+    branch_holiday_open_periods {
+        uuid id PK
+        uuid holiday_id FK
+        uuid business_id FK
+        smallint month
+        smallint day
+        time start_time
+        time end_time
+        timestamptz created_at
+    }
+
+    branch_availability_override_periods {
+        uuid id PK
+        uuid override_id FK
+        uuid business_id FK
+        date on_date
+        time start_time
+        time end_time
+        timestamptz created_at
     }
 
     branch_availability_override_branches {
@@ -278,13 +352,73 @@ erDiagram
         text description
         uuid image_asset_id FK
         numeric base_price
-        integer duration_minutes
+        service_duration_type_enum duration_type
+        integer duration_min
+        integer duration_max
         integer buffer_before_minutes
         integer buffer_after_minutes
         service_status_enum status
         timestamptz created_at
         timestamptz updated_at
         timestamptz deleted_at
+    }
+
+    services_options {
+        uuid id PK
+        uuid business_id FK
+        uuid service_id FK
+        varchar name
+        text description
+        service_duration_type_enum duration_type
+        integer duration_min
+        integer duration_max
+        numeric price_delta
+        integer sort_order
+        boolean is_active
+        timestamptz created_at
+        timestamptz updated_at
+        timestamptz deleted_at
+    }
+
+    services_extras {
+        uuid id PK
+        uuid business_id FK
+        uuid service_id FK
+        varchar name
+        text description
+        service_duration_type_enum duration_type
+        integer duration_min
+        integer duration_max
+        numeric price_delta
+        boolean is_required
+        integer sort_order
+        boolean is_active
+        timestamptz created_at
+        timestamptz updated_at
+        timestamptz deleted_at
+    }
+
+    offers {
+        uuid id PK
+        uuid business_id FK
+        varchar name
+        text description
+        offer_discount_type_enum discount_type
+        numeric discount_value
+        date start_date
+        date end_date
+        boolean is_active
+        timestamptz created_at
+        timestamptz updated_at
+        timestamptz deleted_at
+    }
+
+    offer_services {
+        uuid offer_id PK,FK
+        uuid service_id PK,FK
+        uuid business_id FK
+        numeric fixed_price
+        timestamptz created_at
     }
 
     service_aliases {
@@ -329,19 +463,44 @@ erDiagram
         timestamptz deleted_at
     }
 
+    worker_schedule_breaks {
+        uuid id PK
+        uuid business_id FK
+        uuid worker_id FK
+        uuid branch_id FK
+        uuid break_type_id FK
+        smallint day_of_week
+        time start_time
+        integer duration_minutes
+        boolean is_active
+        timestamptz created_at
+        timestamptz updated_at
+        timestamptz deleted_at
+    }
+
     worker_availability_overrides {
         uuid id PK
         uuid business_id FK
-        uuid override_type_id FK
+        uuid worker_override_type_id FK
         varchar label
-        timestamptz start_at
-        timestamptz end_at
+        date start_date
+        date end_date
         text reason
         source_enum source
         uuid created_by_user_id FK
         timestamptz created_at
         timestamptz updated_at
         timestamptz deleted_at
+    }
+
+    worker_availability_override_periods {
+        uuid id PK
+        uuid override_id FK
+        uuid business_id FK
+        date on_date
+        time start_time
+        time end_time
+        timestamptz created_at
     }
 
     worker_availability_override_workers {
@@ -432,11 +591,15 @@ erDiagram
         uuid client_id FK
         uuid worker_id FK
         uuid service_id FK
+        uuid service_option_id FK
         uuid conversation_id FK
         timestamptz start_at
         timestamptz end_at
+        timestamptz actual_end_at
         appointment_status_enum status
         numeric quoted_price
+        numeric original_price
+        uuid applied_offer_id FK
         char_3 currency_code FK
         text notes
         source_enum source
@@ -447,9 +610,17 @@ erDiagram
         text cancel_reason
         timestamptz expires_at
         varchar idempotency_key UK
+        boolean is_simulated
         timestamptz created_at
         timestamptz updated_at
         timestamptz deleted_at
+    }
+
+    appointment_extras {
+        uuid appointment_id PK,FK
+        uuid extra_id PK,FK
+        uuid business_id FK
+        timestamptz created_at
     }
 
     appointment_events {
@@ -667,6 +838,8 @@ erDiagram
     countries ||--o{ phone_prefixes : "has prefixes"
     business_types ||--o{ businesses : "classifies"
     countries ||--o{ businesses : "country"
+    countries ||--o{ holiday_template_countries : "holiday country"
+    holiday_templates ||--o{ holiday_template_countries : "country links"
     currencies ||--o{ businesses : "currency"
     languages ||--o{ businesses : "default language"
     phone_prefixes ||--o{ users : "phone prefix"
@@ -681,10 +854,15 @@ erDiagram
     %% =====================================================
 
     businesses ||--o{ branches : "has"
+    businesses ||--o{ branch_holidays : "has holidays"
+    branches ||--o{ branch_holidays : "holiday schedule"
+    holiday_templates ||--o{ branch_holidays : "cloned from"
+    branch_holidays ||--o{ branch_holiday_open_periods : "open periods"
     businesses ||--o{ branch_availability_overrides : "has branch overrides"
     branch_availability_overrides ||--o{ branch_availability_override_branches : "targets"
+    branch_availability_overrides ||--o{ branch_availability_override_periods : "open periods"
     branches ||--o{ branch_availability_override_branches : "receives overrides"
-    availability_override_types ||--o{ branch_availability_overrides : "type"
+    branch_override_types ||--o{ branch_availability_overrides : "type"
     users ||--o{ branch_availability_overrides : "created by"
     businesses ||--o{ roles : "custom roles future"
     roles ||--o{ role_permissions : "has"
@@ -712,18 +890,27 @@ erDiagram
     workers ||--o{ worker_branches : "works at"
     branches ||--o{ worker_branches : "has workers"
     businesses ||--o{ services : "offers services"
+    services ||--o{ services_options : "main options"
+    services ||--o{ services_extras : "extras"
     services ||--o{ service_aliases : "has aliases"
     businesses ||--o{ service_aliases : "scopes aliases"
+    businesses ||--o{ offers : "promotions"
+    offers ||--o{ offer_services : "applies to"
+    services ||--o{ offer_services : "promoted service"
     workers ||--o{ worker_services : "can perform"
     services ||--o{ worker_services : "performed by"
     branches ||--o{ branch_services : "offers"
     services ||--o{ branch_services : "available at"
     workers ||--o{ worker_schedules : "has schedule blocks"
     branches ||--o{ worker_schedules : "schedule branch"
+    workers ||--o{ worker_schedule_breaks : "has breaks"
+    branches ||--o{ worker_schedule_breaks : "break branch"
+    break_types ||--o{ worker_schedule_breaks : "break type"
     businesses ||--o{ worker_availability_overrides : "has worker overrides"
     worker_availability_overrides ||--o{ worker_availability_override_workers : "targets"
+    worker_availability_overrides ||--o{ worker_availability_override_periods : "open periods"
     workers ||--o{ worker_availability_override_workers : "receives overrides"
-    availability_override_types ||--o{ worker_availability_overrides : "type"
+    worker_override_types ||--o{ worker_availability_overrides : "type"
     users ||--o{ worker_availability_overrides : "created by"
 
     %% =====================================================
@@ -752,6 +939,10 @@ erDiagram
     clients ||--o{ appointments : "books"
     workers ||--o{ appointments : "attends"
     services ||--o{ appointments : "service"
+    services_options ||--o{ appointments : "selected option"
+    appointments ||--o{ appointment_extras : "selected extras"
+    services_extras ||--o{ appointment_extras : "selected extra"
+    offers ||--o{ appointments : "applied offer snapshot"
     conversations ||--o{ appointments : "created from"
     currencies ||--o{ appointments : "quoted currency"
     users ||--o{ appointments : "created by user"

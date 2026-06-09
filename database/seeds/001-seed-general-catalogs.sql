@@ -755,4 +755,80 @@ ON CONFLICT (code) DO UPDATE SET
     name = EXCLUDED.name,
     is_active = EXCLUDED.is_active;
 
+-- =========================================================
+-- Holiday templates
+-- =========================================================
+
+INSERT INTO
+    holiday_templates (
+        code,
+        name,
+        description,
+        recurrence_type,
+        start_month,
+        start_day,
+        end_month,
+        end_day,
+        is_active
+    )
+VALUES
+    (
+        'new_year',
+        'New Year''s Day',
+        'Recurring January 1 holiday template.',
+        'fixed_date',
+        1,
+        1,
+        1,
+        1,
+        true
+    ),
+    (
+        'christmas',
+        'Christmas',
+        'Recurring December 25 holiday template.',
+        'fixed_date',
+        12,
+        25,
+        12,
+        25,
+        true
+    ),
+    (
+        'labor_day',
+        'Labor Day',
+        'Recurring May 1 labor day holiday template.',
+        'fixed_date',
+        5,
+        1,
+        5,
+        1,
+        true
+    )
+ON CONFLICT (code) DO UPDATE SET
+    name = EXCLUDED.name,
+    description = EXCLUDED.description,
+    recurrence_type = EXCLUDED.recurrence_type,
+    start_month = EXCLUDED.start_month,
+    start_day = EXCLUDED.start_day,
+    end_month = EXCLUDED.end_month,
+    end_day = EXCLUDED.end_day,
+    is_active = EXCLUDED.is_active;
+
+INSERT INTO holiday_template_countries (template_id, country_id)
+SELECT template.id, country.id
+FROM holiday_templates template
+INNER JOIN countries country
+    ON country.iso_code IN ('GT', 'MX', 'SV', 'ES', 'US')
+WHERE template.code IN ('new_year', 'christmas')
+ON CONFLICT (template_id, country_id) DO NOTHING;
+
+INSERT INTO holiday_template_countries (template_id, country_id)
+SELECT template.id, country.id
+FROM holiday_templates template
+INNER JOIN countries country
+    ON country.iso_code IN ('GT', 'MX', 'SV', 'ES')
+WHERE template.code = 'labor_day'
+ON CONFLICT (template_id, country_id) DO NOTHING;
+
 COMMIT;

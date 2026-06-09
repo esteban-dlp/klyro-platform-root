@@ -1,8 +1,11 @@
--- =========================================================
--- Scheduling functions
--- =========================================================
+-- 2026-06-08 open-period scheduling functions.
+-- Replaces blocking override helpers with branch/worker open-period semantics.
 
 CREATE SCHEMA IF NOT EXISTS scheduling;
+
+DROP FUNCTION IF EXISTS scheduling.has_blocking_branch_override(UUID, UUID, TIMESTAMPTZ, TIMESTAMPTZ);
+DROP FUNCTION IF EXISTS scheduling.has_blocking_worker_override(UUID, UUID, TIMESTAMPTZ, TIMESTAMPTZ);
+DROP TABLE IF EXISTS availability_override_types;
 
 CREATE OR REPLACE FUNCTION scheduling.resolve_availability_timezone(
     p_business_id UUID,

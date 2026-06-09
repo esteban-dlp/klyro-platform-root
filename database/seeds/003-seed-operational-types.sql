@@ -1,6 +1,6 @@
--- 012-seed-operational-types.sql
+-- 003-seed-operational-types.sql
 -- Klyro operational type seed.
--- Includes availability override types and notification types.
+-- Includes override types, break types, notification types, and outbox event types.
 -- Safe to run multiple times.
 
 \connect klyro
@@ -8,71 +8,78 @@
 BEGIN;
 
 -- =========================================================
--- Availability override types
+-- Branch override types
 -- =========================================================
 
 INSERT INTO
-    availability_override_types (
+    branch_override_types (
         code,
         name,
-        blocks_availability,
         is_active
     )
-VALUES (
-        'closed_day',
-        'Closed Day',
-        true,
-        true
-    ),
-    (
-        'custom_hours',
-        'Custom Hours',
-        false,
-        true
-    ),
-    (
-        'vacation',
-        'Vacation',
-        true,
-        true
-    ),
-    (
-        'sick_leave',
-        'Sick Leave',
-        true,
-        true
-    ),
-    ('break', 'Break', true, true),
-    ('lunch', 'Lunch', true, true),
-    (
-        'meeting',
-        'Meeting',
-        true,
-        true
-    ),
-    (
-        'emergency',
-        'Emergency',
-        true,
-        true
-    ),
-    (
-        'manual_block',
-        'Manual Block',
-        true,
-        true
-    ),
-    (
-        'external_calendar_busy',
-        'External Calendar Busy',
-        true,
-        true
-    )
+VALUES
+    ('special_hours', 'Special Hours', true),
+    ('closed_for_maintenance', 'Closed for Maintenance', true),
+    ('closed_for_remodeling', 'Closed for Remodeling', true),
+    ('private_event', 'Private Event', true),
+    ('inventory_day', 'Inventory Day', true),
+    ('weather_closure', 'Weather Closure', true),
+    ('extended_holiday_hours', 'Extended Holiday Hours', true),
+    ('temporary_closure', 'Temporary Closure', true),
+    ('other', 'Other', true)
 ON CONFLICT (code) DO
 UPDATE
 SET
     name = EXCLUDED.name,
-    blocks_availability = EXCLUDED.blocks_availability,
+    is_active = EXCLUDED.is_active;
+
+-- =========================================================
+-- Worker override types
+-- =========================================================
+
+INSERT INTO
+    worker_override_types (
+        code,
+        name,
+        is_active
+    )
+VALUES
+    ('day_off', 'Day Off', true),
+    ('sick_day', 'Sick Day', true),
+    ('vacation', 'Vacation', true),
+    ('early_leave', 'Early Leave', true),
+    ('late_start', 'Late Start', true),
+    ('custom_hours', 'Custom Hours', true),
+    ('training', 'Training', true),
+    ('emergency', 'Emergency', true),
+    ('other', 'Other', true)
+ON CONFLICT (code) DO
+UPDATE
+SET
+    name = EXCLUDED.name,
+    is_active = EXCLUDED.is_active;
+
+-- =========================================================
+-- Break types
+-- =========================================================
+
+INSERT INTO
+    break_types (
+        code,
+        name,
+        is_active
+    )
+VALUES
+    ('lunch', 'Lunch', true),
+    ('short_break', 'Short Break', true),
+    ('personal_break', 'Personal Break', true),
+    ('admin_break', 'Admin Break', true),
+    ('training_break', 'Training Break', true),
+    ('other', 'Other', true)
+ON CONFLICT (code) DO
+UPDATE
+SET
+    name = EXCLUDED.name,
     is_active = EXCLUDED.is_active;
 
 -- =========================================================

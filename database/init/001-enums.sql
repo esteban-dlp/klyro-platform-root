@@ -134,6 +134,16 @@ IF NOT EXISTS (
     SELECT 1
     FROM pg_type
     WHERE
+        typname = 'service_duration_type_enum'
+) THEN
+CREATE TYPE service_duration_type_enum AS ENUM('fixed', 'range');
+
+END IF;
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM pg_type
+    WHERE
         typname = 'client_status_enum'
 ) THEN
 CREATE TYPE client_status_enum AS ENUM('active', 'blocked');
@@ -580,6 +590,20 @@ CREATE TYPE media_asset_kind_enum AS ENUM(
     'service_image',
     'business_catalog',
     'branch_catalog'
+);
+
+END IF;
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM pg_type
+    WHERE
+        typname = 'offer_discount_type_enum'
+) THEN
+CREATE TYPE offer_discount_type_enum AS ENUM(
+    'percentage',
+    'fixed_amount',
+    'fixed_price'
 );
 
 END IF;
