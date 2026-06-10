@@ -7,6 +7,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
+      - postgres_data:/var/lib/postgresql/data
       - ../backend/database/init/000-create-database.sql:/docker-entrypoint-initdb.d/000-create-database.sql:ro
       - ../backend/database/init/001-enums.sql:/docker-entrypoint-initdb.d/001-enums.sql:ro
       - ../backend/database/init/002-tables.sql:/docker-entrypoint-initdb.d/002-tables.sql:ro
@@ -41,6 +42,7 @@ services:
       - ../backend/database/migrations/2026-06-09-service-extra-quantity.sql:/docker-entrypoint-initdb.d/037-service-extra-quantity.sql:ro
       - ../backend/database/migrations/2026-06-09-offer-branches-visuals.sql:/docker-entrypoint-initdb.d/038-offer-branches-visuals.sql:ro
       - ../backend/database/migrations/2026-06-09-holiday-rules-applicability-visuals.sql:/docker-entrypoint-initdb.d/039-holiday-rules-applicability-visuals.sql:ro
+      - ../backend/database/migrations/2026-06-09-service-extras-count.sql:/docker-entrypoint-initdb.d/040-service-extras-count.sql:ro
     networks:
       - klyro-network
     healthcheck:
@@ -104,3 +106,5 @@ networks:
 
 volumes:
   postgres_data:
+    external: true
+    name: 72b64dee1c9112be8b0c78e96eecff722a9eb5ab65dada1c1d3a2d7f6d8789b7
