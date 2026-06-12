@@ -44,6 +44,8 @@ services:
       - ../backend/database/migrations/2026-06-09-holiday-rules-applicability-visuals.sql:/docker-entrypoint-initdb.d/039-holiday-rules-applicability-visuals.sql:ro
       - ../backend/database/migrations/2026-06-09-service-extras-count.sql:/docker-entrypoint-initdb.d/040-service-extras-count.sql:ro
       - ../backend/database/migrations/2026-06-10-holidays-business-level.sql:/docker-entrypoint-initdb.d/041-holidays-business-level.sql:ro
+      - ../backend/database/migrations/2026-06-11-availability-worker-available-starts.sql:/docker-entrypoint-initdb.d/042-availability-worker-available-starts.sql:ro
+      - ../backend/database/migrations/2026-06-11-availability-free-windows.sql:/docker-entrypoint-initdb.d/043-availability-free-windows.sql:ro
     networks:
       - klyro-network
     healthcheck:
