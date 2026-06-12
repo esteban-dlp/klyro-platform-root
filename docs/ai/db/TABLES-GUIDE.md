@@ -73,7 +73,7 @@ When a table or column is added, changed, or removed. Add a detailed block per t
 | Table | Business meaning |
 | --- | --- |
 | `business_ai_settings` | AI receptionist configuration per business |
-| `business_whatsapp_accounts` | Connected WhatsApp accounts |
+| `business_whatsapp_accounts` | Connected WhatsApp accounts. Secrets (`access_token_encrypted`, `webhook_secret_encrypted`, and BYOA-ready `app_secret_encrypted`/`verify_token_encrypted`) are AES-256-GCM at rest and never returned; `access_token_last4`/`app_secret_last4` are non-secret masking hints for the UI |
 | `notifications`, `notification_preferences` | User notifications & prefs |
 | `outbox_events` | Pending async events to dispatch |
 
