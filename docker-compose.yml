@@ -47,6 +47,7 @@ services:
       - ../backend/database/migrations/2026-06-11-availability-worker-available-starts.sql:/docker-entrypoint-initdb.d/042-availability-worker-available-starts.sql:ro
       - ../backend/database/migrations/2026-06-11-availability-free-windows.sql:/docker-entrypoint-initdb.d/043-availability-free-windows.sql:ro
       - ../backend/database/migrations/2026-06-11-whatsapp-providers.sql:/docker-entrypoint-initdb.d/044-whatsapp-providers.sql:ro
+      - ../backend/database/migrations/2026-06-11-whatsapp-onboarding-sessions.sql:/docker-entrypoint-initdb.d/045-whatsapp-onboarding-sessions.sql:ro
     networks:
       - klyro-network
     healthcheck:
