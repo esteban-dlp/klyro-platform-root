@@ -57,6 +57,7 @@ services:
       - ../backend/database/migrations/2026-06-13-message-status-manual-retry.sql:/docker-entrypoint-initdb.d/052-message-status-manual-retry.sql:ro
       - ../backend/database/migrations/2026-06-13-conversation-attention-notification-priority.sql:/docker-entrypoint-initdb.d/053-conversation-attention-notification-priority.sql:ro
       - ../backend/database/migrations/2026-06-13-message-delivery-failed-superseded.sql:/docker-entrypoint-initdb.d/054-message-delivery-failed-superseded.sql:ro
+      - ../backend/database/migrations/2026-06-13-message-type-interactive.sql:/docker-entrypoint-initdb.d/055-message-type-interactive.sql:ro
     networks:
       - klyro-network
     healthcheck:
