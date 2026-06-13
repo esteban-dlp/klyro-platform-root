@@ -51,6 +51,10 @@ services:
       - ../backend/database/migrations/2026-06-12-whatsapp-byoa-and-hints.sql:/docker-entrypoint-initdb.d/046-whatsapp-byoa-and-hints.sql:ro
       - ../backend/database/migrations/2026-06-12-whatsapp-account-branch-id.sql:/docker-entrypoint-initdb.d/047-whatsapp-account-branch-id.sql:ro
       - ../backend/database/migrations/2026-06-13-ai-diagnostics-appointment-holds.sql:/docker-entrypoint-initdb.d/048-ai-diagnostics-appointment-holds.sql:ro
+      - ../backend/database/migrations/2026-06-13-realtime-connect-permission.sql:/docker-entrypoint-initdb.d/049-realtime-connect-permission.sql:ro
+      - ../backend/database/migrations/2026-06-13-notification-types-seed.sql:/docker-entrypoint-initdb.d/050-notification-types-seed.sql:ro
+      - ../backend/database/migrations/2026-06-13-message-status-queued-ignored.sql:/docker-entrypoint-initdb.d/051-message-status-queued-ignored.sql:ro
+      - ../backend/database/migrations/2026-06-13-message-status-manual-retry.sql:/docker-entrypoint-initdb.d/052-message-status-manual-retry.sql:ro
     networks:
       - klyro-network
     healthcheck:
