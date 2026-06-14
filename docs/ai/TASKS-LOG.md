@@ -14,6 +14,11 @@ After completing any meaningful task, append an entry at the top.
 
 ## Log
 
+### 2026-06-13 - Added appointment blocked intervals (060)
+- **What:** Added an idempotent migration for appointment/hold blocked intervals, constraints, partial indexes, and updated scheduling conflict functions. Registered it after mount `059`, updated the ER model, applied it to the running local DB, and reran it successfully.
+- **Why:** Search, holds, conflict validation, and final appointments must reserve the same duration-plus-buffers interval while preserving customer-visible service times.
+- **Files:** `backend/database/migrations/2026-06-13-appointment-blocked-intervals.sql`, `backend/database/docs/database-der.mmd`, `root/docker-compose.yml`, and root database documentation.
+
 ### 2026-06-12 — Fix missing `branch_id` on `business_whatsapp_accounts` (047)
 - **What:** Added migration `2026-06-12-whatsapp-account-branch-id.sql` (mount `047`) adding the nullable `branch_id` column + composite FK `(branch_id, business_id) → branches (id, business_id)` + partial index.
 - **Why:** The entity/mapper/DTO/ER model expected `branch_id` but init never created it; TypeORM's INSERT failed with `column "branch_id" does not exist`, blocking manual Meta connect + onboarding.

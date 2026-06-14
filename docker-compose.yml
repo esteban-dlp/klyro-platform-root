@@ -60,6 +60,9 @@ services:
       - ../backend/database/migrations/2026-06-13-message-type-interactive.sql:/docker-entrypoint-initdb.d/055-message-type-interactive.sql:ro
       - ../backend/database/migrations/2026-06-13-appointments-client-no-overlap.sql:/docker-entrypoint-initdb.d/056-appointments-client-no-overlap.sql:ro
       - ../backend/database/migrations/2026-06-13-ai-settings-human-takeover-pause.sql:/docker-entrypoint-initdb.d/057-ai-settings-human-takeover-pause.sql:ro
+      - ../backend/database/migrations/2026-06-13-worker-notifications-calendar.sql:/docker-entrypoint-initdb.d/058-worker-notifications-calendar.sql:ro
+      - ../backend/database/migrations/2026-06-13-inbound-whatsapp-media.sql:/docker-entrypoint-initdb.d/059-inbound-whatsapp-media.sql:ro
+      - ../backend/database/migrations/2026-06-13-appointment-blocked-intervals.sql:/docker-entrypoint-initdb.d/060-appointment-blocked-intervals.sql:ro
     networks:
       - klyro-network
     healthcheck:

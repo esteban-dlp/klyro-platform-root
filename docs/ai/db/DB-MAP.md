@@ -17,7 +17,7 @@ When SQL files or folders are added/moved/removed.
 | Path | What lives here |
 | --- | --- |
 | `database/init/` | First-boot scripts (enums, tables, functions) |
-| `database/migrations/` | Incremental schema changes (README only so far) |
+| `database/migrations/` | Incremental, idempotent schema changes for deployed/existing databases |
 | `database/seeds/` | Reference & sample data |
 | `database/docs/` | `database-der.mmd` (ERD) |
 
@@ -34,7 +34,7 @@ When SQL files or folders are added/moved/removed.
 
 | File | Purpose | Applied? |
 | --- | --- | --- |
-| _none yet_ | schema currently via `init/` | — |
+| `2026-06-13-appointment-blocked-intervals.sql` | Adds appointment/hold blocked intervals and updates scheduling conflict functions (compose `060`) | New volumes automatically; existing volumes manually |
 
 ## Seeds (in order)
 

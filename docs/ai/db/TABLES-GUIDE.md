@@ -63,7 +63,8 @@ When a table or column is added, changed, or removed. Add a detailed block per t
 
 | Table | Business meaning |
 | --- | --- |
-| `appointments` | A booking (client + service + worker + branch + time) |
+| `appointments` | A booking. `start_at`/`end_at` are customer-visible; `blocked_start_at`/`blocked_end_at` reserve worker capacity including service buffers. |
+| `appointment_holds`, `appointment_hold_extras` | Short-lived, one-active-per-conversation scheduling holds. Holds store the same visible and blocked intervals used by final appointments. |
 | `appointment_events` | State-change history of an appointment |
 | `reminders` | Scheduled reminders for appointments |
 | `calendar_connections`, `appointment_calendar_events` | External calendar sync |

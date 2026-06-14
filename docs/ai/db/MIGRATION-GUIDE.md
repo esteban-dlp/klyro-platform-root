@@ -21,16 +21,18 @@ After adding a migration; when the process changes.
 
 ## Current state
 
-- Schema is currently bootstrapped via `database/init/`. `database/migrations/` has only a README.
-- Once the database is deployed, **all** schema changes must move to `migrations/` (do not keep editing `init/`).
+- Fresh volumes bootstrap through `database/init/`, seeds, and compose-mounted migrations.
+- Existing volumes do not replay `/docker-entrypoint-initdb.d`; apply each new migration manually with `psql`.
+- All schema changes use new files under `database/migrations/`; do not edit `init/` or applied migrations.
 
 ## Naming & order
 
-- Numeric-prefixed, kebab-case: `NNN-description.sql`, monotonically increasing.
+- Date-prefixed, descriptive SQL filenames are used in `database/migrations/`; compose assigns the monotonically increasing execution number.
 
 ## How migrations run
 
-- _Document the real runner_ (e.g. manual `psql`, a script in `scripts/`, or container init). Until then, init SQL runs on first postgres boot via the compose mounts.
+- Fresh volume: Docker runs ordered mounts in `/docker-entrypoint-initdb.d`.
+- Existing volume: run the migration with `psql` against the `klyro` database; migrations are written to be idempotent.
 
 ## Adding a migration — checklist
 

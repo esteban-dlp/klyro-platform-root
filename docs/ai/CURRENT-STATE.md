@@ -23,12 +23,12 @@ When schema, seeds, compose, or env setup changes.
 | Docker Compose (postgres/backend/frontend) | 🚧 | postgres healthcheck; backend `start:dev`; volumes mounted |
 | DB init scripts | ✅ (present) | `000`→`003`; ~53 tables, ~36 enums, scheduling functions |
 | Seeds | ✅ (present) | `001`→`005` (catalogs, security, operational types, templates, plans) |
-| Migrations | 🚧 | only README so far — schema currently bootstrapped via `init/` |
+| Migrations | ✅ (active) | Incremental SQL migrations are mounted after init/seeds; current compose order reaches `060-appointment-blocked-intervals.sql`. Existing volumes require manual `psql` application. |
 | ERD | ✅ | `database/docs/database-der.mmd` |
 
 ## Known issues & debt
 
-- No migration files yet beyond README; once the DB is deployed, all schema changes must move to `migrations/` (never edit `init/`).
+- Compose-mounted migration files run only on a fresh Postgres volume; apply new migrations manually to existing volumes.
 - Confirm `.env.database` / `.env.backend` / `.env.frontend` are documented in ENVIRONMENT.md and not committed with secrets.
 
 > Must reflect the real current infrastructure, not assumptions.
