@@ -66,6 +66,7 @@ services:
       - ../backend/database/migrations/2026-06-14-ai-settings-context-mode.sql:/docker-entrypoint-initdb.d/061-ai-settings-context-mode.sql:ro
       - ../backend/database/migrations/2026-06-14-worker-assignment-modes.sql:/docker-entrypoint-initdb.d/062-worker-assignment-modes.sql:ro
       - ../backend/database/migrations/2026-06-14-multi-service-appointments.sql:/docker-entrypoint-initdb.d/063-multi-service-appointments.sql:ro
+      - ../backend/database/migrations/2026-06-14-resources.sql:/docker-entrypoint-initdb.d/064-resources.sql:ro
     networks:
       - klyro-network
     healthcheck:
