@@ -63,6 +63,7 @@ services:
       - ../backend/database/migrations/2026-06-13-worker-notifications-calendar.sql:/docker-entrypoint-initdb.d/058-worker-notifications-calendar.sql:ro
       - ../backend/database/migrations/2026-06-13-inbound-whatsapp-media.sql:/docker-entrypoint-initdb.d/059-inbound-whatsapp-media.sql:ro
       - ../backend/database/migrations/2026-06-13-appointment-blocked-intervals.sql:/docker-entrypoint-initdb.d/060-appointment-blocked-intervals.sql:ro
+      - ../backend/database/migrations/2026-06-14-ai-settings-context-mode.sql:/docker-entrypoint-initdb.d/061-ai-settings-context-mode.sql:ro
     networks:
       - klyro-network
     healthcheck:
