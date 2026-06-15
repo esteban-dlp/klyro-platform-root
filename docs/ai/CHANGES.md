@@ -14,6 +14,11 @@ After every meaningful change, append an entry at the top. Flag changes affectin
 
 ## Changelog
 
+### 2026-06-15 — Appointment AI worker-summary column (migration 068)
+- **Changed:** New migration `2026-06-15-appointment-ai-summary.sql` (compose mount `068`). Adds `appointments.ai_summary JSONB` (+ CHECK = object when present).
+- **Reason:** Phase 2 of the "AI Business Assistant". Stores a template-first, AI-generated worker-preparation summary (`{summary, highlights[], preparationNotes[], source, generatedAt}`), separate from human `appointments.notes`.
+- **Impact:** Additive/nullable/idempotent. Existing volumes require manual application (`psql`). No applied migration edited.
+
 ### 2026-06-15 — AI discovery mode kill switch (migration 067)
 - **Changed:** New migration `2026-06-15-ai-discovery-mode.sql` (compose mount `067`). Adds `business_ai_settings.discovery_mode_enabled BOOLEAN NOT NULL DEFAULT true`.
 - **Reason:** Phase 1 of the "AI Business Assistant" evolution. Per-business kill switch for the new need-discovery / advisory conversation behavior; ships ON globally, any business can revert to legacy fast-booking without a global flag flip.
