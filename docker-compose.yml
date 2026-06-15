@@ -69,6 +69,7 @@ services:
       - ../backend/database/migrations/2026-06-14-resources.sql:/docker-entrypoint-initdb.d/064-resources.sql:ro
       - ../backend/database/migrations/2026-06-14-waitlist.sql:/docker-entrypoint-initdb.d/065-waitlist.sql:ro
       - ../backend/database/migrations/2026-06-15-resource-unavailability-multibranch.sql:/docker-entrypoint-initdb.d/066-resource-unavailability-multibranch.sql:ro
+      - ../backend/database/migrations/2026-06-15-ai-discovery-mode.sql:/docker-entrypoint-initdb.d/067-ai-discovery-mode.sql:ro
     networks:
       - klyro-network
     healthcheck:
