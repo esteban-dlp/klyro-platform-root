@@ -46,6 +46,7 @@ When SQL files or folders are added/moved/removed.
 | `2026-06-15-13-channel-notification-types.sql` | Seeds the `channel.account_unhealthy` notification type (compose `078`) | New volumes automatically; existing volumes manually |
 | `2026-06-15-14-backfill-whatsapp-channel-accounts.sql` | Backfills WhatsApp accounts into the parent `business_channel_accounts` + detail `business_whatsapp_channel_accounts` (id-preserving), binds conversations, seeds `last_inbound_at` (compose `079`; **runs LAST**) | New volumes automatically; existing volumes manually |
 | `2026-06-16-01-ai-response-length.sql` | Adds `ai_response_length_enum` + `business_ai_settings.response_length` (default `normal`; controls AI client-message verbosity short/normal/detailed). Runner-only — not compose-mounted (folder picked up directly) | New volumes via runner; existing volumes via runner/manual |
+| `2026-06-16-02-ai-regional-style.sql` | Adds `business_ai_settings.regional_style` (`varchar(20)` + CHECK `chk_business_ai_settings_regional_style`, allowed `auto`/`neutral`/`gt`/`mx`/`co`/`ar`/`cl`/`es`, default `auto`; subtle regional Spanish register, behavior-neutral). Runner-only — not compose-mounted (folder picked up directly) | New volumes via runner; existing volumes via runner/manual |
 
 ## Seeds (in order)
 

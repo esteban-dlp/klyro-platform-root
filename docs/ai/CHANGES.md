@@ -14,6 +14,15 @@ After every meaningful change, append an entry at the top. Flag changes affectin
 
 ## Changelog
 
+### 2026-06-16 - AI regional language style setting (Phase 4)
+- **Changed:** Added NEW migration `backend/database/migrations/2026-06-16-02-ai-regional-style.sql` — adds `business_ai_settings.regional_style` (`varchar(20)`, `NOT NULL DEFAULT 'auto'`) plus an idempotent CHECK `chk_business_ai_settings_regional_style` (`auto`/`neutral`/`gt`/`mx`/`co`/`ar`/`cl`/`es`). Idempotent (`ADD COLUMN IF NOT EXISTS` + guarded `DO $$` for the constraint via `pg_constraint`).
+- **What it controls:** Owner-tunable AI voice setting injecting ONE subtle regional Spanish register into the prompt — subordinate to the client's detected language (applies only when replying in Spanish; never slang/stereotype). `auto` derives the register from the business country when reachable (else neutral); explicit codes pin a country.
+- **Why varchar+CHECK (not a PG enum):** countries can be added incrementally without an enum-alter migration.
+- **Rollout:** Behavior-neutral — `DEFAULT 'auto'` backfills every existing row; `auto` resolves neutral on the conversation hot path (business ISO code not cheaply reachable there), so no business changes behavior on deploy.
+- **Compose:** NOT compose-mounted (normal migrations are runner-only per `DB-INSTRUCTIONS.md`); `root/docker-compose.yml` NOT touched.
+- **Docs:** Updated `database/docs/database-der.mmd` (added `regional_style`), `db/TABLES-GUIDE.md`, `db/DB-MAP.md`, `CURRENT-STATE.md`, `TASKS-LOG.md`.
+- **Impact:** Fully additive. Backend TypeScript/entities updated in the same Phase 4 work (enum→entity→config→DTO→mapper→prompt); frontend NOT modified.
+
 ### 2026-06-16 - AI response length setting (Phase 3a)
 - **Changed:** Added NEW migration `backend/database/migrations/2026-06-16-01-ai-response-length.sql` — creates `ai_response_length_enum` (`short`/`normal`/`detailed`) and adds `business_ai_settings.response_length` column with `NOT NULL DEFAULT 'normal'`. Idempotent (guarded `DO $$` for the type, `ADD COLUMN IF NOT EXISTS`).
 - **What it controls:** Owner-tunable AI voice setting for how much factual content the AI puts in each client-facing message — `short` (answer + the single decision needed), `normal` (answer + key booking facts: service, worker; today's behavior), `detailed` (answer + full context: service, worker, duration, price, next step).
