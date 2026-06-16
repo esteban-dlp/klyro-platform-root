@@ -51,9 +51,13 @@ docker compose logs -f
 docker compose logs -f backend
 docker compose logs -f frontend
 docker compose logs -f postgres
+docker compose logs -f migrations
 
 # Rebuild a single service
 docker compose up --build backend
+
+# Run the local migration job explicitly
+docker compose run --rm migrations
 ```
 
 ## Environment Strategy
@@ -89,7 +93,13 @@ Each service also has its own `.env.example` for running **without Docker**:
 - NestJS app running in watch mode (`npm run start:dev`)
 - Port: `3001`
 - Source code mounted for hot reload
-- Waits for postgres to be healthy before starting
+- Waits for postgres to be healthy and for migrations to finish before starting
+
+### migrations
+- One-shot backend container that runs `npm run db:migrate`
+- Uses the same migration runner as Railway's pre-deploy command
+- Creates/reuses `schema_migrations` with filename, checksum, and timestamp
+- Local-only baseline mode records already-applied legacy migrations on existing volumes without deleting data
 
 ### frontend
 - Next.js app running in dev mode (`npm run dev`)
@@ -98,7 +108,8 @@ Each service also has its own `.env.example` for running **without Docker**:
 
 ## Database
 
-Init SQL scripts live in `../database/init/` and run automatically when Postgres starts for the first time.
+Init SQL scripts live in `../backend/database/init/` and run automatically when Postgres starts for the first time.
+For existing volumes, new SQL files in `../backend/database/migrations/` are applied by the `migrations` service during `docker compose up --build`.
 
 To reset the database:
 

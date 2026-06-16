@@ -24,7 +24,7 @@ All on `klyro-network`. `postgres_data` volume persists DB data. Backend uses po
 
 ## First-boot SQL mount order
 
-`000-create-database` → `001-enums` → `002-tables` → `003-scheduling-functions` → seeds → ordered migrations through compose mount `060`. Order matters. Compose SQL runs automatically only for a fresh Postgres volume.
+`000-create-database` → `001-enums` → `002-tables` → `003-scheduling-functions` → seeds → ordered migrations through compose mount `075`. Order matters. Compose SQL runs automatically only for a fresh Postgres volume.
 
 ## Environment variables
 

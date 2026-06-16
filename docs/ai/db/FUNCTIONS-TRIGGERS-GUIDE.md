@@ -34,13 +34,20 @@ These back the appointment/availability logic — keep them consistent with the 
 
 | Trigger | Table | Event | Function | Purpose |
 | --- | --- | --- | --- | --- |
-| _document any triggers from the SQL here_ | | | | |
+| `set_updated_at()` triggers | most tables w/ `updated_at` | BEFORE UPDATE | `set_updated_at()` | Stamp `updated_at = now()` on row update |
+| `trg_business_channel_accounts_set_updated_at` | `business_channel_accounts` | BEFORE UPDATE | `set_updated_at()` | Stamp `updated_at` on channel-account changes |
+| `trg_channel_onboarding_sessions_set_updated_at` | `channel_onboarding_sessions` | BEFORE UPDATE | `set_updated_at()` | Stamp `updated_at` on onboarding-session changes |
+| `trg_client_channel_identities_set_updated_at` | `client_channel_identities` | BEFORE UPDATE | `set_updated_at()` | Stamp `updated_at` on identity changes |
 
 ## Notable constraints
 
 - Status enums constrain valid states (see enums in `001-enums.sql`).
 - `chk_appointments_blocked_time_range` and `chk_appointment_holds_blocked_time_range` require blocked intervals to contain the visible interval and remain non-empty.
 - `appointment_holds_one_active_conversation_idx` enforces one active hold per conversation.
+- `chk_bca_connected_requires_token` / `chk_bca_disconnected_requires_ts` on `business_channel_accounts`: a `connected` account must have a token, a connect timestamp, and a routing key; a `disconnected` account must have a disconnect timestamp (mirrors the WhatsApp account CHECKs).
+- `business_channel_accounts_channel_routing_unique_idx`: one live account per `(channel, inbound_routing_key)` (ignores soft-deleted rows so accounts can be reconnected).
+- `client_channel_identities_unique_idx`: one live identity per `(business_id, channel, business_channel_account_id, external_participant_id)`.
+- `chk_channel_onboarding_state_nonce_length`: the onboarding CSRF nonce must be ≥16 chars.
 - _Document unique/check/exclusion constraints (e.g. preventing double-booking) and their business meaning as found in `002-tables.sql`._
 
 > Must reflect the real current functions/triggers/constraints, not assumptions.
