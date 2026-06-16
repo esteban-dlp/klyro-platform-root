@@ -87,6 +87,10 @@ services:
       - ../backend/database/migrations/2026-06-15-12-instagram-message-send-outbox-type.sql:/docker-entrypoint-initdb.d/077-instagram-message-send-outbox-type.sql:ro
       - ../backend/database/migrations/2026-06-15-13-channel-notification-types.sql:/docker-entrypoint-initdb.d/078-channel-notification-types.sql:ro
       - ../backend/database/migrations/2026-06-15-14-backfill-whatsapp-channel-accounts.sql:/docker-entrypoint-initdb.d/079-backfill-whatsapp-channel-accounts.sql:ro
+      - ../backend/database/migrations/2026-06-16-01-ai-response-length.sql:/docker-entrypoint-initdb.d/080-ai-response-length.sql:ro
+      - ../backend/database/migrations/2026-06-16-02-ai-regional-style.sql:/docker-entrypoint-initdb.d/081-ai-regional-style.sql:ro
+      - ../backend/database/migrations/2026-06-16-03-ai-fast-booking-mode.sql:/docker-entrypoint-initdb.d/082-ai-fast-booking-mode.sql:ro
+      - ../backend/database/migrations/2026-06-16-04-ai-content-disclosure.sql:/docker-entrypoint-initdb.d/083-ai-content-disclosure.sql:ro
     networks:
       - klyro-network
     healthcheck:
