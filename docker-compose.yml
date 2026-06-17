@@ -19,47 +19,78 @@ services:
       - ../backend/database/seeds/004-seed-message-templates.sql:/docker-entrypoint-initdb.d/007-seed-message-templates.sql:ro
       - ../backend/database/seeds/005-seed-plans.sql:/docker-entrypoint-initdb.d/008-seed-plans.sql:ro
 
-      - ../backend/database/migrations/2026-06-02-whatsapp-integration.sql:/docker-entrypoint-initdb.d/020-whatsapp-integration.sql:ro
-      - ../backend/database/migrations/2026-06-03-ai-runtime.sql:/docker-entrypoint-initdb.d/021-ai-runtime.sql:ro
-      - ../backend/database/migrations/2026-06-05-ai-emoji-usage.sql:/docker-entrypoint-initdb.d/022-ai-emoji-usage.sql:ro
-      - ../backend/database/migrations/2026-06-05-appointments-is-simulated.sql:/docker-entrypoint-initdb.d/023-appointments-is-simulated.sql:ro
-      - ../backend/database/migrations/2026-06-05-ai-provider-model-and-catalog.sql:/docker-entrypoint-initdb.d/024-ai-provider-model-and-catalog.sql:ro
-      - ../backend/database/migrations/2026-06-05-message-template-translations.sql:/docker-entrypoint-initdb.d/025-message-template-translations.sql:ro
-      - ../backend/database/migrations/2026-06-06-media-assets.sql:/docker-entrypoint-initdb.d/026-media-assets.sql:ro
+      - ../backend/database/migrations/2026-06-02-01-whatsapp-integration.sql:/docker-entrypoint-initdb.d/020-whatsapp-integration.sql:ro
+      - ../backend/database/migrations/2026-06-03-01-ai-runtime.sql:/docker-entrypoint-initdb.d/021-ai-runtime.sql:ro
+      - ../backend/database/migrations/2026-06-05-01-ai-emoji-usage.sql:/docker-entrypoint-initdb.d/022-ai-emoji-usage.sql:ro
+      - ../backend/database/migrations/2026-06-05-02-appointments-is-simulated.sql:/docker-entrypoint-initdb.d/023-appointments-is-simulated.sql:ro
+      - ../backend/database/migrations/2026-06-05-03-ai-provider-model-and-catalog.sql:/docker-entrypoint-initdb.d/024-ai-provider-model-and-catalog.sql:ro
+      - ../backend/database/migrations/2026-06-05-04-message-template-translations.sql:/docker-entrypoint-initdb.d/025-message-template-translations.sql:ro
+      - ../backend/database/migrations/2026-06-06-01-media-assets.sql:/docker-entrypoint-initdb.d/026-media-assets.sql:ro
 
-      - ../backend/database/migrations/2026-06-06-outbox-idempotency-active-only.sql:/docker-entrypoint-initdb.d/027-outbox-idempotency-active-only.sql:ro
+      - ../backend/database/migrations/2026-06-06-02-outbox-idempotency-active-only.sql:/docker-entrypoint-initdb.d/027-outbox-idempotency-active-only.sql:ro
 
       # Seeds that depend on migration-created schema run AFTER the migrations.
       - ../backend/database/seeds/006-seed-ai-model-catalog.sql:/docker-entrypoint-initdb.d/028-seed-ai-model-catalog.sql:ro
-      - ../backend/database/migrations/2026-06-08-scheduling-enums.sql:/docker-entrypoint-initdb.d/029-scheduling-enums.sql:ro
-      - ../backend/database/migrations/2026-06-08-services-duration-options-extras.sql:/docker-entrypoint-initdb.d/030-services-duration-options-extras.sql:ro
-      - ../backend/database/migrations/2026-06-08-appointment-options-extras.sql:/docker-entrypoint-initdb.d/031-appointment-options-extras.sql:ro
-      - ../backend/database/migrations/2026-06-08-holiday-templates.sql:/docker-entrypoint-initdb.d/032-holiday-templates.sql:ro
-      - ../backend/database/migrations/2026-06-08-branch-holidays-overrides.sql:/docker-entrypoint-initdb.d/033-branch-holidays-overrides.sql:ro
-      - ../backend/database/migrations/2026-06-08-worker-breaks-overrides.sql:/docker-entrypoint-initdb.d/034-worker-breaks-overrides.sql:ro
-      - ../backend/database/migrations/2026-06-08-scheduling-functions-open-period.sql:/docker-entrypoint-initdb.d/035-scheduling-functions-open-period.sql:ro
-      - ../backend/database/migrations/2026-06-08-offers.sql:/docker-entrypoint-initdb.d/036-offers.sql:ro
-      - ../backend/database/migrations/2026-06-09-service-extra-quantity.sql:/docker-entrypoint-initdb.d/037-service-extra-quantity.sql:ro
-      - ../backend/database/migrations/2026-06-09-offer-branches-visuals.sql:/docker-entrypoint-initdb.d/038-offer-branches-visuals.sql:ro
-      - ../backend/database/migrations/2026-06-09-holiday-rules-applicability-visuals.sql:/docker-entrypoint-initdb.d/039-holiday-rules-applicability-visuals.sql:ro
-      - ../backend/database/migrations/2026-06-09-service-extras-count.sql:/docker-entrypoint-initdb.d/040-service-extras-count.sql:ro
-      - ../backend/database/migrations/2026-06-10-holidays-business-level.sql:/docker-entrypoint-initdb.d/041-holidays-business-level.sql:ro
-      - ../backend/database/migrations/2026-06-11-availability-worker-available-starts.sql:/docker-entrypoint-initdb.d/042-availability-worker-available-starts.sql:ro
-      - ../backend/database/migrations/2026-06-11-availability-free-windows.sql:/docker-entrypoint-initdb.d/043-availability-free-windows.sql:ro
-      - ../backend/database/migrations/2026-06-11-whatsapp-providers.sql:/docker-entrypoint-initdb.d/044-whatsapp-providers.sql:ro
-      - ../backend/database/migrations/2026-06-11-whatsapp-onboarding-sessions.sql:/docker-entrypoint-initdb.d/045-whatsapp-onboarding-sessions.sql:ro
-      - ../backend/database/migrations/2026-06-12-whatsapp-byoa-and-hints.sql:/docker-entrypoint-initdb.d/046-whatsapp-byoa-and-hints.sql:ro
-      - ../backend/database/migrations/2026-06-12-whatsapp-account-branch-id.sql:/docker-entrypoint-initdb.d/047-whatsapp-account-branch-id.sql:ro
-      - ../backend/database/migrations/2026-06-13-ai-diagnostics-appointment-holds.sql:/docker-entrypoint-initdb.d/048-ai-diagnostics-appointment-holds.sql:ro
-      - ../backend/database/migrations/2026-06-13-realtime-connect-permission.sql:/docker-entrypoint-initdb.d/049-realtime-connect-permission.sql:ro
-      - ../backend/database/migrations/2026-06-13-notification-types-seed.sql:/docker-entrypoint-initdb.d/050-notification-types-seed.sql:ro
-      - ../backend/database/migrations/2026-06-13-message-status-queued-ignored.sql:/docker-entrypoint-initdb.d/051-message-status-queued-ignored.sql:ro
-      - ../backend/database/migrations/2026-06-13-message-status-manual-retry.sql:/docker-entrypoint-initdb.d/052-message-status-manual-retry.sql:ro
-      - ../backend/database/migrations/2026-06-13-conversation-attention-notification-priority.sql:/docker-entrypoint-initdb.d/053-conversation-attention-notification-priority.sql:ro
-      - ../backend/database/migrations/2026-06-13-message-delivery-failed-superseded.sql:/docker-entrypoint-initdb.d/054-message-delivery-failed-superseded.sql:ro
-      - ../backend/database/migrations/2026-06-13-message-type-interactive.sql:/docker-entrypoint-initdb.d/055-message-type-interactive.sql:ro
-      - ../backend/database/migrations/2026-06-13-appointments-client-no-overlap.sql:/docker-entrypoint-initdb.d/056-appointments-client-no-overlap.sql:ro
-      - ../backend/database/migrations/2026-06-13-ai-settings-human-takeover-pause.sql:/docker-entrypoint-initdb.d/057-ai-settings-human-takeover-pause.sql:ro
+      - ../backend/database/migrations/2026-06-08-01-scheduling-enums.sql:/docker-entrypoint-initdb.d/029-scheduling-enums.sql:ro
+      - ../backend/database/migrations/2026-06-08-02-services-duration-options-extras.sql:/docker-entrypoint-initdb.d/030-services-duration-options-extras.sql:ro
+      - ../backend/database/migrations/2026-06-08-03-appointment-options-extras.sql:/docker-entrypoint-initdb.d/031-appointment-options-extras.sql:ro
+      - ../backend/database/migrations/2026-06-08-04-holiday-templates.sql:/docker-entrypoint-initdb.d/032-holiday-templates.sql:ro
+      - ../backend/database/migrations/2026-06-08-05-branch-holidays-overrides.sql:/docker-entrypoint-initdb.d/033-branch-holidays-overrides.sql:ro
+      - ../backend/database/migrations/2026-06-08-06-worker-breaks-overrides.sql:/docker-entrypoint-initdb.d/034-worker-breaks-overrides.sql:ro
+      - ../backend/database/migrations/2026-06-08-07-scheduling-functions-open-period.sql:/docker-entrypoint-initdb.d/035-scheduling-functions-open-period.sql:ro
+      - ../backend/database/migrations/2026-06-08-08-offers.sql:/docker-entrypoint-initdb.d/036-offers.sql:ro
+      - ../backend/database/migrations/2026-06-09-01-service-extra-quantity.sql:/docker-entrypoint-initdb.d/037-service-extra-quantity.sql:ro
+      - ../backend/database/migrations/2026-06-09-02-offer-branches-visuals.sql:/docker-entrypoint-initdb.d/038-offer-branches-visuals.sql:ro
+      - ../backend/database/migrations/2026-06-09-03-holiday-rules-applicability-visuals.sql:/docker-entrypoint-initdb.d/039-holiday-rules-applicability-visuals.sql:ro
+      - ../backend/database/migrations/2026-06-09-04-service-extras-count.sql:/docker-entrypoint-initdb.d/040-service-extras-count.sql:ro
+      - ../backend/database/migrations/2026-06-10-01-holidays-business-level.sql:/docker-entrypoint-initdb.d/041-holidays-business-level.sql:ro
+      - ../backend/database/migrations/2026-06-11-01-availability-worker-available-starts.sql:/docker-entrypoint-initdb.d/042-availability-worker-available-starts.sql:ro
+      - ../backend/database/migrations/2026-06-11-02-availability-free-windows.sql:/docker-entrypoint-initdb.d/043-availability-free-windows.sql:ro
+      - ../backend/database/migrations/2026-06-11-03-whatsapp-provider-enum-prerequisite.sql:/docker-entrypoint-initdb.d/043a-whatsapp-provider-enum-prerequisite.sql:ro
+      - ../backend/database/migrations/2026-06-11-04-whatsapp-providers.sql:/docker-entrypoint-initdb.d/044-whatsapp-providers.sql:ro
+      - ../backend/database/migrations/2026-06-11-05-whatsapp-onboarding-sessions.sql:/docker-entrypoint-initdb.d/045-whatsapp-onboarding-sessions.sql:ro
+      - ../backend/database/migrations/2026-06-12-01-whatsapp-byoa-and-hints.sql:/docker-entrypoint-initdb.d/046-whatsapp-byoa-and-hints.sql:ro
+      - ../backend/database/migrations/2026-06-12-02-whatsapp-account-branch-id.sql:/docker-entrypoint-initdb.d/047-whatsapp-account-branch-id.sql:ro
+      - ../backend/database/migrations/2026-06-13-01-ai-diagnostics-appointment-holds.sql:/docker-entrypoint-initdb.d/048-ai-diagnostics-appointment-holds.sql:ro
+      - ../backend/database/migrations/2026-06-13-02-notification-type-code-format.sql:/docker-entrypoint-initdb.d/048a-notification-type-code-format.sql:ro
+      - ../backend/database/migrations/2026-06-13-03-realtime-connect-permission.sql:/docker-entrypoint-initdb.d/049-realtime-connect-permission.sql:ro
+      - ../backend/database/migrations/2026-06-13-04-notification-types-seed.sql:/docker-entrypoint-initdb.d/050-notification-types-seed.sql:ro
+      - ../backend/database/migrations/2026-06-13-05-message-status-queued-ignored.sql:/docker-entrypoint-initdb.d/051-message-status-queued-ignored.sql:ro
+      - ../backend/database/migrations/2026-06-13-06-message-status-manual-retry.sql:/docker-entrypoint-initdb.d/052-message-status-manual-retry.sql:ro
+      - ../backend/database/migrations/2026-06-13-07-conversation-attention-notification-priority.sql:/docker-entrypoint-initdb.d/053-conversation-attention-notification-priority.sql:ro
+      - ../backend/database/migrations/2026-06-13-08-message-delivery-failed-superseded.sql:/docker-entrypoint-initdb.d/054-message-delivery-failed-superseded.sql:ro
+      - ../backend/database/migrations/2026-06-13-09-message-type-interactive.sql:/docker-entrypoint-initdb.d/055-message-type-interactive.sql:ro
+      - ../backend/database/migrations/2026-06-13-10-appointments-client-no-overlap.sql:/docker-entrypoint-initdb.d/056-appointments-client-no-overlap.sql:ro
+      - ../backend/database/migrations/2026-06-13-11-ai-settings-human-takeover-pause.sql:/docker-entrypoint-initdb.d/057-ai-settings-human-takeover-pause.sql:ro
+      - ../backend/database/migrations/2026-06-13-12-worker-notifications-calendar.sql:/docker-entrypoint-initdb.d/058-worker-notifications-calendar.sql:ro
+      - ../backend/database/migrations/2026-06-13-13-inbound-whatsapp-media.sql:/docker-entrypoint-initdb.d/059-inbound-whatsapp-media.sql:ro
+      - ../backend/database/migrations/2026-06-13-14-appointment-blocked-intervals.sql:/docker-entrypoint-initdb.d/060-appointment-blocked-intervals.sql:ro
+      - ../backend/database/migrations/2026-06-14-01-ai-settings-context-mode.sql:/docker-entrypoint-initdb.d/061-ai-settings-context-mode.sql:ro
+      - ../backend/database/migrations/2026-06-14-02-worker-assignment-modes.sql:/docker-entrypoint-initdb.d/062-worker-assignment-modes.sql:ro
+      - ../backend/database/migrations/2026-06-14-03-multi-service-appointments.sql:/docker-entrypoint-initdb.d/063-multi-service-appointments.sql:ro
+      - ../backend/database/migrations/2026-06-14-04-resources.sql:/docker-entrypoint-initdb.d/064-resources.sql:ro
+      - ../backend/database/migrations/2026-06-14-05-waitlist.sql:/docker-entrypoint-initdb.d/065-waitlist.sql:ro
+      - ../backend/database/migrations/2026-06-15-01-resource-unavailability-multibranch.sql:/docker-entrypoint-initdb.d/066-resource-unavailability-multibranch.sql:ro
+      - ../backend/database/migrations/2026-06-15-02-ai-discovery-mode.sql:/docker-entrypoint-initdb.d/067-ai-discovery-mode.sql:ro
+      - ../backend/database/migrations/2026-06-15-03-appointment-ai-summary.sql:/docker-entrypoint-initdb.d/068-appointment-ai-summary.sql:ro
+      - ../backend/database/migrations/2026-06-15-04-service-ai-insights.sql:/docker-entrypoint-initdb.d/069-service-ai-insights.sql:ro
+      # Multi-channel messaging (2026-06-15) — sequential NN prefix enforces the
+      # dependency order on Railway (migrate.js sorts by filename) AND here. The
+      # backfill (14) must run LAST, after the parent/detail/identity tables.
+      - ../backend/database/migrations/2026-06-15-05-message-channel-instagram-enum.sql:/docker-entrypoint-initdb.d/070-message-channel-instagram-enum.sql:ro
+      - ../backend/database/migrations/2026-06-15-06-business-channel-accounts.sql:/docker-entrypoint-initdb.d/071-business-channel-accounts.sql:ro
+      - ../backend/database/migrations/2026-06-15-07-business-whatsapp-channel-accounts.sql:/docker-entrypoint-initdb.d/072-business-whatsapp-channel-accounts.sql:ro
+      - ../backend/database/migrations/2026-06-15-08-channel-onboarding-sessions.sql:/docker-entrypoint-initdb.d/073-channel-onboarding-sessions.sql:ro
+      - ../backend/database/migrations/2026-06-15-09-client-channel-identities.sql:/docker-entrypoint-initdb.d/074-client-channel-identities.sql:ro
+      - ../backend/database/migrations/2026-06-15-10-conversations-channel-fields.sql:/docker-entrypoint-initdb.d/075-conversations-channel-fields.sql:ro
+      - ../backend/database/migrations/2026-06-15-11-source-instagram-enum.sql:/docker-entrypoint-initdb.d/076-source-instagram-enum.sql:ro
+      - ../backend/database/migrations/2026-06-15-12-instagram-message-send-outbox-type.sql:/docker-entrypoint-initdb.d/077-instagram-message-send-outbox-type.sql:ro
+      - ../backend/database/migrations/2026-06-15-13-channel-notification-types.sql:/docker-entrypoint-initdb.d/078-channel-notification-types.sql:ro
+      - ../backend/database/migrations/2026-06-15-14-backfill-whatsapp-channel-accounts.sql:/docker-entrypoint-initdb.d/079-backfill-whatsapp-channel-accounts.sql:ro
+      - ../backend/database/migrations/2026-06-16-01-ai-response-length.sql:/docker-entrypoint-initdb.d/080-ai-response-length.sql:ro
+      - ../backend/database/migrations/2026-06-16-02-ai-regional-style.sql:/docker-entrypoint-initdb.d/081-ai-regional-style.sql:ro
+      - ../backend/database/migrations/2026-06-16-03-ai-fast-booking-mode.sql:/docker-entrypoint-initdb.d/082-ai-fast-booking-mode.sql:ro
+      - ../backend/database/migrations/2026-06-16-04-ai-content-disclosure.sql:/docker-entrypoint-initdb.d/083-ai-content-disclosure.sql:ro
     networks:
       - klyro-network
     healthcheck:
@@ -67,6 +98,34 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  migrations:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    restart: "no"
+    env_file:
+      - ../backend/.env
+    volumes:
+      - ../backend:/app
+      - /app/node_modules
+    command: npm run db:migrate
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: ""
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_SSL: "false"
+      # Local legacy volumes may already contain migrations applied by initdb or
+      # psql before schema_migrations existed. Baseline the current legacy head,
+      # then apply any newer files through the runner.
+      MIGRATION_BASELINE_UNTIL: 2026-06-15-14-backfill-whatsapp-channel-accounts.sql
+      MIGRATION_BASELINE_MISSING_BEFORE_LATEST: "true"
+    networks:
+      - klyro-network
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   backend:
     build:
@@ -83,6 +142,7 @@ services:
     command: npm run start:dev
     environment:
       NODE_ENV: development
+      DATABASE_URL: ""
       CHOKIDAR_USEPOLLING: "true"
       WATCHPACK_POLLING: "true"
       TSC_WATCHFILE: UsePolling
@@ -92,6 +152,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
 
   frontend:
     build:

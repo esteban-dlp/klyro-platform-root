@@ -21,16 +21,26 @@ After adding a migration; when the process changes.
 
 ## Current state
 
-- Schema is currently bootstrapped via `database/init/`. `database/migrations/` has only a README.
-- Once the database is deployed, **all** schema changes must move to `migrations/` (do not keep editing `init/`).
+- Fresh volumes bootstrap through `database/init/`, seeds, and compose-mounted migrations. The compose mount order currently reaches `079-backfill-whatsapp-channel-accounts.sql` (the 2026-06-15 multi-channel batch uses the `NN` sequence prefix, backfill last).
+- Existing volumes do not replay `/docker-entrypoint-initdb.d`; apply each new migration manually with `psql` (the local `migrations` service runs `migrate.js`, which reads the folder directly in filename order).
+- All schema changes use new files under `database/migrations/`; do not edit `init/` or applied migrations.
+- Enum `ADD VALUE` migrations (e.g. `2026-06-15-05-message-channel-instagram-enum.sql`) must NOT be transaction-wrapped, and the new value cannot be used in the same transaction that added it — keep such statements isolated in their own migration.
 
 ## Naming & order
 
-- Numeric-prefixed, kebab-case: `NNN-description.sql`, monotonically increasing.
+- **MANDATORY filename format: `YYYY-MM-DD-NN-short-kebab-description.sql`** — `NN`
+  is a two-digit sequence per date (`01`, `02`, …). Migrations apply in filename
+  order both on Railway (`migrate.js` sorts by filename) and in local initdb, so
+  the date alone is insufficient: same-day files otherwise sort alphabetically by
+  description and a backfill can run before its table. **Order `NN` by dependency**
+  (enums → tables → FK/detail tables → seeds → INSERT/backfill **last**).
+- Never rename/renumber an applied migration (the runner tracks applied files by
+  filename → a rename re-runs it). Pre-`NN` historical files are grandfathered.
 
 ## How migrations run
 
-- _Document the real runner_ (e.g. manual `psql`, a script in `scripts/`, or container init). Until then, init SQL runs on first postgres boot via the compose mounts.
+- Fresh volume: Docker runs ordered mounts in `/docker-entrypoint-initdb.d`.
+- Existing volume: run the migration with `psql` against the `klyro` database; migrations are written to be idempotent.
 
 ## Adding a migration — checklist
 
