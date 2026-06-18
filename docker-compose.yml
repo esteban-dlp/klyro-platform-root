@@ -91,6 +91,7 @@ services:
       - ../backend/database/migrations/2026-06-16-02-ai-regional-style.sql:/docker-entrypoint-initdb.d/081-ai-regional-style.sql:ro
       - ../backend/database/migrations/2026-06-16-03-ai-fast-booking-mode.sql:/docker-entrypoint-initdb.d/082-ai-fast-booking-mode.sql:ro
       - ../backend/database/migrations/2026-06-16-04-ai-content-disclosure.sql:/docker-entrypoint-initdb.d/083-ai-content-disclosure.sql:ro
+      - ../backend/database/migrations/2026-06-16-05-ai-disclosure-modes.sql:/docker-entrypoint-initdb.d/084-ai-disclosure-modes.sql:ro
     networks:
       - klyro-network
     healthcheck:
