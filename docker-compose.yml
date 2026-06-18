@@ -93,6 +93,10 @@ services:
       - ../backend/database/migrations/2026-06-16-04-ai-content-disclosure.sql:/docker-entrypoint-initdb.d/083-ai-content-disclosure.sql:ro
       - ../backend/database/migrations/2026-06-16-05-ai-disclosure-modes.sql:/docker-entrypoint-initdb.d/084-ai-disclosure-modes.sql:ro
       - ../backend/database/migrations/2026-06-18-01-ai-time-format.sql:/docker-entrypoint-initdb.d/085-ai-time-format.sql:ro
+      - ../backend/database/migrations/2026-06-18-02-ai-token-usage.sql:/docker-entrypoint-initdb.d/086-ai-token-usage.sql:ro
+      - ../backend/database/migrations/2026-06-18-03-client-contact-email-status.sql:/docker-entrypoint-initdb.d/087-client-contact-email-status.sql:ro
+      - ../backend/database/migrations/2026-06-18-04-client-email-send-outbox-type.sql:/docker-entrypoint-initdb.d/088-client-email-send-outbox-type.sql:ro
+      - ../backend/database/migrations/2026-06-18-05-notifications-start-at.sql:/docker-entrypoint-initdb.d/089-notifications-start-at.sql:ro
     networks:
       - klyro-network
     healthcheck:
