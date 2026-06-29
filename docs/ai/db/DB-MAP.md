@@ -48,6 +48,9 @@ When SQL files or folders are added/moved/removed.
 | `2026-06-16-01-ai-response-length.sql` | Adds `ai_response_length_enum` + `business_ai_settings.response_length` (default `normal`; controls AI client-message verbosity short/normal/detailed). Runner-only — not compose-mounted (folder picked up directly) | New volumes via runner; existing volumes via runner/manual |
 | `2026-06-16-02-ai-regional-style.sql` | Adds `business_ai_settings.regional_style` (`varchar(20)` + CHECK `chk_business_ai_settings_regional_style`, allowed `auto`/`neutral`/`gt`/`mx`/`co`/`ar`/`cl`/`es`, default `auto`; subtle regional Spanish register, behavior-neutral). Runner-only — not compose-mounted (folder picked up directly) | New volumes via runner; existing volumes via runner/manual |
 
+| `2026-06-22-01..05-*.sql` | AI credits billing batch: per-1M model pricing, plan credits, `usage_counters.llm_credits_used`, `increment_usage_counter`, model cost profiles, and credit notification types. Runner-only | New volumes via runner; existing volumes via runner/manual |
+| `2026-06-29-01-worker-free-windows-exclude-appointment.sql` | Updates `scheduling.worker_free_windows` with optional `p_exclude_appointment_id` so reschedule availability can ignore the appointment being moved. Runner-only | New volumes via runner; existing volumes via runner/manual |
+
 ## Seeds (in order)
 
 | File | Purpose |

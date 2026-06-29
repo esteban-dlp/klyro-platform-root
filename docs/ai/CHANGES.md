@@ -14,6 +14,25 @@ After every meaningful change, append an entry at the top. Flag changes affectin
 
 ## Changelog
 
+### 2026-06-29 - Reschedule availability excludes the appointment being moved
+- **Migration (runner-only, `root/docker-compose.yml` NOT touched):**
+  - `2026-06-29-01-worker-free-windows-exclude-appointment.sql` updates
+    `scheduling.worker_free_windows` to accept optional `p_exclude_appointment_id` and skip that appointment when
+    subtracting active appointments from free ranges.
+- **Why:** v2 reschedule availability can now auto-exclude the appointment being moved at the DB free-window layer,
+  matching backend exact booking validation and avoiding false self-conflict `slot_taken` issues.
+- **Impact:** Function signature is additive through a defaulted final argument. Backend availability code passes the
+  new parameter when rescheduling; existing callers using five args continue to work.
+
+### 2026-06-22 — AI credits billing schema (plans→credits, usage counters, per-1M pricing, cost profiles)
+- **Migrations (runner-only, `root/docker-compose.yml` NOT touched):**
+  - `2026-06-22-01-ai-model-catalog-per-1m-pricing.sql` — guarded rename of `ai_model_catalog.input/output_cost_per_1k_usd` → `*_per_1m_usd` + ×1000 (per-1M tokens, industry standard). Runs after seed 006 in every path, so it converts the seeded per-1K values in place. Seed 006 is intentionally left per-1K (immutable-era file matching its CREATE migration).
+  - `2026-06-22-02-plans-credits-model.sql` — `plans`: DROP `max_conversations_per_month`/`max_ai_messages_per_month`/`max_input_tokens_per_month`/`max_output_tokens_per_month`; ADD `profit_pct`/`infra_fixed_cents`/`monthly_llm_credits`/`max_services` (+ CHECKs); recalibrated free/pro/max ($0/$30/$90). Credits derived by formula (profit_pct is the per-tier lever).
+  - `2026-06-22-03-usage-counters-credits-and-increment-fn.sql` — `usage_counters`: ADD `llm_credits_used`(numeric 14,3)/`credits_alert_level`(smallint, CHECK 0/80/95/100); CREATE `increment_usage_counter(business,period_start,period_end,input,output,credits,ai_requests)` (upsert-and-add on the `(business_id,period_start,period_end)` unique index) — the previously-missing function the app now calls.
+  - `2026-06-22-04-model-cost-profiles.sql` — new `model_cost_profiles` (UNIQUE provider+model): rolling empirical avg credits/message per model for the "≈ N messages" estimate.
+  - `2026-06-22-05-credits-notification-types.sql` — seeds `business.ai_credits_low` + `business.ai_credits_exhausted` notification types.
+- **Note:** `usage_counters` was dead scaffolding before this — never written to. It is now populated by the AI runtime via `increment_usage_counter` on every LLM call. Clean replacement (no production users), so dropped the obsolete plan columns outright rather than back-compat.
+
 ### 2026-06-16 - AI regional language style setting (Phase 4)
 - **Changed:** Added NEW migration `backend/database/migrations/2026-06-16-02-ai-regional-style.sql` — adds `business_ai_settings.regional_style` (`varchar(20)`, `NOT NULL DEFAULT 'auto'`) plus an idempotent CHECK `chk_business_ai_settings_regional_style` (`auto`/`neutral`/`gt`/`mx`/`co`/`ar`/`cl`/`es`). Idempotent (`ADD COLUMN IF NOT EXISTS` + guarded `DO $$` for the constraint via `pg_constraint`).
 - **What it controls:** Owner-tunable AI voice setting injecting ONE subtle regional Spanish register into the prompt — subordinate to the client's detected language (applies only when replying in Spanish; never slang/stereotype). `auto` derives the register from the business country when reachable (else neutral); explicit codes pin a country.

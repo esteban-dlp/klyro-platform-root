@@ -26,9 +26,18 @@ Source: `database/init/003-scheduling-functions.sql`.
 | `scheduling.has_active_hold_conflict(...)` | Does the worker's requested blocked interval overlap another live hold? |
 | `scheduling.has_appointment_conflict(...)` | Does the worker's requested blocked interval overlap an active appointment or live hold? |
 | `scheduling.is_worker_available_for_booking(...)` | Composite exact-booking validation using opening rules and blocked appointment/hold intervals, with exclusion ids for reschedule/hold replacement. |
+| `scheduling.worker_free_windows(..., p_exclude_appointment_id DEFAULT NULL)` | Returns continuous worker free ranges for availability search; can ignore the appointment being rescheduled so it does not block its own new slot. |
 | `scheduling.is_worker_available(...)` | Composite: is the worker bookable for this slot? |
 
 These back the appointment/availability logic — keep them consistent with the backend's appointments use-cases.
+
+## Functions (`public` schema)
+
+Source: `database/migrations/2026-06-22-03-usage-counters-credits-and-increment-fn.sql`.
+
+| Function | Purpose (business) |
+| --- | --- |
+| `increment_usage_counter(business_id, period_start, period_end, input_tokens, output_tokens, credits, ai_requests)` | The ONLY way app code mutates `usage_counters`. Upsert-and-add: creates the per-business per-period row if missing, else atomically adds the deltas (input/output tokens, LLM credits, AI requests). Negative deltas are clamped to 0. Conflict target = the `(business_id, period_start, period_end)` unique index. Called by `CreditsService.deductForLlmCall` on every LLM call. |
 
 ## Triggers
 

@@ -14,6 +14,16 @@ After completing any meaningful task, append an entry at the top.
 
 ## Log
 
+### 2026-06-29 - Worker free windows can exclude rescheduled appointment
+- **What:** Added migration `2026-06-29-01-worker-free-windows-exclude-appointment.sql`, replacing
+  `scheduling.worker_free_windows` with a defaulted `p_exclude_appointment_id` parameter and using it to ignore the
+  appointment being moved during free-window calculation.
+- **Why:** Reschedule searches must not treat the original appointment as a blocker for its own replacement slot.
+- **Decisions:** Kept this as a runner-only normal migration; `root/docker-compose.yml` was not touched per
+  `backend/database/DB-INSTRUCTIONS.md`.
+- **Files:** `backend/database/migrations/2026-06-29-01-worker-free-windows-exclude-appointment.sql`,
+  `root/docs/ai/db/FUNCTIONS-TRIGGERS-GUIDE.md`, `root/docs/ai/db/DB-MAP.md`, root changelog/task log.
+
 ### 2026-06-16 - AI regional language style migration (Phase 4)
 - **What:** Added migration `2026-06-16-02-ai-regional-style.sql` adding `business_ai_settings.regional_style` (`varchar(20)` `NOT NULL DEFAULT 'auto'`) + idempotent CHECK `chk_business_ai_settings_regional_style` (`auto`/`neutral`/`gt`/`mx`/`co`/`ar`/`cl`/`es`). Updated the ER model and the db living docs.
 - **Why:** Phase 4 (Regional Language Style) — give owners a subtle regional Spanish register knob, subordinate to the client's detected language, without changing current behavior on deploy.

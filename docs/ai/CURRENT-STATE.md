@@ -23,7 +23,7 @@ When schema, seeds, compose, or env setup changes.
 | Docker Compose (postgres/backend/frontend) | 🚧 | postgres healthcheck; backend `start:dev`; volumes mounted |
 | DB init scripts | ✅ (present) | `000`→`003`; ~53 tables, ~36 enums, scheduling functions |
 | Seeds | ✅ (present) | `001`→`005` (catalogs, security, operational types, templates, plans) |
-| Migrations | ✅ (active) | Incremental SQL migrations are mounted after init/seeds; current compose order reaches `079-backfill-whatsapp-channel-accounts.sql` (multi-channel messaging DB foundation: `business_channel_accounts`, `channel_onboarding_sessions`, `client_channel_identities`, `conversations` channel fields, `notifications.channel`, WhatsApp backfill). Existing volumes require manual `psql` application. Latest: runner-only (not compose-mounted) `2026-06-16-02-ai-regional-style.sql` adds `business_ai_settings.regional_style` (`varchar(20)` + CHECK, default `auto`); preceded by `2026-06-16-01-ai-response-length.sql` (`ai_response_length_enum` + `business_ai_settings.response_length`, default `normal`). |
+| Migrations | ✅ (active) | Incremental SQL migrations are mounted after init/seeds; current compose order reaches `079-backfill-whatsapp-channel-accounts.sql` for legacy bootstrap, then the `migrations` service applies newer runner-only files directly from `backend/database/migrations`. Latest runner-only file: `2026-06-29-01-worker-free-windows-exclude-appointment.sql`, which lets `scheduling.worker_free_windows` ignore the appointment being rescheduled. |
 | ERD | ✅ | `database/docs/database-der.mmd` |
 
 ## Known issues & debt
