@@ -86,7 +86,11 @@ When a table or column is added, changed, or removed. Add a detailed block per t
 
 | Table | Business meaning |
 | --- | --- |
-| `plans`, `business_subscriptions`, `usage_counters` | Pricing tiers, active subscriptions, metered usage |
+| `plans` | Pricing tiers. Credits model (2026-06-22): `profit_pct` + `infra_fixed_cents` derive `monthly_llm_credits` (1 credit = $0.001 cost); resource caps `max_workers`/`max_branches`/`max_services` (null = unlimited). Dropped the old token/message/conversation limit columns. |
+| `business_subscriptions` | A business's active plan + billing period (drives the usage period). |
+| `usage_counters` | Metered usage per business per billing period: `llm_credits_used` (credits consumed), input/output tokens, `ai_requests_count`, `credits_alert_level` (80/95/100 one-shot owner alerts). Mutated ONLY via the `increment_usage_counter` function. |
+| `model_cost_profiles` | Rolling empirical average credits/message per AI model (from `ai_token_usage`), for the "≈ N messages" plan estimate. |
+| `ai_model_catalog` | Per-model informative USD pricing, now **per 1M tokens** (`input/output_cost_per_1m_usd`). |
 | `audit_logs` | Audit trail of significant actions |
 
 > Keep descriptions business-focused. Verify columns against `002-tables.sql`. Must reflect the real current schema.

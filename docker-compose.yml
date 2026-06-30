@@ -97,6 +97,7 @@ services:
       - ../backend/database/migrations/2026-06-18-03-client-contact-email-status.sql:/docker-entrypoint-initdb.d/087-client-contact-email-status.sql:ro
       - ../backend/database/migrations/2026-06-18-04-client-email-send-outbox-type.sql:/docker-entrypoint-initdb.d/088-client-email-send-outbox-type.sql:ro
       - ../backend/database/migrations/2026-06-18-05-notifications-start-at.sql:/docker-entrypoint-initdb.d/089-notifications-start-at.sql:ro
+      - ../backend/database/migrations/2026-06-18-06-notifications-metadata.sql:/docker-entrypoint-initdb.d/090-notifications-metadata.sql:ro
     networks:
       - klyro-network
     healthcheck:

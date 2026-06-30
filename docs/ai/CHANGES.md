@@ -14,6 +14,19 @@ After every meaningful change, append an entry at the top. Flag changes affectin
 
 ## Changelog
 
+### 2026-06-29 - WhatsApp YCloud provider: enum value + per-account webhook id
+- **Migrations (runner-only, `root/docker-compose.yml` NOT touched — post-baseline convention):**
+  - `2026-06-29-02-whatsapp-ycloud-provider-enum.sql` — `ALTER TYPE whatsapp_provider_enum ADD VALUE 'ycloud'`
+    (own file so the value commits before any use).
+  - `2026-06-29-03-whatsapp-ycloud-account-fields.sql` — adds `business_whatsapp_accounts.webhook_public_id`
+    (unguessable per-account id embedded in the YCloud webhook URL) with a unique partial index, plus a partial
+    unique index enforcing **one connected WhatsApp account per business** (`status='connected'`).
+- **Why:** YCloud webhooks are configured per account and signed with a per-account secret, so the inbound URL must
+  identify the account before signature verification; and the product rule is one connected number per business.
+- **Impact:** Additive columns/indexes. ER model `backend/database/docs/database-der.mmd` updated
+  (`webhook_public_id`; enum gains `ycloud`). Existing environments with >1 connected account per business must be
+  cleaned up before the partial unique index applies.
+
 ### 2026-06-29 - Reschedule availability excludes the appointment being moved
 - **Migration (runner-only, `root/docker-compose.yml` NOT touched):**
   - `2026-06-29-01-worker-free-windows-exclude-appointment.sql` updates
