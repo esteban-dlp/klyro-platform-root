@@ -14,6 +14,18 @@ After completing any meaningful task, append an entry at the top.
 
 ## Log
 
+### 2026-07-03 - Branch type: physical vs online
+- **What:** Added runner-only migration `2026-07-03-01-branch-type.sql`: `branch_type_enum` (`physical`/`online`) + `branches.type` (default `physical`) + partial index `idx_branches_business_type` on `(business_id, type)`.
+- **Why:** The onboarding "online / mobile" option was creating an ordinary physical branch, wrongly counted against the plan's branch limit and indistinguishable from a real location in the UI.
+- **Decisions:** Typed the branch instead of going branch-less, since appointments/schedules/opening-hours all require a branch row. Singleton + plan-exemption enforcement lives in `CreateBranchUseCase` (application-level), not a DB constraint — the DB only guarantees the enum + a lookup index. Did not touch `root/docker-compose.yml`; picked up by the migration runner like other post-baseline migrations.
+- **Files:** `backend/database/migrations/2026-07-03-01-branch-type.sql`, `backend/src/database/enums/index.ts`, `backend/src/modules/businesses/{entities/branch.entity.ts,dto/create-branch.dto.ts,mappers/business.mapper.ts,use-cases/create-branch.use-case.ts}`, `backend/src/common/swagger/response-dtos.ts`, `root/docs/ai/{CHANGES.md,CURRENT-STATE.md,TASKS-LOG.md,db/DB-MAP.md,db/TABLES-GUIDE.md}`.
+
+### 2026-07-02 - Plan pricing and AI credit recalibration
+- **What:** Added runner-only migrations for plan packaging: `2026-07-02-02-plan-credit-recalibration.sql` updates Free/Pro/Max prices, credits, and Pro caps; `2026-07-02-03-free-plan-whatsapp.sql` enables WhatsApp on Free without modifying the checksum-pinned `02` migration.
+- **Why:** Align the plan catalog with the revised commercial packaging and monthly AI budgets.
+- **Decisions:** Kept this as data-only migrations instead of editing `005-seed-plans.sql`. Restored `02` to the originally applied content and moved the later WhatsApp change to `03` because applied migration files are checksum-pinned. Did not touch `root/docker-compose.yml`; normal migrations are picked up by the migration runner.
+- **Files:** `backend/database/migrations/2026-07-02-02-plan-credit-recalibration.sql`, `backend/database/migrations/2026-07-02-03-free-plan-whatsapp.sql`, `root/docs/ai/CHANGES.md`, `root/docs/ai/CURRENT-STATE.md`, `root/docs/ai/TASKS-LOG.md`, `root/docs/ai/db/DB-MAP.md`, `root/docs/ai/db/TABLES-GUIDE.md`.
+
 ### 2026-06-29 - Worker free windows can exclude rescheduled appointment
 - **What:** Added migration `2026-06-29-01-worker-free-windows-exclude-appointment.sql`, replacing
   `scheduling.worker_free_windows` with a defaulted `p_exclude_appointment_id` parameter and using it to ignore the

@@ -50,6 +50,9 @@ When SQL files or folders are added/moved/removed.
 
 | `2026-06-22-01..05-*.sql` | AI credits billing batch: per-1M model pricing, plan credits, `usage_counters.llm_credits_used`, `increment_usage_counter`, model cost profiles, and credit notification types. Runner-only | New volumes via runner; existing volumes via runner/manual |
 | `2026-06-29-01-worker-free-windows-exclude-appointment.sql` | Updates `scheduling.worker_free_windows` with optional `p_exclude_appointment_id` so reschedule availability can ignore the appointment being moved. Runner-only | New volumes via runner; existing volumes via runner/manual |
+| `2026-07-02-02-plan-credit-recalibration.sql` | Data-only update to `plans`: Free 500 credits; Pro $29 / 5,000 credits / 20 workers / 3 branches / 20 services; Max $99 / 50,000 credits. Runner-only | New volumes via runner; existing volumes via runner/manual |
+| `2026-07-02-03-free-plan-whatsapp.sql` | Data-only update to `plans`: enables WhatsApp on Free. Separate from `02` to avoid changing an applied migration checksum. Runner-only | New volumes via runner; existing volumes via runner/manual |
+| `2026-07-03-01-branch-type.sql` | Adds `branch_type_enum` (`physical`/`online`) + `branches.type` (default `physical`) + partial index `idx_branches_business_type`. `online` is a singleton per business, exempt from the plan's `max_branches` limit (enforced in `CreateBranchUseCase`, not DB-level). Runner-only | New volumes via runner; existing volumes via runner/manual |
 
 ## Seeds (in order)
 

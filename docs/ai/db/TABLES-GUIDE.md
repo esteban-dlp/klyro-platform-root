@@ -36,7 +36,7 @@ When a table or column is added, changed, or removed. Add a detailed block per t
 
 | Table | Business meaning |
 | --- | --- |
-| `branches` | Business locations |
+| `branches` | Business locations. `type` (2026-07-03): `physical` (default, counted against the plan's `max_branches`) or `online` (the business's online/mobile presence — singleton per business, exempt from the plan limit; still a real branch row since appointments/schedules/opening-hours hang off it). |
 | `branch_opening_hours` | Regular opening hours per branch |
 | `branch_availability_overrides`, `branch_availability_override_branches` | Exceptional branch availability |
 | `workers`, `worker_aliases` | Staff who perform services |
@@ -86,7 +86,7 @@ When a table or column is added, changed, or removed. Add a detailed block per t
 
 | Table | Business meaning |
 | --- | --- |
-| `plans` | Pricing tiers. Credits model (2026-06-22): `profit_pct` + `infra_fixed_cents` derive `monthly_llm_credits` (1 credit = $0.001 cost); resource caps `max_workers`/`max_branches`/`max_services` (null = unlimited). Dropped the old token/message/conversation limit columns. |
+| `plans` | Pricing tiers. Credits model (2026-06-22): `profit_pct` + `infra_fixed_cents` derive `monthly_llm_credits` for paid tiers (1 credit = $0.001 cost); resource caps `max_workers`/`max_branches`/`max_services` (null = unlimited). Current packaging after 2026-07-02 recalibration: Free has 500 complimentary credits and WhatsApp enabled; Pro is $29 with 5,000 credits and 20 workers/3 branches/20 services; Max is $99 with 50,000 credits and unlimited resource caps. Dropped the old token/message/conversation limit columns. |
 | `business_subscriptions` | A business's active plan + billing period (drives the usage period). |
 | `usage_counters` | Metered usage per business per billing period: `llm_credits_used` (credits consumed), input/output tokens, `ai_requests_count`, `credits_alert_level` (80/95/100 one-shot owner alerts). Mutated ONLY via the `increment_usage_counter` function. |
 | `model_cost_profiles` | Rolling empirical average credits/message per AI model (from `ai_token_usage`), for the "≈ N messages" plan estimate. |

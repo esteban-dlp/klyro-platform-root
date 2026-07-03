@@ -14,6 +14,22 @@ After every meaningful change, append an entry at the top. Flag changes affectin
 
 ## Changelog
 
+### 2026-07-03 - Branch type: physical vs online
+- **Migration (runner-only, `root/docker-compose.yml` NOT touched):**
+  - `2026-07-03-01-branch-type.sql` adds `branch_type_enum` (`physical`/`online`) and `branches.type` (`NOT NULL DEFAULT 'physical'`), plus a partial index `idx_branches_business_type` on `(business_id, type)` for the "does this business already have an online branch" check.
+- **Why:** Selecting "online / mobile" during onboarding was creating an ordinary physical branch row, which incorrectly counted toward the plan's `max_branches` limit and had no way to render differently in the UI. The booking engine still needs a branch row (appointments/schedules/opening-hours all hang off a branch), so we typed the branch instead of going branch-less.
+- **Impact:** Additive, backward-compatible (`physical` default backfills existing rows). `online` is enforced as a singleton per business and excluded from the plan branch-limit count in `CreateBranchUseCase` (application-level, not a DB constraint) — see `backend/src/modules/businesses/use-cases/create-branch.use-case.ts`.
+
+### 2026-07-02 - Plan pricing and AI credit recalibration
+- **Migrations (runner-only, `root/docker-compose.yml` NOT touched):**
+  - `2026-07-02-02-plan-credit-recalibration.sql` updates the seeded plan rows:
+    - `free`: keeps existing resource caps, grants 500 complimentary AI credits ($0.50).
+    - `pro`: price $29, 5,000 AI credits ($5 budget), 20 workers, 3 branches, 20 services, `profit_pct=65.52`, `infra_fixed_cents=500`.
+    - `max`: price $99, 50,000 AI credits ($50 budget), unlimited resource caps, `profit_pct=41.41`, `infra_fixed_cents=800`.
+  - `2026-07-02-03-free-plan-whatsapp.sql` enables WhatsApp on the Free plan. Kept separate because `2026-07-02-02` may already be recorded in `schema_migrations` and migration files are checksum-pinned.
+- **Why:** Align plan packaging with the new pricing/AI-budget strategy while preserving the credits model (`1 credit = $0.001` real internal AI cost).
+- **Impact:** Data-only updates to `plans`; no schema/entity changes. Free credits are complimentary and not formula-derived because the plan price is $0. Paid-plan profit percentages are rounded to the `NUMERIC(5,2)` column precision.
+
 ### 2026-06-29 - WhatsApp YCloud provider: enum value + per-account webhook id
 - **Migrations (runner-only, `root/docker-compose.yml` NOT touched — post-baseline convention):**
   - `2026-06-29-02-whatsapp-ycloud-provider-enum.sql` — `ALTER TYPE whatsapp_provider_enum ADD VALUE 'ycloud'`
