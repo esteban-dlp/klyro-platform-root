@@ -20,10 +20,10 @@ When schema, seeds, compose, or env setup changes.
 
 | Item | Status | Notes |
 | --- | --- | --- |
-| Docker Compose (postgres/backend/frontend) | 🚧 | postgres healthcheck; backend `start:dev`; volumes mounted |
+| Docker Compose (postgres/backend/frontend) | 🚧 | postgres healthcheck; backend `start:dev`; volumes mounted. **2026-07-12:** backend no longer overrides `DATABASE_URL` with an invalid empty value, so its valid URL or documented discrete DB credentials can boot the service. |
 | DB init scripts | ✅ (present) | `000`→`003`; ~53 tables, ~36 enums, scheduling functions |
 | Seeds | ✅ (present) | `001`→`005` (catalogs, security, operational types, templates, plans) |
-| Migrations | ✅ (active) | Incremental SQL migrations are mounted after init/seeds; current compose order reaches `079-backfill-whatsapp-channel-accounts.sql` for legacy bootstrap, then the `migrations` service applies newer runner-only files directly from `backend/database/migrations`. Latest runner-only file: `2026-07-03-01-branch-type.sql`, adding `branches.type` (`physical`/`online`). |
+| Migrations | ✅ (active) | Incremental SQL migrations are mounted after init/seeds; current compose order reaches `079-backfill-whatsapp-channel-accounts.sql` for legacy bootstrap, then the `migrations` service applies newer runner-only files directly from `backend/database/migrations`. Latest runner-only file: `2026-07-08-02-business-reminder-settings.sql`; the preceding `01` file adds explicit service modalities and branchless online holds. |
 | ERD | ✅ | `database/docs/database-der.mmd` |
 
 ## Known issues & debt

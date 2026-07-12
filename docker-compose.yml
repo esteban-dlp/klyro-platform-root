@@ -149,7 +149,6 @@ services:
     command: npm run start:dev
     environment:
       NODE_ENV: development
-      DATABASE_URL: ""
       CHOKIDAR_USEPOLLING: "true"
       WATCHPACK_POLLING: "true"
       TSC_WATCHFILE: UsePolling

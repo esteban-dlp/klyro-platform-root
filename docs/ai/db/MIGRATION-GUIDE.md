@@ -21,6 +21,8 @@ After adding a migration; when the process changes.
 
 ## Current state
 
+- Latest runner migration: `backend/database/migrations/2026-07-08-02-business-reminder-settings.sql` adds per-business appointment-reminder preferences.
+- Latest service-location migration: `backend/database/migrations/2026-07-08-01-service-location-mode.sql` adds `services.service_location_mode`, allows `appointment_holds.branch_id` to be nullable for online holds, and backfills legacy branch/online service state. It is a normal runner migration; `root/docker-compose.yml` is not updated for it.
 - Fresh volumes bootstrap through `database/init/`, seeds, and compose-mounted migrations. The compose mount order currently reaches `079-backfill-whatsapp-channel-accounts.sql` (the 2026-06-15 multi-channel batch uses the `NN` sequence prefix, backfill last).
 - Existing volumes do not replay `/docker-entrypoint-initdb.d`; apply each new migration manually with `psql` (the local `migrations` service runs `migrate.js`, which reads the folder directly in filename order).
 - All schema changes use new files under `database/migrations/`; do not edit `init/` or applied migrations.

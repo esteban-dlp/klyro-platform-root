@@ -14,6 +14,35 @@ After every meaningful change, append an entry at the top. Flag changes affectin
 
 ## Changelog
 
+### 2026-07-12 - Backend container environment validation fix
+
+- Removed the explicit empty `DATABASE_URL` override from the backend service. Joi correctly rejects an empty URI,
+  so the override prevented the backend from booting even when the backend env file contained a valid connection.
+  Compose now lets either its valid `DATABASE_URL` or the documented discrete `DATABASE_HOST`, `DATABASE_PORT`,
+  `DATABASE_USER`, `DATABASE_PASSWORD`, and `DATABASE_NAME` values drive the connection as intended.
+- No database schema or migration changed. An existing local volume may still stop the migration runner if its
+  recorded checksum differs from a migration file; resolve that volume/history mismatch separately rather than
+  editing an applied migration.
+
+### 2026-07-08 - Service location mode and branchless online holds
+- **Migration (runner-only, `root/docker-compose.yml` NOT touched):**
+  - `backend/database/migrations/2026-07-08-01-service-location-mode.sql` adds `service_location_mode_enum` (`BRANCH_ONLY`/`ONLINE_ONLY`/`HYBRID`) and `services.service_location_mode` (`NOT NULL DEFAULT 'BRANCH_ONLY'`), indexes `(business_id, service_location_mode)`, and makes `appointment_holds.branch_id` nullable for online holds.
+  - Backfill derives service modes from existing active `branch_services` joined to `branches.type`; single-physical-branch legacy services get a physical `branch_services` row, branchless services in businesses with no physical branches become `ONLINE_ONLY`, and ambiguous branchless services in multi-physical-branch businesses are inactivated for explicit owner cleanup.
+- **Why:** online services are a service capability, not a physical branch assignment. `branch_services` now represents physical branch eligibility only; `ONLINE_ONLY` services carry no physical branches and online holds can be branchless.
+- **Apply to an existing volume:** run the normal migrations service or apply the file with `psql`; no compose mount change is needed because the migration runner reads `backend/database/migrations` directly.
+
+### 2026-07-07 - Resource validation constraints
+- **Migration (runner-only, `root/docker-compose.yml` NOT touched):**
+  - `backend/database/migrations/2026-07-07-01-resource-validation-constraints.sql` adds idempotent CHECK constraints for `resources.name` trimmed length (`>= 2`) and `resources.icon_key` format (`^[a-z0-9_-]+$` when present).
+- **Why:** align the database with the backend/UI resource validation rules so bad resource names/icons cannot be persisted through alternate paths.
+- **Apply to an existing volume:** run the normal migrations service or apply the file with `psql`; fresh/current local runner reads the migrations folder directly in filename order.
+
+### 2026-07-06 - Branch override "type of closure" optional
+- **Migration (runner-only, `root/docker-compose.yml` NOT touched — normal migration):**
+  - `2026-07-06-02-branch-override-type-optional.sql` drops `NOT NULL` on `branch_availability_overrides.branch_override_type_id` (idempotent). The FK to `branch_override_types` is retained; the column is simply nullable now.
+- **Why:** owners asked to be able to record a branch override (special hours / closure for exact dates) without picking a "Type of closure" from the catalog. Applies to both the branch overrides CRUD form and the owner AI assistant.
+- **Apply to an existing volume:** `docker compose exec -T postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" < ../backend/database/migrations/2026-07-06-02-branch-override-type-optional.sql` (or just `docker compose up --build`, which runs the `migrations` service).
+
 ### 2026-07-03 - Branch type: physical vs online
 - **Migration (runner-only, `root/docker-compose.yml` NOT touched):**
   - `2026-07-03-01-branch-type.sql` adds `branch_type_enum` (`physical`/`online`) and `branches.type` (`NOT NULL DEFAULT 'physical'`), plus a partial index `idx_branches_business_type` on `(business_id, type)` for the "does this business already have an online branch" check.

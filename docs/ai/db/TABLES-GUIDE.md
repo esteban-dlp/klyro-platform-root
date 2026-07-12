@@ -36,7 +36,7 @@ When a table or column is added, changed, or removed. Add a detailed block per t
 
 | Table | Business meaning |
 | --- | --- |
-| `branches` | Business locations. `type` (2026-07-03): `physical` (default, counted against the plan's `max_branches`) or `online` (the business's online/mobile presence — singleton per business, exempt from the plan limit; still a real branch row since appointments/schedules/opening-hours hang off it). |
+| `branches` | Business locations. `type` (2026-07-03): `physical` (default, counted against the plan's `max_branches`) or `online` (singleton/exempt). Online appointments/holds remain branchless publicly, while this typed Online row owns their operational opening hours, timezone, and worker schedules. `services.service_location_mode` determines whether each service can use that channel. |
 | `branch_opening_hours` | Regular opening hours per branch |
 | `branch_availability_overrides`, `branch_availability_override_branches` | Exceptional branch availability |
 | `workers`, `worker_aliases` | Staff who perform services |
@@ -48,8 +48,9 @@ When a table or column is added, changed, or removed. Add a detailed block per t
 
 | Table | Business meaning |
 | --- | --- |
-| `services`, `service_aliases` | Bookable services |
-| `branch_services` | Which services a branch offers |
+| `services`, `service_aliases` | Bookable services. `services.service_location_mode` (`BRANCH_ONLY`/`ONLINE_ONLY`/`HYBRID`, migration `2026-07-08-01-service-location-mode.sql`) defines whether a service is in-person, online-only, or both. |
+| `branch_services` | Which physical branches offer a service. This table is explicit physical branch eligibility only; `ONLINE_ONLY` services should have no physical branch rows, and `HYBRID` services combine physical rows with the synthetic online channel. |
+| `resources`, `resource_branches`, `service_resources`, `resource_unavailabilities`, `resource_unavailability_branches` | Capacity-limiting assets such as rooms, bays, or machines. `resources.name` must be at least 2 trimmed characters and `resources.icon_key` must use the same lowercase key format as the backend/UI (`^[a-z0-9_-]+$`) as of migration `2026-07-07-01-resource-validation-constraints.sql`. |
 
 ## Clients & conversations
 
@@ -65,9 +66,10 @@ When a table or column is added, changed, or removed. Add a detailed block per t
 | Table | Business meaning |
 | --- | --- |
 | `appointments` | A booking. `start_at`/`end_at` are customer-visible; `blocked_start_at`/`blocked_end_at` reserve worker capacity including service buffers. |
-| `appointment_holds`, `appointment_hold_extras` | Short-lived, one-active-per-conversation scheduling holds. Holds store the same visible and blocked intervals used by final appointments. |
+| `appointment_holds`, `appointment_hold_extras` | Short-lived, one-active-per-conversation scheduling holds. Holds store the same visible and blocked intervals used by final appointments. `branch_id` is nullable as of `2026-07-08-01-service-location-mode.sql` so online holds can be branchless. |
 | `appointment_events` | State-change history of an appointment |
 | `reminders` | Scheduled reminders for appointments |
+| `business_reminder_settings` | Per-business email/WhatsApp reminder enablement and lead-hour preferences. |
 | `calendar_connections`, `appointment_calendar_events` | External calendar sync |
 
 ## AI, WhatsApp, notifications
