@@ -33,6 +33,8 @@ business
 
 Most rows trace back to a **business** (and frequently a **branch**) — this enforces multi-tenant isolation.
 
+`error_logs` is intentionally standalone: `business_id`, `conversation_id`, and `outbox_event_id` are soft references with no foreign keys. Error persistence must still succeed when the originating transaction rolled back or a related row was removed.
+
 ## Key many-to-many joins
 
 | Join table | Connects |

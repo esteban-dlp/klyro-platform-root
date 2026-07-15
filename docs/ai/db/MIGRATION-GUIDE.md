@@ -21,6 +21,8 @@ After adding a migration; when the process changes.
 
 ## Current state
 
+- `backend/database/migrations/2026-07-15-01-error-logs.sql` adds the standalone `error_logs` table plus time/business indexes. It is mounted as compose `091`; existing volumes must apply it through the migration runner or `psql`.
+
 - Latest runner migration: `backend/database/migrations/2026-07-12-02-dashboard-appointment-indexes.sql` adds two partial indexes on `appointments` (`business_id, start_at` and `business_id, status, start_at`, both `WHERE deleted_at IS NULL AND is_simulated = false`) backing the aggregated dashboard endpoint's tenant-scoped, time-windowed reads. `CREATE INDEX IF NOT EXISTS`, no table rewrite, safe on a populated DB; not a compose mount (post-cutoff runner migration).
 - `backend/database/migrations/2026-07-08-02-business-reminder-settings.sql` adds per-business appointment-reminder preferences.
 - Latest service-location migration: `backend/database/migrations/2026-07-08-01-service-location-mode.sql` adds `services.service_location_mode`, allows `appointment_holds.branch_id` to be nullable for online holds, and backfills legacy branch/online service state. It is a normal runner migration; `root/docker-compose.yml` is not updated for it.

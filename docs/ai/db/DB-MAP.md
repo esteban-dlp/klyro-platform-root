@@ -55,6 +55,7 @@ When SQL files or folders are added/moved/removed.
 | `2026-07-03-01-branch-type.sql` | Adds `branch_type_enum` (`physical`/`online`) + `branches.type` (default `physical`) + partial index `idx_branches_business_type`. `online` is a singleton per business, exempt from the plan's `max_branches` limit (enforced in `CreateBranchUseCase`, not DB-level). Runner-only | New volumes via runner; existing volumes via runner/manual |
 | `2026-07-08-01-service-location-mode.sql` | Adds `service_location_mode_enum` + `services.service_location_mode`, indexes service location mode, makes `appointment_holds.branch_id` nullable for online holds, and backfills legacy branch/online service state. Runner-only | New volumes via runner; existing volumes via runner/manual |
 | `2026-07-08-02-business-reminder-settings.sql` | Adds one soft-deletable reminder-settings row per business with email/WhatsApp enable flags and constrained lead hours. Runner-only | New volumes via runner; existing volumes via runner/manual |
+| `2026-07-15-01-error-logs.sql` | Adds standalone production HTTP/outbox failure records with time/business indexes (compose `091`) | New volumes automatically; existing volumes via runner/manual |
 
 ## Seeds (in order)
 
