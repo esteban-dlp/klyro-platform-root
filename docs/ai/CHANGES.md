@@ -1,5 +1,10 @@
 # CHANGES — Root / Infrastructure
 
+### 2026-07-16 — Pro/Max plan AI credits raised
+
+- New runner migration `2026-07-16-02-plan-credits-pro-max-increase.sql` (in `backend/database/migrations/`) sets `plans.monthly_llm_credits` to 5,000 for `pro` (was 3,000) and 15,000 for `max` (was 10,000).
+- No compose mount added; the migration service reads new migration files directly, consistent with the current bootstrap cutoff.
+
 ## Purpose
 
 Changelog of meaningful infra/DB changes, newest first.
@@ -13,6 +18,11 @@ At the start of any task, after MAP — to know what just changed.
 After every meaningful change, append an entry at the top. Flag changes affecting backend entities or the running stack.
 
 ## Changelog
+
+### 2026-07-15 — Unique external auth identities
+
+- Added runner migration `2026-07-15-02-auth-provider-identity-unique.sql` with a partial unique index on active `(auth_provider, auth_provider_id)` values.
+- No compose mount was added; the migration service reads new migration files directly, consistent with the current bootstrap cutoff.
 
 ### 2026-07-12 - Backend container environment validation fix
 
