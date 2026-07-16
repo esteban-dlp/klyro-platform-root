@@ -1,5 +1,10 @@
 # CHANGES — Root / Infrastructure
 
+### 2026-07-16 — Backfill webhook_public_id for existing Meta WhatsApp accounts
+
+- New runner migration `2026-07-16-03-backfill-meta-webhook-public-id.sql` (in `backend/database/migrations/`) mints a `business_whatsapp_accounts.webhook_public_id` for Meta rows connected before per-account webhook isolation shipped (non-secret id, safe via `pgcrypto`'s `gen_random_bytes`). New connections mint one at connect time; this only covers pre-existing rows.
+- No compose mount added; the migration service reads new migration files directly, consistent with the current bootstrap cutoff.
+
 ### 2026-07-16 — Pro/Max plan AI credits raised
 
 - New runner migration `2026-07-16-02-plan-credits-pro-max-increase.sql` (in `backend/database/migrations/`) sets `plans.monthly_llm_credits` to 5,000 for `pro` (was 3,000) and 15,000 for `max` (was 10,000).
