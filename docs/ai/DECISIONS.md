@@ -14,6 +14,11 @@ Add an entry for every non-trivial technical decision; supersede rather than del
 
 ## Decisions
 
+### 2026-07-21 — DeepInfra Gemini variants use prefixed catalog IDs
+- **Decision:** register `deepinfra/google/gemini-3.1-flash-lite` and `deepinfra/google/gemini-3.5-flash` in the shared catalog, mapping them to DeepInfra's exact external `google/...` IDs through the existing client factory.
+- **Reason:** the internal prefix prevents the generic `google/...` name heuristic from routing these rows to Google's SDK; no duplicate provider, client, or environment variable is needed.
+- **Pricing:** use the current DeepInfra live catalog rates, including `$9.00` output per 1M tokens for `google/gemini-3.5-flash`.
+
 ### 2026-07-21 — Gemma is a DeepInfra catalog model, not a provider
 - **Decision:** keep the historical enum/catalog migrations immutable and add a corrective migration that disables the standalone row, backfills existing business selections, and registers `deepinfra` / `google/gemma-4-26B-A4B-it` with its official pricing/context metadata.
 - **Reason:** applied SQL history must not be rewritten, while the live catalog and business settings must stop exposing the incorrect provider. The new migration is registered in Compose order `092`.

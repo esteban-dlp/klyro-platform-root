@@ -93,7 +93,7 @@ When a table or column is added, changed, or removed. Add a detailed block per t
 | `business_subscriptions` | A business's active plan + billing period (drives the usage period). |
 | `usage_counters` | Metered usage per business per billing period: `llm_credits_used` (credits consumed), input/output tokens, `ai_requests_count`, `credits_alert_level` (80/95/100 one-shot owner alerts). Mutated ONLY via the `increment_usage_counter` function. |
 | `model_cost_profiles` | Rolling empirical average credits/message per AI model (from `ai_token_usage`), for the "≈ N messages" plan estimate. |
-| `ai_model_catalog` | Per-model informative USD pricing **per 1M tokens** (`input/output_cost_per_1m_usd`) plus optional `context_window_tokens`; includes DeepInfra's exact `google/gemma-4-26B-A4B-it` row at $0.07/$0.34 and the Google `gemini-3.1-flash-lite` / `gemini-3.6-flash` rows at their catalog prices. |
+| `ai_model_catalog` | Per-model informative USD pricing **per 1M tokens** (`input/output_cost_per_1m_usd`) plus optional `context_window_tokens`; includes DeepInfra's exact `google/gemma-4-26B-A4B-it` row at $0.07/$0.34, Google-provider Gemini rows, and DeepInfra's `deepinfra/google/gemini-3.1-flash-lite` / `deepinfra/google/gemini-3.5-flash` rows at $0.25/$1.50 and $1.50/$9.00 respectively. |
 | `audit_logs` | Audit trail of significant actions |
 | `error_logs` | Standalone production failure records from HTTP and outbox processing. Use `created_at` for direct incident queries; ids are soft references so logging survives rollbacks/deletions. |
 

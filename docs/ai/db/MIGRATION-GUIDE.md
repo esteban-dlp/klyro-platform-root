@@ -21,7 +21,7 @@ After adding a migration; when the process changes.
 
 ## Current state
 
-- Latest migration: `backend/database/migrations/2026-07-21-08-ai-model-catalog-gemini-3-flash-models.sql`. It registers `gemini-3.1-flash-lite` at $0.25/$1.50 and `gemini-3.6-flash` at $1.50/$7.50 per 1M input/output tokens under the existing Google catalog provider. It is mounted as Compose order `093`; existing volumes apply it through the migration runner. The preceding `07` migration registers DeepInfra's exact Gemma model and adds optional context metadata; do not edit the immutable historical `05`/`06` files.
+- Latest migration: `backend/database/migrations/2026-07-21-09-ai-model-catalog-deepinfra-gemini-flash-models.sql`. It registers `deepinfra/google/gemini-3.1-flash-lite` at $0.25/$1.50 and `deepinfra/google/gemini-3.5-flash` at $1.50/$9.00 per 1M input/output tokens, with 1,000,000-token context metadata. It is mounted as Compose order `094`; existing volumes apply it through the migration runner. The preceding `08` migration contains the separate Google-provider rows.
 
 - `backend/database/migrations/2026-07-15-02-auth-provider-identity-unique.sql` adds the active external auth identity unique index. It is runner-only and safe to apply without deleting volumes.
 

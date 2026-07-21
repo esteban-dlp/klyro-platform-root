@@ -14,6 +14,11 @@ After completing any meaningful task, append an entry at the top.
 
 ## Log
 
+### 2026-07-21 — Add Gemini Flash models through DeepInfra
+- **What:** added migration `2026-07-21-09-ai-model-catalog-deepinfra-gemini-flash-models.sql` and Compose order `094` for `deepinfra/google/gemini-3.1-flash-lite` and `deepinfra/google/gemini-3.5-flash`.
+- **Pricing:** DeepInfra live catalog rates are `$0.25/$1.50` and `$1.50/$9.00` input/output per 1M tokens; context metadata is 1,000,000 tokens.
+- **Apply:** existing volumes use the migration runner; the Compose mount covers fresh volumes.
+
 ### 2026-07-21 — Add Gemini Flash models to the shared catalog
 - **What:** added `2026-07-21-08-ai-model-catalog-gemini-3-flash-models.sql` and Compose order `093`, registering the two exact Google model IDs with their requested per-1M-token prices.
 - **Apply:** the migration runner applies it to existing volumes; the Compose mount covers fresh volumes.

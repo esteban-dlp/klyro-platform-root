@@ -1,5 +1,10 @@
 # CHANGES — Root / Infrastructure
 
+### 2026-07-21 — Add Gemini Flash models through DeepInfra
+
+- Added migration `2026-07-21-09-ai-model-catalog-deepinfra-gemini-flash-models.sql` and fresh-volume Compose mount `094-ai-model-catalog-deepinfra-gemini-flash-models.sql`.
+- Registered DeepInfra's current rates: `gemini-3.1-flash-lite` at `$0.25/$1.50` and `gemini-3.5-flash` at `$1.50/$9.00` input/output per 1M tokens, with 1,000,000-token context metadata.
+
 ### 2026-07-21 — Add Gemini Flash models to the catalog
 
 - Added migration `2026-07-21-08-ai-model-catalog-gemini-3-flash-models.sql` and fresh-volume Compose mount `093-ai-model-catalog-gemini-3-flash-models.sql`.
