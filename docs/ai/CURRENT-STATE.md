@@ -25,7 +25,7 @@ When schema, seeds, compose, or env setup changes.
 | Docker Compose (postgres/backend/frontend) | 🚧 | postgres healthcheck; backend `start:dev`; volumes mounted. **2026-07-12:** backend no longer overrides `DATABASE_URL` with an invalid empty value, so its valid URL or documented discrete DB credentials can boot the service. |
 | DB init scripts | ✅ (present) | `000`→`003`; ~53 tables, ~36 enums, scheduling functions |
 | Seeds | ✅ (present) | `001`→`005` (catalogs, security, operational types, templates, plans) |
-| Migrations | ✅ (active) | Incremental SQL migrations are mounted after init/seeds; current compose order reaches `079-backfill-whatsapp-channel-accounts.sql` for legacy bootstrap, then the `migrations` service applies newer runner-only files directly from `backend/database/migrations`. Latest runner-only file: `2026-07-21-06-ai-model-catalog-gemma-4-26b.sql`; migration `05` adds the enum value first. |
+| Migrations | ✅ (active) | Incremental SQL migrations are mounted after init/seeds; current compose order reaches `092-ai-model-catalog-deepinfra-gemma-4-26b.sql`, while the `migrations` service applies newer files directly from `backend/database/migrations`. The latest corrective migration registers DeepInfra's exact Gemma model and disables the historical standalone row. |
 | ERD | ✅ | `database/docs/database-der.mmd` |
 
 ## Known issues & debt

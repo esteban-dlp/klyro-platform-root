@@ -14,10 +14,10 @@ Add an entry for every non-trivial technical decision; supersede rather than del
 
 ## Decisions
 
-### 2026-07-21 — Gemma schema additions stay runner-only
-- **Decision:** add the `gemma` enum value and catalog row in two ordered migration files, with the enum isolated before the catalog insert.
-- **Reason:** PostgreSQL enum changes must be committed before the new value is used, and post-baseline migrations are read directly by the migration service for both fresh and existing volumes.
-- **Scope:** no `root/docker-compose.yml` change; no applied migration or historical init script is edited.
+### 2026-07-21 — Gemma is a DeepInfra catalog model, not a provider
+- **Decision:** keep the historical enum/catalog migrations immutable and add a corrective migration that disables the standalone row, backfills existing business selections, and registers `deepinfra` / `google/gemma-4-26B-A4B-it` with its official pricing/context metadata.
+- **Reason:** applied SQL history must not be rewritten, while the live catalog and business settings must stop exposing the incorrect provider. The new migration is registered in Compose order `092`.
+- **Scope:** no default model/provider or owner-ai-runtime configuration changes.
 
 ### 2026-07-15 — Protect external auth identity uniqueness in PostgreSQL
 - **Decision:** Enforce `(auth_provider, auth_provider_id)` uniqueness with a partial index over non-deleted rows and non-null provider IDs.

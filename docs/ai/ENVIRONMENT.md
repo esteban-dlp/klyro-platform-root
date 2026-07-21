@@ -35,7 +35,7 @@ All on `klyro-network`. `postgres_data` volume persists DB data. Backend uses po
 | `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | postgres (`.env.database`) | yes | DB credentials (referenced by healthcheck) |
 | `FRONTEND_URL` | backend | yes | CORS origin (default `http://localhost:3000`) |
 | `DATABASE_URL` / DB connection vars | backend (`.env.backend`) | yes | TypeORM connection |
-| `GEMMA_API_KEY` / `GEMMA_BASE_URL` | backend (`.env.backend`) | when provider `gemma` is used | Credentials and OpenAI-compatible Chat Completions base URL for `gemma-4-26b`; deployment-specific endpoint |
+| `DEEPINFRA_API_KEY` / `DEEPINFRA_BASE_URL` | backend (`.env.backend`) | when provider `deepinfra` is used | Existing DeepInfra credentials and OpenAI-compatible base URL; default `https://api.deepinfra.com/v1/openai`, whose SDK requests use `/chat/completions` |
 | _add backend JWT/Firebase/WhatsApp/etc._ | backend | varies | document as discovered |
 | _add frontend `NEXT_PUBLIC_*` / API base URL_ | frontend (`.env.frontend`) | varies | document as discovered |
 

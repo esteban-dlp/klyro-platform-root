@@ -14,9 +14,9 @@ After completing any meaningful task, append an entry at the top.
 
 ## Log
 
-### 2026-07-21 — Register Gemma provider and model
-- **What:** added the `gemma` PostgreSQL enum value and enabled `ai_model_catalog` row `gemma-4-26b` in migrations `2026-07-21-05` and `2026-07-21-06`.
-- **Apply:** runner-only; keep migration order intact and do not delete volumes or add a normal compose initdb mount.
+### 2026-07-21 — Correct Gemma catalog/provider registration
+- **What:** added corrective migration `2026-07-21-07-ai-model-catalog-deepinfra-gemma-4-26b.sql`, registered the exact DeepInfra model and prices/context, disabled the old standalone row, and backfilled existing business settings.
+- **Apply:** new/existing databases apply migration `07` after the immutable `05`/`06` history; Compose mount order `092` is registered and no volume reset is required.
 
 ### 2026-07-15 — Auth identity uniqueness migration
 - **What:** Added a safe, idempotent unique index for active external auth identities.

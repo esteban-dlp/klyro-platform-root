@@ -58,8 +58,9 @@ When SQL files or folders are added/moved/removed.
 | `2026-07-08-01-service-location-mode.sql` | Adds `service_location_mode_enum` + `services.service_location_mode`, indexes service location mode, makes `appointment_holds.branch_id` nullable for online holds, and backfills legacy branch/online service state. Runner-only | New volumes via runner; existing volumes via runner/manual |
 | `2026-07-08-02-business-reminder-settings.sql` | Adds one soft-deletable reminder-settings row per business with email/WhatsApp enable flags and constrained lead hours. Runner-only | New volumes via runner; existing volumes via runner/manual |
 | `2026-07-15-01-error-logs.sql` | Adds standalone production HTTP/outbox failure records with time/business indexes (compose `091`) | New volumes automatically; existing volumes via runner/manual |
-| `2026-07-21-05-ai-provider-gemma-enum.sql` | Adds `ai_provider_enum` value `gemma` for the OpenAI-compatible Gemma provider. Enum change is isolated. | New/existing volumes via runner |
-| `2026-07-21-06-ai-model-catalog-gemma-4-26b.sql` | Registers enabled `ai_model_catalog` row `gemma` / `gemma-4-26b` with provisional zero pricing. | New/existing volumes via runner |
+| `2026-07-21-05-ai-provider-gemma-enum.sql` | Immutable historical migration from the discarded standalone provider attempt; its enum value is no longer used by application code. | Historical migration |
+| `2026-07-21-06-ai-model-catalog-gemma-4-26b.sql` | Immutable historical zero-price standalone row; disabled by the corrective migration. | Historical migration |
+| `2026-07-21-07-ai-model-catalog-deepinfra-gemma-4-26b.sql` | Adds `context_window_tokens`, disables/backfills the historical standalone row, and registers enabled `deepinfra` / `google/gemma-4-26B-A4B-it` at $0.07/$0.34 per 1M tokens and 262144 context tokens. | Compose `092`; existing volumes via runner |
 
 ## Seeds (in order)
 

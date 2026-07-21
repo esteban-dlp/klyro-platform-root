@@ -1,10 +1,10 @@
 # CHANGES — Root / Infrastructure
 
-### 2026-07-21 — Gemma provider/catalog migrations
+### 2026-07-21 — Correct Gemma catalog registration through DeepInfra
 
-- Added runner-only migrations `2026-07-21-05-ai-provider-gemma-enum.sql` and `2026-07-21-06-ai-model-catalog-gemma-4-26b.sql`.
-- The database now supports the `gemma` provider and enabled catalog id `gemma-4-26b`; no existing migration or `root/docker-compose.yml` mount was changed.
-- Existing volumes must apply both files through the normal migration runner.
+- Added migration `2026-07-21-07-ai-model-catalog-deepinfra-gemma-4-26b.sql`.
+- The enabled catalog row is `deepinfra` / `google/gemma-4-26B-A4B-it`, priced at `$0.07` input and `$0.34` output per 1M tokens, with `262144` context tokens.
+- The corrective migration disables the historical standalone row and backfills existing business selections to DeepInfra. Immutable migrations `05`/`06` remain as history; the new migration is mounted as compose order `092`.
 
 ### 2026-07-16 — Backfill webhook_public_id for existing Meta WhatsApp accounts
 
