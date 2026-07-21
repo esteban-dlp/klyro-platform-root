@@ -100,6 +100,7 @@ services:
       - ../backend/database/migrations/2026-06-18-06-notifications-metadata.sql:/docker-entrypoint-initdb.d/090-notifications-metadata.sql:ro
       - ../backend/database/migrations/2026-07-15-01-error-logs.sql:/docker-entrypoint-initdb.d/091-error-logs.sql:ro
       - ../backend/database/migrations/2026-07-21-07-ai-model-catalog-deepinfra-gemma-4-26b.sql:/docker-entrypoint-initdb.d/092-ai-model-catalog-deepinfra-gemma-4-26b.sql:ro
+      - ../backend/database/migrations/2026-07-21-08-ai-model-catalog-gemini-3-flash-models.sql:/docker-entrypoint-initdb.d/093-ai-model-catalog-gemini-3-flash-models.sql:ro
     networks:
       - klyro-network
     healthcheck:

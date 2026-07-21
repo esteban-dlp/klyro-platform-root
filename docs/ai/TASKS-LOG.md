@@ -14,6 +14,10 @@ After completing any meaningful task, append an entry at the top.
 
 ## Log
 
+### 2026-07-21 — Add Gemini Flash models to the shared catalog
+- **What:** added `2026-07-21-08-ai-model-catalog-gemini-3-flash-models.sql` and Compose order `093`, registering the two exact Google model IDs with their requested per-1M-token prices.
+- **Apply:** the migration runner applies it to existing volumes; the Compose mount covers fresh volumes.
+
 ### 2026-07-21 — Correct Gemma catalog/provider registration
 - **What:** added corrective migration `2026-07-21-07-ai-model-catalog-deepinfra-gemma-4-26b.sql`, registered the exact DeepInfra model and prices/context, disabled the old standalone row, and backfilled existing business settings.
 - **Apply:** new/existing databases apply migration `07` after the immutable `05`/`06` history; Compose mount order `092` is registered and no volume reset is required.

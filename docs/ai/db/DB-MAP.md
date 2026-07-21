@@ -61,6 +61,7 @@ When SQL files or folders are added/moved/removed.
 | `2026-07-21-05-ai-provider-gemma-enum.sql` | Immutable historical migration from the discarded standalone provider attempt; its enum value is no longer used by application code. | Historical migration |
 | `2026-07-21-06-ai-model-catalog-gemma-4-26b.sql` | Immutable historical zero-price standalone row; disabled by the corrective migration. | Historical migration |
 | `2026-07-21-07-ai-model-catalog-deepinfra-gemma-4-26b.sql` | Adds `context_window_tokens`, disables/backfills the historical standalone row, and registers enabled `deepinfra` / `google/gemma-4-26B-A4B-it` at $0.07/$0.34 per 1M tokens and 262144 context tokens. | Compose `092`; existing volumes via runner |
+| `2026-07-21-08-ai-model-catalog-gemini-3-flash-models.sql` | Registers enabled Google models `gemini-3.1-flash-lite` at $0.25/$1.50 and `gemini-3.6-flash` at $1.50/$7.50 per 1M input/output tokens. | Compose `093`; existing volumes via runner |
 
 ## Seeds (in order)
 

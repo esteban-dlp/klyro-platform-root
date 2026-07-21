@@ -1,5 +1,10 @@
 # CHANGES — Root / Infrastructure
 
+### 2026-07-21 — Add Gemini Flash models to the catalog
+
+- Added migration `2026-07-21-08-ai-model-catalog-gemini-3-flash-models.sql` and fresh-volume Compose mount `093-ai-model-catalog-gemini-3-flash-models.sql`.
+- Registered the exact Google model IDs `gemini-3.1-flash-lite` and `gemini-3.6-flash` at `$0.25/$1.50` and `$1.50/$7.50` input/output per 1M tokens.
+
 ### 2026-07-21 — Correct Gemma catalog registration through DeepInfra
 
 - Added migration `2026-07-21-07-ai-model-catalog-deepinfra-gemma-4-26b.sql`.

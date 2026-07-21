@@ -21,7 +21,7 @@ After adding a migration; when the process changes.
 
 ## Current state
 
-- Latest migration: `backend/database/migrations/2026-07-21-07-ai-model-catalog-deepinfra-gemma-4-26b.sql`. It adds the optional `context_window_tokens` catalog metadata, disables the historical standalone Gemma row, backfills any affected business settings to DeepInfra, and registers `google/gemma-4-26B-A4B-it` at $0.07/$0.34 per 1M tokens with 262144 context tokens. It is mounted as Compose order `092`; existing volumes apply it through the migration runner. Do not edit the immutable `05`/`06` files.
+- Latest migration: `backend/database/migrations/2026-07-21-08-ai-model-catalog-gemini-3-flash-models.sql`. It registers `gemini-3.1-flash-lite` at $0.25/$1.50 and `gemini-3.6-flash` at $1.50/$7.50 per 1M input/output tokens under the existing Google catalog provider. It is mounted as Compose order `093`; existing volumes apply it through the migration runner. The preceding `07` migration registers DeepInfra's exact Gemma model and adds optional context metadata; do not edit the immutable historical `05`/`06` files.
 
 - `backend/database/migrations/2026-07-15-02-auth-provider-identity-unique.sql` adds the active external auth identity unique index. It is runner-only and safe to apply without deleting volumes.
 
