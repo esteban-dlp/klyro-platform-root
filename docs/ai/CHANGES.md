@@ -1,5 +1,11 @@
 # CHANGES — Root / Infrastructure
 
+### 2026-07-21 — Gemma provider/catalog migrations
+
+- Added runner-only migrations `2026-07-21-05-ai-provider-gemma-enum.sql` and `2026-07-21-06-ai-model-catalog-gemma-4-26b.sql`.
+- The database now supports the `gemma` provider and enabled catalog id `gemma-4-26b`; no existing migration or `root/docker-compose.yml` mount was changed.
+- Existing volumes must apply both files through the normal migration runner.
+
 ### 2026-07-16 — Backfill webhook_public_id for existing Meta WhatsApp accounts
 
 - New runner migration `2026-07-16-03-backfill-meta-webhook-public-id.sql` (in `backend/database/migrations/`) mints a `business_whatsapp_accounts.webhook_public_id` for Meta rows connected before per-account webhook isolation shipped (non-secret id, safe via `pgcrypto`'s `gen_random_bytes`). New connections mint one at connect time; this only covers pre-existing rows.

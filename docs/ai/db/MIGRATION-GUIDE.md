@@ -21,9 +21,13 @@ After adding a migration; when the process changes.
 
 ## Current state
 
+- Latest runner migration: `backend/database/migrations/2026-07-21-06-ai-model-catalog-gemma-4-26b.sql`, preceded by the isolated enum migration `2026-07-21-05-ai-provider-gemma-enum.sql`. Apply both in filename order; no compose mount is needed.
+
+- `backend/database/migrations/2026-07-15-02-auth-provider-identity-unique.sql` adds the active external auth identity unique index. It is runner-only and safe to apply without deleting volumes.
+
 - `backend/database/migrations/2026-07-15-01-error-logs.sql` adds the standalone `error_logs` table plus time/business indexes. It is mounted as compose `091`; existing volumes must apply it through the migration runner or `psql`.
 
-- Latest runner migration: `backend/database/migrations/2026-07-12-02-dashboard-appointment-indexes.sql` adds two partial indexes on `appointments` (`business_id, start_at` and `business_id, status, start_at`, both `WHERE deleted_at IS NULL AND is_simulated = false`) backing the aggregated dashboard endpoint's tenant-scoped, time-windowed reads. `CREATE INDEX IF NOT EXISTS`, no table rewrite, safe on a populated DB; not a compose mount (post-cutoff runner migration).
+- Previous runner migration before the 2026-07-21 provider/catalog changes: `backend/database/migrations/2026-07-12-02-dashboard-appointment-indexes.sql` adds two partial indexes on `appointments` (`business_id, start_at` and `business_id, status, start_at`, both `WHERE deleted_at IS NULL AND is_simulated = false`) backing the aggregated dashboard endpoint's tenant-scoped, time-windowed reads. `CREATE INDEX IF NOT EXISTS`, no table rewrite, safe on a populated DB; not a compose mount (post-cutoff runner migration).
 - `backend/database/migrations/2026-07-08-02-business-reminder-settings.sql` adds per-business appointment-reminder preferences.
 - Latest service-location migration: `backend/database/migrations/2026-07-08-01-service-location-mode.sql` adds `services.service_location_mode`, allows `appointment_holds.branch_id` to be nullable for online holds, and backfills legacy branch/online service state. It is a normal runner migration; `root/docker-compose.yml` is not updated for it.
 - Fresh volumes bootstrap through `database/init/`, seeds, and compose-mounted migrations. The compose mount order currently reaches `079-backfill-whatsapp-channel-accounts.sql` (the 2026-06-15 multi-channel batch uses the `NN` sequence prefix, backfill last).

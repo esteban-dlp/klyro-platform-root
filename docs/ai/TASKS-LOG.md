@@ -14,6 +14,14 @@ After completing any meaningful task, append an entry at the top.
 
 ## Log
 
+### 2026-07-21 — Register Gemma provider and model
+- **What:** added the `gemma` PostgreSQL enum value and enabled `ai_model_catalog` row `gemma-4-26b` in migrations `2026-07-21-05` and `2026-07-21-06`.
+- **Apply:** runner-only; keep migration order intact and do not delete volumes or add a normal compose initdb mount.
+
+### 2026-07-15 — Auth identity uniqueness migration
+- **What:** Added a safe, idempotent unique index for active external auth identities.
+- **Apply:** Use the normal migration runner on existing volumes; do not delete the database volume.
+
 ### 2026-07-03 - Branch type: physical vs online
 - **What:** Added runner-only migration `2026-07-03-01-branch-type.sql`: `branch_type_enum` (`physical`/`online`) + `branches.type` (default `physical`) + partial index `idx_branches_business_type` on `(business_id, type)`.
 - **Why:** The onboarding "online / mobile" option was creating an ordinary physical branch, wrongly counted against the plan's branch limit and indistinguishable from a real location in the UI.
