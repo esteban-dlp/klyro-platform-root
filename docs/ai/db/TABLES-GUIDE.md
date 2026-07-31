@@ -102,6 +102,19 @@ When a table or column is added, changed, or removed. Add a detailed block per t
 
 > Also added by `2026-07-30-04`: `appointments.booking_surface` (`booking_surface_enum`). `source` conflates the public booking FORM and the public link ASSISTANT into `web`, leaving them indistinguishable — which makes a plan's "100 link bookings" unmeasurable and hides whether the assistant is used at all. It is always set by the backend at the creation path, derived from the actor; never inferred, and never asked of the LLM, whose opinion about its own provenance is not evidence.
 
+## Public AI budgets
+
+| Table | Business meaning |
+| --- | --- |
+| `public_ai_budgets` | Config for the two **platform-funded** public surfaces. `onboarding`: $0.10/day global, 10 turns and $0.015 per **user** per day. `demo`: $0.10/day global, 20 messages and $0.015 per **device** per day. Whichever limit is hit first blocks. Added by migration `2026-07-30-08`. |
+| `public_ai_budget_daily` | Global consumption per surface per day. Exhausting it affects everyone until the next day. |
+| `public_ai_budget_identity_daily` | Per-identity consumption. `identity_key` is `user:<uuid>` or `device:<id>` — **the device is the identity for the demo**; `ip_last` is recorded only as an abuse signal, because making IP the identity would pool the quota of everyone behind one network. |
+| `business_simulator_usage` | The simulator's monthly consumption per business. Unlike onboarding and the demo, the simulator belongs to a business, so its allowance comes from the **plan**: `plan_versions.simulator_monthly_usd` / `simulator_monthly_messages` are set for Free ($0.03/20) and Agenda ($0.04/30) and **NULL for WhatsApp/WhatsApp Pro/Business**, which pay for simulations out of their included conversations instead. The absence of a separate budget IS the rule, so a flag can never contradict it. |
+
+> Denial never breaks a surface: onboarding falls back to the forms with progress intact (every step persists real entities and the wizard position lives in `business_setup_states`), and the demo becomes read-only with its dashboard and history still visible. Nothing here ever reaches Meta.
+>
+> Replaces `guest_ai_daily_spend` (global-only, no per-user limit) and `demo_message_rate_limits` (a sliding 24h counter on its own clock), both dropped in the same migration. Running two parallel rate limiters that can disagree is worse than one reset of ephemeral daily counters.
+
 ## AI budget pools
 
 | Table | Business meaning |

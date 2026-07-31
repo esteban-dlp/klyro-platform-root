@@ -21,7 +21,9 @@ After adding a migration; when the process changes.
 
 ## Current state
 
-- Latest migration: `backend/database/migrations/2026-07-30-07-ai-budget-pools.sql`. Adds `ai_budget_pools`, `ai_budget_pool_contributions` and `ensure_ai_budget_pool` / `record_pool_contribution` / `increment_pool_spend`. Runner-only, verified idempotent, and verified functionally: a replayed webhook contributes once (`record_pool_contribution` returns false), the platform grant accrues separately from contributions, and spend lands on the calendar month regardless of the date within it.
+- Latest migration: `backend/database/migrations/2026-07-30-08-public-ai-budgets.sql`. Adds `public_ai_budgets`, `public_ai_budget_daily`, `public_ai_budget_identity_daily`, `business_simulator_usage`, the simulator columns on `plan_versions`, and the atomic consume/settle functions. **Drops `guest_ai_daily_spend` and `demo_message_rate_limits`** — both held ephemeral daily state only. Verified functionally: exactly 20 of 25 attempts allowed for one device, another device unaffected, the money cap blocking before the message count, and a request denied for global exhaustion NOT consuming the identity's own quota.
+
+- Previous: `backend/database/migrations/2026-07-30-07-ai-budget-pools.sql`. Adds `ai_budget_pools`, `ai_budget_pool_contributions` and `ensure_ai_budget_pool` / `record_pool_contribution` / `increment_pool_spend`. Runner-only, verified idempotent, and verified functionally: a replayed webhook contributes once (`record_pool_contribution` returns false), the platform grant accrues separately from contributions, and spend lands on the calendar month regardless of the date within it.
 
 - Previous: `backend/database/migrations/2026-07-30-06-multimodal-limits-and-business-plan.sql`. Publishes version 2 of WhatsApp/WhatsApp Pro (650/1,650 after correcting the text-only cost sample for multimodal usage), adds the `whatsapp_business` plan ($99, 3,400 conversations, 3 WhatsApp numbers), `plan_versions.max_audio_minutes_monthly`, and the four audio/uplift settings. Version 1 is retired rather than edited. Runner-only, verified idempotent.
 

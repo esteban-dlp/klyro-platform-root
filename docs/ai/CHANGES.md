@@ -1,5 +1,13 @@
 # CHANGES — Root / Infrastructure
 
+### 2026-07-30 — The three public AI budgets
+
+- Added `2026-07-30-08-public-ai-budgets.sql`. Onboarding: $0.10/day global, 10 turns + $0.015 per user/day. Demo: $0.10/day global, 20 messages + $0.015 per device/day. Whichever limit is hit first blocks.
+- **The simulator is deliberately different.** It belongs to a business, not the platform, so its allowance comes from the plan: Free $0.03/20 messages, Agenda $0.04/30, and **NULL for the WhatsApp plans**, which pay for simulations out of their included conversations — one simulated 24h window is one conversation, not one per message. Encoding it as a nullable allowance rather than a boolean means the budget and the rule can never contradict each other.
+- **Reservation is atomic in SQL.** The mechanism this replaces read the total before a turn and wrote it after, so concurrent turns could all pass the same check. Here the guard and the increment are one statement, and the identity is charged BEFORE the global pot — verified that a request denied for global exhaustion does not consume the visitor's own quota.
+- **The device is the demo's identity**; IP is recorded only as an abuse signal, since making it the identity would pool the quota of everyone behind one network.
+- Drops `guest_ai_daily_spend` and `demo_message_rate_limits`: both held ephemeral daily state, and running two parallel limiters that can disagree is worse than one reset.
+
 ### 2026-07-30 — The two monthly AI budget pools
 
 - Added `2026-07-30-07-ai-budget-pools.sql`: `ai_budget_pools`, `ai_budget_pool_contributions`, and `ensure_ai_budget_pool` / `record_pool_contribution` / `increment_pool_spend`.
