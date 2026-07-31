@@ -1,5 +1,14 @@
 # CHANGES — Root / Infrastructure
 
+### 2026-07-30 — Multimodal-corrected limits, audio caps, and Klyro WhatsApp Business
+
+- Added `2026-07-30-06-multimodal-limits-and-business-plan.sql`: `plan_versions.max_audio_minutes_monthly`, four new `platform_settings` keys, the `whatsapp_business` plan, three cost runs, and version 2 of WhatsApp / WhatsApp Pro.
+- **Why the limits moved.** Version 1 published 750/2,000 from a TEXT-ONLY sample. Phase 2's ledger then measured the gap live: a 90-second voice note costs $0.0045, about 60% of an entire 10-message text conversation. At a third of conversations carrying one, the real cost is `$0.00752895 x 1.197 = $0.00901395`, which re-derives to **650 / 1,650** at the unchanged 28%.
+- **Headroom is sold, not subsidised.** Klyro WhatsApp Business ($99, 3,400 conversations, 12 branches, 100 workers, 50 services, **3 WhatsApp numbers**) replaces the alternative of raising Pro's contribution to 33% — which would have charged margin on every Pro customer to solve a ceiling only some need, and would have forced the contribution to become a per-plan column instead of one global setting. The contribution stays **28% ai_runtime / 2% owner_ai for every plan**.
+- **Audio caps, two layers.** Transcription is billed by duration, and duration is only known AFTER paying — so a byte cap (1 MB, checked on the downloaded bytes) is the only gate that can prevent rather than record a runaway cost. Minute caps per conversation (15) and per cycle bound the aggregate. The per-cycle cap is DERIVED (`conversations x 0.5 min`) so it cannot drift from the assumption that produced the conversation limit: 0.5 min is exactly 33% penetration at 90 seconds.
+- **Version 1 is retired, not edited** — a published version stays immutable history even though it was never sold to anyone.
+- Runner-only; verified idempotent against a populated local database.
+
 ### 2026-07-30 — Versioned plans, per-cycle entitlements, and the launch catalog
 
 - Added `2026-07-30-04-plan-versions-and-entitlements.sql` (`plan_versions`, `subscription_entitlements`, `conversation_limit_runs`, `appointments.booking_surface`) and `2026-07-30-05-launch-plan-catalog.sql` (the four launch plans published as version 1).
