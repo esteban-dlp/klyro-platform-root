@@ -21,7 +21,9 @@ After adding a migration; when the process changes.
 
 ## Current state
 
-- Latest migration: `backend/database/migrations/2026-07-30-01-platform-settings.sql`. Adds `platform_settings` + `platform_settings_audit`, two trigger functions (`platform_settings_bump_version`, `platform_settings_write_audit`) and seeds the 18 launch knobs. Runner-only (no compose mount), fully idempotent — verified by applying it twice against a populated local database with no drift. First migration of the plans/limits/budgets-in-USD programme.
+- Latest migration: `backend/database/migrations/2026-07-30-02-ai-model-prices-and-runtime-assignments.sql`. Adds the `ai_runtime_enum` type, `ai_model_prices` (dated prices, backfilled from `ai_model_catalog` using each row's own `created_at`) and `ai_runtime_assignments` (seeded from the env values in force), and makes the four `business_ai_settings` model columns nullable. `ai_model_catalog` KEEPS its price columns for now — the credits path is not retired until phase 9 — but nothing reads them any more, because the backend moved every price read to `ai_model_prices` in the same phase to avoid a dual-write hazard. Runner-only, verified idempotent.
+
+- Previous: `backend/database/migrations/2026-07-30-01-platform-settings.sql`. Adds `platform_settings` + `platform_settings_audit`, two trigger functions (`platform_settings_bump_version`, `platform_settings_write_audit`) and seeds the 18 launch knobs. Runner-only (no compose mount), fully idempotent — verified by applying it twice against a populated local database with no drift. First migration of the plans/limits/budgets-in-USD programme.
 
 - Previous latest: `backend/database/migrations/2026-07-21-09-ai-model-catalog-deepinfra-gemini-flash-models.sql`. It registers `deepinfra/google/gemini-3.1-flash-lite` at $0.25/$1.50 and `deepinfra/google/gemini-3.5-flash` at $1.50/$9.00 per 1M input/output tokens, with 1,000,000-token context metadata. It is mounted as Compose order `094`; existing volumes apply it through the migration runner. The preceding `08` migration contains the separate Google-provider rows.
 

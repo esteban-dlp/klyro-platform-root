@@ -1,5 +1,13 @@
 # CHANGES — Root / Infrastructure
 
+### 2026-07-30 — Dated model prices + central runtime model assignment
+
+- Added migration `backend/database/migrations/2026-07-30-02-ai-model-prices-and-runtime-assignments.sql` — type `ai_runtime_enum`, tables `ai_model_prices` and `ai_runtime_assignments`, and nullable model columns on `business_ai_settings`.
+- **Why dated prices:** `ai_model_catalog` stores one mutable price per model, so a price change is an in-place UPDATE that rewrites the past — yesterday's spend would be recomputed at today's rate. `ai_model_prices` makes a price a dated fact; a change is a new row, never an edit. Also adds `cached_input_cost_per_1m_usd`, which providers bill separately and the catalog never modelled.
+- **Why nullable business columns:** those four columns were NOT NULL in practice (every row backfilled by `2026-07-20-05`), so a central assignment could never have taken effect. Existing values are deliberately left in place — they are already fully shadowed by the env override and `allow_business_override` defaults to false, so they are inert either way.
+- Assignments seeded from the env values in force in production on 2026-07-30 (`ai_runtime` → `google/gemma-4-26B-A4B-it`, `owner_ai`/`onboarding` → `deepinfra/deepseek-v4-flash`), with the provider derived from the catalog by model id rather than written by hand.
+- Runner-only; `root/docker-compose.yml` deliberately not updated. Verified idempotent against a populated local database, and the resolved cascade verified live for both layers (central assignment with no env override, env override with the production values) with prices reading from the new table.
+
 ### 2026-07-30 — Platform settings: the one place commercial numbers live
 
 - Added migration `backend/database/migrations/2026-07-30-01-platform-settings.sql` — `platform_settings` (one row per platform-wide commercial knob, `value` as JSONB) and `platform_settings_audit` (append-only history), plus the trigger functions `platform_settings_bump_version()` and `platform_settings_write_audit()`.

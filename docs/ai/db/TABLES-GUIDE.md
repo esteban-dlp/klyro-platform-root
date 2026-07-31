@@ -92,6 +92,15 @@ When a table or column is added, changed, or removed. Add a detailed block per t
 | `platform_settings` | The single source of truth for every platform-wide **commercial number** an operator may change without a deploy: the share of a plan's price that funds each AI pool, the coverage target and rounding block behind a plan's published conversation limit, the assumed messages per conversation, the remaining-conversation warning thresholds, the day boundary for daily budgets, the Owner AI free-tier grants, and the business-creation caps. One row per knob, `value` as JSONB so a knob can be a number, a string or an ordered list. **Not for secrets, kill switches or emergency hard caps** — those stay in ENV, because a kill switch that depends on a database read is not a kill switch. `version`/`updated_at` are maintained by a trigger, so an update cannot forget to bump them. Added by migration `2026-07-30-01`. |
 | `platform_settings_audit` | Append-only history of every commercial number that changed, its before/after value, and who changed it — the record that answers "why is this plan priced this way" months later. Written by a **trigger**, so an edit made straight from `psql` is captured too; the actor comes from the `klyro.actor_id` session variable and is NULL for a manual edit (itself a useful signal). `changed_by` is deliberately **not** a foreign key: history must survive the actor's deletion, and an unresolvable actor must never be able to block a legitimate configuration change. |
 
+## AI model pricing & assignment
+
+| Table | Business meaning |
+| --- | --- |
+| `ai_model_prices` | A model's price as a **dated fact**. `ai_model_catalog` holds one mutable price per model, so changing it rewrites the past — yesterday's spend would be recomputed at today's rate. Here a price change is a NEW row plus an `effective_to` on the old one, never an edit, so the cost of any call can be recomputed with the price that was actually in force when it happened. Adds `cached_input_cost_per_1m_usd`, which providers bill separately and the catalog never modelled. A partial unique index (`effective_to IS NULL`) enforces exactly one current price per model. Added by migration `2026-07-30-02`. |
+| `ai_runtime_assignments` | Which model each Klyro AI surface (`ai_runtime`, `owner_ai`, `onboarding`, `simulator`, `demo`, `public_chat`) runs on, decided centrally instead of per business. The bottom-but-one layer of the model cascade: env overrides still win, this replaces the hardcoded code default. `allow_business_override` defaults to false — model choice is a platform decision until a plan explicitly sells it otherwise. Seeded from the env values in force on 2026-07-30. |
+
+> Related change in the same migration: `business_ai_settings.provider` / `.model` / `.owner_assistant_provider` / `.owner_assistant_model` became **nullable**. They were NOT NULL in practice (every row backfilled by `2026-07-20-05`), so a central assignment could never take effect — the business row always shadowed it. Nullable turns them from "the source" into "an override, when one is set".
+
 ## Billing & audit
 
 | Table | Business meaning |

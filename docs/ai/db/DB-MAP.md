@@ -16,6 +16,7 @@ When SQL files or folders are added/moved/removed.
 
 | `backend/database/migrations/2026-07-15-02-auth-provider-identity-unique.sql` | Partial unique index preventing duplicate active external auth identities |
 | `backend/database/migrations/2026-07-30-01-platform-settings.sql` | `platform_settings` + `platform_settings_audit`: the one place platform-wide commercial numbers live and are audited |
+| `backend/database/migrations/2026-07-30-02-ai-model-prices-and-runtime-assignments.sql` | `ai_model_prices` (dated prices) + `ai_runtime_assignments` (central model choice per AI surface); `business_ai_settings` model columns become nullable overrides |
 
 | Path | What lives here |
 | --- | --- |
