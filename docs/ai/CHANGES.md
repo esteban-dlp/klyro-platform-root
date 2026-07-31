@@ -1,5 +1,13 @@
 # CHANGES — Root / Infrastructure
 
+### 2026-07-30 — The USD usage ledger
+
+- Added migration `backend/database/migrations/2026-07-30-03-ai-usage-ledger.sql` — `ai_usage_events`, `ai_conversation_windows`, `business_ai_usage_periods`, three enums and three SQL mutator functions.
+- **Why a ledger:** the same LLM response was measured twice by two independent best-effort writers that both swallow every error, neither storing a USD cost or the runtime it belonged to. If one write failed the two diverged silently with nothing to reconcile against.
+- **Where the accounting guarantee lives:** `applied_at`. The raw fact is durable the moment it is inserted and every derived aggregate is reproducible from it, so the ledger is non-best-effort WITHOUT ever entering the turn's transaction — a deliberate constraint, since an accounting problem must never be able to break a customer conversation.
+- **Concurrency without a lock:** `window_key` is the 24h bucket derived arithmetically, so the plain UNIQUE on `(conversation_id, window_key)` serializes concurrent openers. A partial index on `now()` is not immutable in Postgres and could not do this.
+- Verified in SQL against a populated local database: 20 concurrent opens produce exactly one window, a 25h gap opens a second, `was_created` distinguishes an open from a touch, the fully-loaded cost splits correctly by `cost_kind`, `attempt_id` UNIQUE rejects a duplicate charge, and `3 x 0.00000001` sums to exactly `0.00000003`. Runner-only; `root/docker-compose.yml` deliberately not updated.
+
 ### 2026-07-30 — Dated model prices + central runtime model assignment
 
 - Added migration `backend/database/migrations/2026-07-30-02-ai-model-prices-and-runtime-assignments.sql` — type `ai_runtime_enum`, tables `ai_model_prices` and `ai_runtime_assignments`, and nullable model columns on `business_ai_settings`.

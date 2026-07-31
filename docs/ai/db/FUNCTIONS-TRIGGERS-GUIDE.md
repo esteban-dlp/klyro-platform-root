@@ -39,6 +39,14 @@ Source: `database/migrations/2026-06-22-03-usage-counters-credits-and-increment-
 | --- | --- |
 | `increment_usage_counter(business_id, period_start, period_end, input_tokens, output_tokens, credits, ai_requests)` | The ONLY way app code mutates `usage_counters`. Upsert-and-add: creates the per-business per-period row if missing, else atomically adds the deltas (input/output tokens, LLM credits, AI requests). Negative deltas are clamped to 0. Conflict target = the `(business_id, period_start, period_end)` unique index. Called by `CreditsService.deductForLlmCall` on every LLM call. |
 
+Source: `database/migrations/2026-07-30-03-ai-usage-ledger.sql`.
+
+| Function | Purpose (business) |
+| --- | --- |
+| `open_or_touch_ai_conversation_window(business_id, conversation_id, at, period_start, period_end)` | Opens the 24h window a call belongs to, or returns the existing one. Returns `was_created` because opening a window IS what consumes one of a plan's published conversations — the caller must be able to tell an open from a touch without racing a second SELECT (`xmax = 0` is the standard way to distinguish a fresh INSERT from an ON CONFLICT update). The plain UNIQUE on `(conversation_id, window_key)` is what serializes concurrent openers: 20 simultaneous first turns produce exactly one window, with no advisory lock. |
+| `touch_conversation_window_cost(window_id, cost_usd, cost_kind, is_retry, used_fallback)` | Accrues one attempt's fully-loaded cost onto its window, splitting text / multimodal / retry so cost drift can be attributed to a cause rather than merely observed. |
+| `increment_business_ai_usage(business_id, period_start, period_end, ai_runtime_cost, owner_ai_cost, input_tokens, output_tokens, llm_calls, conversations)` | The ONLY way app code mutates `business_ai_usage_periods`. Atomic upsert-and-add, negatives clamped to 0. All money arithmetic happens here rather than in TypeScript: `pg` returns NUMERIC as a string, and adding money in JavaScript is how precision quietly disappears. |
+
 Source: `database/migrations/2026-07-30-01-platform-settings.sql`.
 
 | Function | Purpose (business) |
