@@ -14,6 +14,10 @@ After completing any meaningful task, append an entry at the top.
 
 ## Log
 
+### 2026-07-31 — Retire the credits schema
+- **What:** `2026-07-31-01-retire-credits.sql` drops `usage_counters` (+ its function), the three credit columns on `plans`, `model_cost_profiles`, `ai_token_usage` and the `ai_model_catalog` price columns; swaps the two credit notification types for their conversation equivalents.
+- **Verify:** applied twice against the local Postgres with `ON_ERROR_STOP=1` — second run is all NOTICE/skip; `notification_types` holds exactly the two new codes; the three dropped tables are absent; `ai_model_catalog` is down to its 8 identity columns.
+
 ### 2026-07-21 — Add Gemini Flash models through DeepInfra
 - **What:** added migration `2026-07-21-09-ai-model-catalog-deepinfra-gemini-flash-models.sql` and Compose order `094` for `deepinfra/google/gemini-3.1-flash-lite` and `deepinfra/google/gemini-3.5-flash`.
 - **Pricing:** DeepInfra live catalog rates are `$0.25/$1.50` and `$1.50/$9.00` input/output per 1M tokens; context metadata is 1,000,000 tokens.

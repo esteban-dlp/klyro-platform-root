@@ -1,5 +1,15 @@
 # CHANGES — Root / Infrastructure
 
+### 2026-07-31 — Credits dropped from the schema
+
+- Added `2026-07-31-01-retire-credits.sql`. **This is the first destructive migration of the USD work** — everything before it was additive, so reverting code left the new tables orphaned but inert. Verified idempotent by applying it twice against a populated local database.
+- Drops `usage_counters` + `increment_usage_counter` (every signature, via a `pg_proc` sweep, since older deployments carry a different one), `plans.monthly_llm_credits` / `profit_pct` / `infra_fixed_cents`, `model_cost_profiles`, `ai_token_usage`, and the three price columns on `ai_model_catalog`.
+- **`model_cost_profiles` never held a row.** Its own migration described a weekly job that would populate it; that job was never built. It has been schema-shaped dead weight since the day it was created.
+- **`ai_token_usage` was a second copy of `ai_usage_events`** minus the cost, written by an independent best-effort path. Two writers of one fact that nothing reconciles will eventually disagree in silence, and the first symptom would have been a support conversation. AI Diagnostics now reports its token totals from the ledger the accounting is derived from.
+- **Guard before the price drop:** the migration raises rather than proceeding if `ai_model_prices` is empty, so the only record of what a model cost can never disappear with the columns.
+- **Notification types:** `business.ai_credits_low` / `_exhausted` are deleted (along with their preferences and delivered notifications) and replaced by `business.ai_conversations_low` / `_exhausted`. Deleting the delivered ones is deliberate — "you used 80% of your credits" has no translation into conversations, and leaving it in the owner's inbox would contradict the model that replaced it.
+- No `root/docker-compose.yml` change: the `migrations` service reads the folder directly.
+
 ### 2026-07-30 — The three public AI budgets
 
 - Added `2026-07-30-08-public-ai-budgets.sql`. Onboarding: $0.10/day global, 10 turns + $0.015 per user/day. Demo: $0.10/day global, 20 messages + $0.015 per device/day. Whichever limit is hit first blocks.
