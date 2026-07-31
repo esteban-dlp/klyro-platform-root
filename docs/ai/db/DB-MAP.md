@@ -15,6 +15,7 @@ When SQL files or folders are added/moved/removed.
 ## Folders
 
 | `backend/database/migrations/2026-07-15-02-auth-provider-identity-unique.sql` | Partial unique index preventing duplicate active external auth identities |
+| `backend/database/migrations/2026-07-30-01-platform-settings.sql` | `platform_settings` + `platform_settings_audit`: the one place platform-wide commercial numbers live and are audited |
 
 | Path | What lives here |
 | --- | --- |

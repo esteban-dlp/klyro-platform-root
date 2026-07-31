@@ -39,6 +39,13 @@ Source: `database/migrations/2026-06-22-03-usage-counters-credits-and-increment-
 | --- | --- |
 | `increment_usage_counter(business_id, period_start, period_end, input_tokens, output_tokens, credits, ai_requests)` | The ONLY way app code mutates `usage_counters`. Upsert-and-add: creates the per-business per-period row if missing, else atomically adds the deltas (input/output tokens, LLM credits, AI requests). Negative deltas are clamped to 0. Conflict target = the `(business_id, period_start, period_end)` unique index. Called by `CreditsService.deductForLlmCall` on every LLM call. |
 
+Source: `database/migrations/2026-07-30-01-platform-settings.sql`.
+
+| Function | Purpose (business) |
+| --- | --- |
+| `platform_settings_bump_version()` | Makes the version number of a commercial setting the database's responsibility, not the caller's — an update that changes `value` bumps `version` and stamps `updated_at`; an update that only edits the description does neither. Prevents a config change from being silently untraceable because app code forgot to increment. |
+| `platform_settings_write_audit()` | Writes the append-only audit row for every settings change. Reads the actor from the `klyro.actor_id` session variable (`SET LOCAL` inside the app's transaction) and records NULL when absent, so a manual `psql` edit is still captured and flagged as unattributed. Skips description-only edits, so the audit stays a record of economic changes. Never blocks the change: `changed_by` is not foreign-keyed on purpose. |
+
 ## Triggers
 
 | Trigger | Table | Event | Function | Purpose |
@@ -47,8 +54,12 @@ Source: `database/migrations/2026-06-22-03-usage-counters-credits-and-increment-
 | `trg_business_channel_accounts_set_updated_at` | `business_channel_accounts` | BEFORE UPDATE | `set_updated_at()` | Stamp `updated_at` on channel-account changes |
 | `trg_channel_onboarding_sessions_set_updated_at` | `channel_onboarding_sessions` | BEFORE UPDATE | `set_updated_at()` | Stamp `updated_at` on onboarding-session changes |
 | `trg_client_channel_identities_set_updated_at` | `client_channel_identities` | BEFORE UPDATE | `set_updated_at()` | Stamp `updated_at` on identity changes |
+| `trg_platform_settings_bump_version` | `platform_settings` | BEFORE UPDATE | `platform_settings_bump_version()` | Bump `version` + `updated_at` only when the value actually changed |
+| `trg_platform_settings_write_audit` | `platform_settings` | AFTER INSERT OR UPDATE | `platform_settings_write_audit()` | Record the before/after of every commercial-number change, including manual `psql` edits |
 
 ## Notable constraints
+
+- `users_auth_identity_unique_idx` prevents an active external identity (`auth_provider` + `auth_provider_id`) from being linked to more than one user. Null provider IDs are excluded so local users remain valid.
 
 - Status enums constrain valid states (see enums in `001-enums.sql`).
 - `chk_appointments_blocked_time_range` and `chk_appointment_holds_blocked_time_range` require blocked intervals to contain the visible interval and remain non-empty.
@@ -57,6 +68,8 @@ Source: `database/migrations/2026-06-22-03-usage-counters-credits-and-increment-
 - `business_channel_accounts_channel_routing_unique_idx`: one live account per `(channel, inbound_routing_key)` (ignores soft-deleted rows so accounts can be reconnected).
 - `client_channel_identities_unique_idx`: one live identity per `(business_id, channel, business_channel_account_id, external_participant_id)`.
 - `chk_channel_onboarding_state_nonce_length`: the onboarding CSRF nonce must be ≥16 chars.
+- `chk_platform_settings_key_format`: a settings key must be dotted lowercase snake (`^[a-z0-9_]+(\.[a-z0-9_]+)+$`), so keys stay namespaced (`pool.*`, `cost.*`, `warning.*`) and a typo cannot create a stray sibling knob.
+- `chk_platform_settings_value_type`: `value_type` is one of `percent`/`integer`/`money_usd`/`string`/`list` — documentation for operators, while the real per-key validation lives in the backend registry.
 - _Document unique/check/exclusion constraints (e.g. preventing double-booking) and their business meaning as found in `002-tables.sql`._
 
 > Must reflect the real current functions/triggers/constraints, not assumptions.

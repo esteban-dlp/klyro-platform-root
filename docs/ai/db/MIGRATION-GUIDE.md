@@ -21,7 +21,9 @@ After adding a migration; when the process changes.
 
 ## Current state
 
-- Latest migration: `backend/database/migrations/2026-07-21-09-ai-model-catalog-deepinfra-gemini-flash-models.sql`. It registers `deepinfra/google/gemini-3.1-flash-lite` at $0.25/$1.50 and `deepinfra/google/gemini-3.5-flash` at $1.50/$9.00 per 1M input/output tokens, with 1,000,000-token context metadata. It is mounted as Compose order `094`; existing volumes apply it through the migration runner. The preceding `08` migration contains the separate Google-provider rows.
+- Latest migration: `backend/database/migrations/2026-07-30-01-platform-settings.sql`. Adds `platform_settings` + `platform_settings_audit`, two trigger functions (`platform_settings_bump_version`, `platform_settings_write_audit`) and seeds the 18 launch knobs. Runner-only (no compose mount), fully idempotent — verified by applying it twice against a populated local database with no drift. First migration of the plans/limits/budgets-in-USD programme.
+
+- Previous latest: `backend/database/migrations/2026-07-21-09-ai-model-catalog-deepinfra-gemini-flash-models.sql`. It registers `deepinfra/google/gemini-3.1-flash-lite` at $0.25/$1.50 and `deepinfra/google/gemini-3.5-flash` at $1.50/$9.00 per 1M input/output tokens, with 1,000,000-token context metadata. It is mounted as Compose order `094`; existing volumes apply it through the migration runner. The preceding `08` migration contains the separate Google-provider rows.
 
 - `backend/database/migrations/2026-07-15-02-auth-provider-identity-unique.sql` adds the active external auth identity unique index. It is runner-only and safe to apply without deleting volumes.
 

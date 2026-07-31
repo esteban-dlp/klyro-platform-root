@@ -1,5 +1,13 @@
 # CHANGES — Root / Infrastructure
 
+### 2026-07-30 — Platform settings: the one place commercial numbers live
+
+- Added migration `backend/database/migrations/2026-07-30-01-platform-settings.sql` — `platform_settings` (one row per platform-wide commercial knob, `value` as JSONB) and `platform_settings_audit` (append-only history), plus the trigger functions `platform_settings_bump_version()` and `platform_settings_write_audit()`.
+- Seeds 18 launch knobs: AI pool contribution percentages, coverage target, conversation rounding block, budgeted messages per conversation, remaining-conversation warning thresholds, daily-budget timezone, cost-sizing parameters, Owner AI free-tier grants, business-creation caps, and the mid-cycle proration policy.
+- **Runner-only — `root/docker-compose.yml` is deliberately NOT updated.** This is a normal post-cutoff migration; the local `migrations` service reads the folder directly, so adding an initdb mount would be wrong.
+- Verified by applying it twice against a populated local database: idempotent, no drift (18 settings / 18 audit rows / version 1 after both runs). Trigger behaviour verified directly in SQL — version bumps only on a real value change, description-only edits are not audited, and an edit with no `klyro.actor_id` is still recorded with a NULL actor rather than rejected.
+- Scope note: secrets, kill switches and emergency hard caps deliberately stay in ENV. A kill switch that depends on a database read is not a kill switch. See `docs/ai/db/TABLES-GUIDE.md` and the backend `DECISIONS.md` entries of the same date.
+
 ### 2026-07-21 — Add Gemini Flash models through DeepInfra
 
 - Added migration `2026-07-21-09-ai-model-catalog-deepinfra-gemini-flash-models.sql` and fresh-volume Compose mount `094-ai-model-catalog-deepinfra-gemini-flash-models.sql`.
