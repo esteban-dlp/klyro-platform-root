@@ -17,6 +17,8 @@ When SQL files or folders are added/moved/removed.
 | `backend/database/migrations/2026-07-15-02-auth-provider-identity-unique.sql` | Partial unique index preventing duplicate active external auth identities |
 | `backend/database/migrations/2026-07-30-01-platform-settings.sql` | `platform_settings` + `platform_settings_audit`: the one place platform-wide commercial numbers live and are audited |
 | `backend/database/migrations/2026-07-30-02-ai-model-prices-and-runtime-assignments.sql` | `ai_model_prices` (dated prices) + `ai_runtime_assignments` (central model choice per AI surface); `business_ai_settings` model columns become nullable overrides |
+| `backend/database/migrations/2026-07-30-04-plan-versions-and-entitlements.sql` | `plan_versions` + `subscription_entitlements` + `conversation_limit_runs`, and `appointments.booking_surface` |
+| `backend/database/migrations/2026-07-30-05-launch-plan-catalog.sql` | The four launch plans (free/agenda/whatsapp/whatsapp_pro) published as version 1, with the cost runs behind 750/2,000 |
 | `backend/database/migrations/2026-07-30-03-ai-usage-ledger.sql` | `ai_usage_events` (one durable USD row per LLM attempt) + `ai_conversation_windows` + `business_ai_usage_periods`, and the three SQL mutators that keep all money arithmetic out of TypeScript |
 
 | Path | What lives here |

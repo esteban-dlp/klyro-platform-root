@@ -1,5 +1,14 @@
 # CHANGES — Root / Infrastructure
 
+### 2026-07-30 — Versioned plans, per-cycle entitlements, and the launch catalog
+
+- Added `2026-07-30-04-plan-versions-and-entitlements.sql` (`plan_versions`, `subscription_entitlements`, `conversation_limit_runs`, `appointments.booking_surface`) and `2026-07-30-05-launch-plan-catalog.sql` (the four launch plans published as version 1).
+- **Why entitlement snapshots:** nothing froze what a customer bought. A recalculated conversation limit would have silently applied to every active business mid-cycle. Runtime enforcement now reads the frozen snapshot, never the live catalog.
+- **Why `booking_surface`:** the public booking FORM and the public link ASSISTANT both record `source = 'web'` today, so they are indistinguishable — making a plan's "100 link bookings" unmeasurable. It is set by the backend at the creation path, derived from the actor, never inferred.
+- **Launch plans:** free ($0, 1/5/10, 100 link bookings), agenda ($10, 3/20/20, unlimited link), whatsapp ($19, 750 conversations, link assistant), whatsapp_pro ($49, 2,000 conversations, link assistant). Only the two WhatsApp plans include the link assistant; Free and Agenda are form-only by design, so no LLM call can originate from their link. `Klyro Business` deliberately not created.
+- **Version 1 is backdated to epoch on purpose** — found by live verification: with `effective_from = now()`, every cycle already in flight had no version in force and every business silently fell to the Free floor. The effective-date rule protects a running cycle from a shrinking limit; version 1 has nothing to protect against.
+- Runner-only; `root/docker-compose.yml` deliberately not updated. Both verified idempotent against a populated local database.
+
 ### 2026-07-30 — The USD usage ledger
 
 - Added migration `backend/database/migrations/2026-07-30-03-ai-usage-ledger.sql` — `ai_usage_events`, `ai_conversation_windows`, `business_ai_usage_periods`, three enums and three SQL mutator functions.
