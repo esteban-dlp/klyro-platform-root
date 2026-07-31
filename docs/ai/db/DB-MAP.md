@@ -20,6 +20,7 @@ When SQL files or folders are added/moved/removed.
 | `backend/database/migrations/2026-07-30-04-plan-versions-and-entitlements.sql` | `plan_versions` + `subscription_entitlements` + `conversation_limit_runs`, and `appointments.booking_surface` |
 | `backend/database/migrations/2026-07-30-05-launch-plan-catalog.sql` | The four launch plans (free/agenda/whatsapp/whatsapp_pro) published as version 1, with the cost runs behind 750/2,000 |
 | `backend/database/migrations/2026-07-30-06-multimodal-limits-and-business-plan.sql` | Multimodal-corrected limits (650/1,650), the Klyro WhatsApp Business plan, and the audio caps |
+| `backend/database/migrations/2026-07-30-07-ai-budget-pools.sql` | `ai_budget_pools` + `ai_budget_pool_contributions` and the three pool mutators |
 | `backend/database/migrations/2026-07-30-03-ai-usage-ledger.sql` | `ai_usage_events` (one durable USD row per LLM attempt) + `ai_conversation_windows` + `business_ai_usage_periods`, and the three SQL mutators that keep all money arithmetic out of TypeScript |
 
 | Path | What lives here |

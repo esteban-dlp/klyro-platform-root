@@ -102,6 +102,15 @@ When a table or column is added, changed, or removed. Add a detailed block per t
 
 > Also added by `2026-07-30-04`: `appointments.booking_surface` (`booking_surface_enum`). `source` conflates the public booking FORM and the public link ASSISTANT into `web`, leaving them indistinguishable — which makes a plan's "100 link bookings" unmeasurable and hides whether the assistant is used at all. It is always set by the backend at the creation path, derived from the actor; never inferred, and never asked of the LLM, whose opinion about its own provenance is not evidence.
 
+## AI budget pools
+
+| Table | Business meaning |
+| --- | --- |
+| `ai_budget_pools` | One row per pool per **calendar month (UTC)**. Two pools, deliberately separate: `ai_runtime` (28% of every plan that includes the WhatsApp receptionist) and `owner_ai` (2% of every paid plan, plus a platform grant that funds Free, whose 2% of $0 is $0). Kept apart so Owner AI can never consume budget reserved for answering customers. **A calendar month, not a subscription cycle** — a pool is an aggregate, and an aggregate whose members each have a different window is incomparable and irreconcilable; every ledger event records both periods precisely so neither side has to guess. Unused money is Klyro's operating margin by construction: there is deliberately no per-business balance column anywhere. Added by migration `2026-07-30-07`. |
+| `ai_budget_pool_contributions` | Append-only record of who put what into which pool and why. `contribution_pct` is stored **per row**, not looked up at read time, so changing the percentage mid-month cannot silently restate contributions already made. `UNIQUE (pool_id, source_event_id)` makes a webhook delivered three times contribute once. |
+
+> The pools are an **accounting and monitoring** instrument, not an execution gate. A business is stopped by its own conversation limit; the aggregate pool running low never silences anyone, because one heavy business must not be able to cut off every other customer.
+
 ## AI usage ledger
 
 | Table | Business meaning |

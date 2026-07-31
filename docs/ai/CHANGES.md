@@ -1,5 +1,13 @@
 # CHANGES — Root / Infrastructure
 
+### 2026-07-30 — The two monthly AI budget pools
+
+- Added `2026-07-30-07-ai-budget-pools.sql`: `ai_budget_pools`, `ai_budget_pool_contributions`, and `ensure_ai_budget_pool` / `record_pool_contribution` / `increment_pool_spend`.
+- **Calendar month, not subscription cycle.** Entitlements and conversation counters run on each business's own cycle; pools do not. A pool is an aggregate, and an aggregate whose members each have a different window is incomparable and irreconcilable. Every ledger event already records both periods (from `2026-07-30-03`) precisely so neither side has to guess.
+- **`contribution_pct` is stored per contribution row**, not read from settings later, so changing the percentage mid-month cannot restate contributions already made. `UNIQUE (pool_id, source_event_id)` makes a replayed webhook a no-op — verified: the second call returns false and the pool total does not move.
+- **No per-business balance column exists anywhere**, deliberately: leftover budget is Klyro's operating margin by construction, not a credit anyone can claim.
+- Runner-only; verified idempotent against a populated local database.
+
 ### 2026-07-30 — Multimodal-corrected limits, audio caps, and Klyro WhatsApp Business
 
 - Added `2026-07-30-06-multimodal-limits-and-business-plan.sql`: `plan_versions.max_audio_minutes_monthly`, four new `platform_settings` keys, the `whatsapp_business` plan, three cost runs, and version 2 of WhatsApp / WhatsApp Pro.
