@@ -1,5 +1,9 @@
 # FUNCTIONS-TRIGGERS-GUIDE
 
+## Messaging reliability triggers (2026-08-04)
+
+`trg_messaging_operational_issues_set_updated_at` and `trg_message_delivery_holds_set_updated_at` reuse `set_updated_at()`. Check constraints enforce valid origins, severities, scopes, owners, hold states, freshness policies and resolution timestamps.
+
 ## Purpose
 
 Database-side logic: functions, triggers, constraints — what they do and why.

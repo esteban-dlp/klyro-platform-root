@@ -1,5 +1,9 @@
 # RELATIONSHIPS-GUIDE
 
+## Messaging reliability relationships (2026-08-04)
+
+`businesses 1:N messaging_operational_issues`; an issue optionally references `business_whatsapp_accounts`, `conversations` and `messages`. `messages 1:N message_delivery_holds` historically, with at most one active hold; a hold optionally references the issue that caused it.
+
 ## Purpose
 
 How tables relate: foreign keys, cardinality, tenant ownership chain.

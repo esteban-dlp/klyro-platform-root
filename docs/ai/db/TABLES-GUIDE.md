@@ -1,5 +1,12 @@
 # TABLES-GUIDE
 
+## Messaging reliability tables (2026-08-04)
+
+| Table | Business meaning |
+| --- | --- |
+| `messaging_operational_issues` | One current or resolved messaging incident normalized across Meta, a managed provider and Klyro; scoped to a tenant and optionally an account/conversation/message. |
+| `message_delivery_holds` | One intentional retention of an outbound message until policy, health or capacity permits a safe send. Active holds are unique per message. |
+
 ## Purpose
 
 Every table, **business meaning** first. Source: `database/init/002-tables.sql`.

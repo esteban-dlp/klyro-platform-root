@@ -1,5 +1,10 @@
 # CHANGES — Root / Infrastructure
 
+### 2026-08-04 — Messaging reliability state
+
+- Added runner migration `2026-08-04-01-messaging-operational-issues.sql` with tenant-scoped operational incidents and durable message delivery holds.
+- Active incident fingerprints and active message holds are unique; release-queue and account/business indexes support reconciliation without scanning message history.
+
 ### 2026-07-31 — Credits dropped from the schema
 
 - Added `2026-07-31-01-retire-credits.sql`. **This is the first destructive migration of the USD work** — everything before it was additive, so reverting code left the new tables orphaned but inert. Verified idempotent by applying it twice against a populated local database.

@@ -1,5 +1,9 @@
 # DB-MAP
 
+## Latest messaging migration
+
+`backend/database/migrations/2026-08-04-01-messaging-operational-issues.sql` creates normalized operational incidents and durable message delivery holds.
+
 ## Purpose
 
 Locate database files fast.

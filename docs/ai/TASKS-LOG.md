@@ -1,5 +1,10 @@
 # TASKS-LOG — Root / Infrastructure
 
+## 2026-08-04 — Messaging incident and hold schema
+
+- Added and documented `messaging_operational_issues` and `message_delivery_holds` through a new immutable runner migration.
+- No Docker mount was added: the current migrations service reads `backend/database/migrations/` directly.
+
 ## Purpose
 
 Chronological log of completed infra/DB work (newest first).

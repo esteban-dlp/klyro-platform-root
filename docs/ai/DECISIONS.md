@@ -1,5 +1,9 @@
 # DECISIONS — Root / Infrastructure
 
+## 2026-08-04 — Delivery holds are first-class rows
+
+Operational issues, diagnostic error occurrences and held outbound messages use separate tables. This preserves one deduplicated incident while retaining message-specific scheduling, freshness and release state without consuming provider retry attempts.
+
 ## Purpose
 
 Lightweight decision log (ADR-style) for infra/DB.
