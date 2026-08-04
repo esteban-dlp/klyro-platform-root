@@ -6,6 +6,8 @@
 
 `2026-08-04-02-messaging-delivery-capacity.sql` adds persistent token buckets for distributed account and recipient throughput scheduling.
 
+`2026-08-04-03-whatsapp-operational-notification.sql` idempotently seeds `whatsapp.operational_issue` and restores it if soft-deleted.
+
 ## Purpose
 
 How to change the schema safely.

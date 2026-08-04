@@ -10,6 +10,10 @@
 - Added and documented `messaging_delivery_capacity_buckets` for account/recipient throughput scheduling across backend instances.
 - The immutable runner migration is discovered directly from the backend migrations folder.
 
+## 2026-08-04 - WhatsApp operational notification type
+
+- Added the idempotent `whatsapp.operational_issue` notification catalog entry for safe issue propagation.
+
 ## Purpose
 
 Chronological log of completed infra/DB work (newest first).

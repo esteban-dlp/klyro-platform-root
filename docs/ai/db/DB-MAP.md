@@ -4,6 +4,8 @@
 
 `backend/database/migrations/2026-08-04-01-messaging-operational-issues.sql` creates normalized operational incidents and durable message delivery holds. `2026-08-04-02-messaging-delivery-capacity.sql` adds distributed account/recipient token buckets.
 
+`backend/database/migrations/2026-08-04-03-whatsapp-operational-notification.sql` seeds the normalized operational-issue notification type.
+
 ## Purpose
 
 Locate database files fast.
