@@ -2,7 +2,7 @@
 
 ## Latest messaging migration
 
-`backend/database/migrations/2026-08-04-01-messaging-operational-issues.sql` creates normalized operational incidents and durable message delivery holds.
+`backend/database/migrations/2026-08-04-01-messaging-operational-issues.sql` creates normalized operational incidents and durable message delivery holds. `2026-08-04-02-messaging-delivery-capacity.sql` adds distributed account/recipient token buckets.
 
 ## Purpose
 

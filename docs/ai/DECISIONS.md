@@ -4,6 +4,10 @@
 
 Operational issues, diagnostic error occurrences and held outbound messages use separate tables. This preserves one deduplicated incident while retaining message-specific scheduling, freshness and release state without consuming provider retry attempts.
 
+## 2026-08-04 - Throughput is coordinated with persistent token buckets
+
+Account and recipient capacity is reserved under a transaction-scoped advisory lock. Continuous refill avoids fixed-window boundary bursts, while persisted state makes scheduling consistent across workers and deployments.
+
 ## Purpose
 
 Lightweight decision log (ADR-style) for infra/DB.

@@ -4,6 +4,8 @@
 
 `businesses 1:N messaging_operational_issues`; an issue optionally references `business_whatsapp_accounts`, `conversations` and `messages`. `messages 1:N message_delivery_holds` historically, with at most one active hold; a hold optionally references the issue that caused it.
 
+`businesses 1:N messaging_delivery_capacity_buckets` and `business_whatsapp_accounts 1:N messaging_delivery_capacity_buckets`; each account/bucket key pair is unique.
+
 ## Purpose
 
 How tables relate: foreign keys, cardinality, tenant ownership chain.

@@ -2,6 +2,8 @@
 
 ### 2026-08-04 — Messaging reliability state
 
+- Added runner migration `2026-08-04-02-messaging-delivery-capacity.sql` with distributed token buckets keyed by WhatsApp account and capacity scope.
+- Capacity reservations are tenant-owned, serialized by the backend and refill continuously; no Docker mount change is required.
 - Added runner migration `2026-08-04-01-messaging-operational-issues.sql` with tenant-scoped operational incidents and durable message delivery holds.
 - Active incident fingerprints and active message holds are unique; release-queue and account/business indexes support reconciliation without scanning message history.
 

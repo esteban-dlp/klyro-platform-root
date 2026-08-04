@@ -6,6 +6,7 @@
 | --- | --- |
 | `messaging_operational_issues` | One current or resolved messaging incident normalized across Meta, a managed provider and Klyro; scoped to a tenant and optionally an account/conversation/message. |
 | `message_delivery_holds` | One intentional retention of an outbound message until policy, health or capacity permits a safe send. Active holds are unique per message. |
+| `messaging_delivery_capacity_buckets` | Shared token-bucket capacity for a WhatsApp account or recipient scope; determines the earliest safe outbound attempt across workers. |
 
 ## Purpose
 

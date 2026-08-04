@@ -4,6 +4,8 @@
 
 `trg_messaging_operational_issues_set_updated_at` and `trg_message_delivery_holds_set_updated_at` reuse `set_updated_at()`. Check constraints enforce valid origins, severities, scopes, owners, hold states, freshness policies and resolution timestamps.
 
+`set_messaging_delivery_capacity_updated_at` maintains bucket timestamps; capacity reservation itself is serialized by transaction-scoped advisory locks in the backend so no database function duplicates application policy.
+
 ## Purpose
 
 Database-side logic: functions, triggers, constraints — what they do and why.

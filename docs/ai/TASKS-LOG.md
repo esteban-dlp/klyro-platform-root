@@ -5,6 +5,11 @@
 - Added and documented `messaging_operational_issues` and `message_delivery_holds` through a new immutable runner migration.
 - No Docker mount was added: the current migrations service reads `backend/database/migrations/` directly.
 
+## 2026-08-04 - Messaging delivery capacity schema
+
+- Added and documented `messaging_delivery_capacity_buckets` for account/recipient throughput scheduling across backend instances.
+- The immutable runner migration is discovered directly from the backend migrations folder.
+
 ## Purpose
 
 Chronological log of completed infra/DB work (newest first).

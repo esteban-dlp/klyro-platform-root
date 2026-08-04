@@ -4,6 +4,8 @@
 
 `2026-08-04-01-messaging-operational-issues.sql` adds `messaging_operational_issues` and `message_delivery_holds`, their tenant/account/release indexes, validation checks and `updated_at` triggers. It is runner-only; the migrations service discovers the folder directly.
 
+`2026-08-04-02-messaging-delivery-capacity.sql` adds persistent token buckets for distributed account and recipient throughput scheduling.
+
 ## Purpose
 
 How to change the schema safely.
