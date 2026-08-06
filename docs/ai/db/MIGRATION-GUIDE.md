@@ -1,5 +1,13 @@
 # MIGRATION-GUIDE
 
+## Latest migration (2026-08-06)
+
+`2026-08-06-12-map-plan-lemonsqueezy-ids.sql` maps the operator-approved
+Lemon Squeezy product and purchasable variant ids to the existing `plans`
+rows by stable plan code. It verifies all four target plans before updating
+and verifies the complete mapping afterward. It is runner-only; the
+`migrations` service discovers the folder directly.
+
 ## Latest migration (2026-08-04)
 
 `2026-08-04-01-messaging-operational-issues.sql` adds `messaging_operational_issues` and `message_delivery_holds`, their tenant/account/release indexes, validation checks and `updated_at` triggers. It is runner-only; the migrations service discovers the folder directly.

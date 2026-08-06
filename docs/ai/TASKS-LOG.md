@@ -1,5 +1,10 @@
 # TASKS-LOG — Root / Infrastructure
 
+## 2026-08-06 — Lemon Squeezy plan mapping
+
+- Added the immutable runner migration `2026-08-06-12-map-plan-lemonsqueezy-ids.sql` for the four operator-approved plan mappings.
+- The migration validates prerequisites and final values; no existing migration or seed was modified.
+
 ## 2026-08-06 — Automated-response catalog v3
 
 - Added and twice applied the runner-only v3 plan migration; exactly five published versions resolve with the approved prices, response/trial allowances and WhatsApp-number caps.

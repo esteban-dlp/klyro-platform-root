@@ -1,5 +1,10 @@
 # CHANGES — Root / Infrastructure
 
+## 2026-08-06 - Lemon Squeezy plan mapping
+
+- Added runner migration `2026-08-06-12-map-plan-lemonsqueezy-ids.sql` with the approved product and variant ids for Agenda, WhatsApp, WhatsApp Pro and WhatsApp Business.
+- The migration is keyed by stable plan code, validates the four target identities and verifies the final mapping inside the migration transaction.
+
 ## 2026-08-06 - Approval-gated response backfill and subscription repricing
 
 - Added the production runbook for the read-only impact report, exact reviewed A/B classification, message-fact backfill, reconciliation and the two mandatory owner stops.
