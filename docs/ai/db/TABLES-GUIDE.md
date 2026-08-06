@@ -81,7 +81,7 @@ When a table or column is added, changed, or removed. Add a detailed block per t
 | --- | --- |
 | `clients`, `client_branches` | Customers and their branch links |
 | `client_channel_identities` | Maps a channel participant (e.g. an Instagram user id) to a Klyro client, account-scoped, so contact resolution is deterministic for channels without a phone number |
-| `conversations`, `messages`, `message_attachments` | Multi-channel (WhatsApp/Instagram/...)/AI chat threads, messages, files. `conversations` bind to `business_channel_accounts` via `business_channel_account_id`; `last_inbound_at` anchors the Instagram 24h window; `external_participant_id`/`participant_username` address parties on channels without a phone |
+| `conversations`, `messages`, `message_attachments` | Multi-channel (WhatsApp/Instagram/...)/AI chat threads, messages, files. `conversations` bind to `business_channel_accounts` via `business_channel_account_id`; `is_simulated` distinguishes public demo/simulator threads from real inbound WhatsApp threads; `last_inbound_at` anchors the Instagram 24h window; `external_participant_id`/`participant_username` address parties on channels without a phone |
 | `message_templates` | Templated outbound messages |
 
 ## Scheduling

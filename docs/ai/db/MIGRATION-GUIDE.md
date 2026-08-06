@@ -8,6 +8,11 @@ rows by stable plan code. It verifies all four target plans before updating
 and verifies the complete mapping afterward. It is runner-only; the
 `migrations` service discovers the folder directly.
 
+`2026-08-06-13-conversation-simulation-mode.sql` adds the explicit
+conversation transport mode and `2026-08-06-14-backfill-simulated-conversations.sql`
+backfills legacy public-demo and simulator rows before real WhatsApp delivery
+is enabled for demo businesses.
+
 ## Latest migration (2026-08-04)
 
 `2026-08-04-01-messaging-operational-issues.sql` adds `messaging_operational_issues` and `message_delivery_holds`, their tenant/account/release indexes, validation checks and `updated_at` triggers. It is runner-only; the migrations service discovers the folder directly.

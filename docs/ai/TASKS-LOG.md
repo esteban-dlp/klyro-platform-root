@@ -124,6 +124,12 @@ After completing any meaningful task, append an entry at the top.
 - **Why:** Establish a documentation-first workflow for future Claude Code sessions.
 - **Files:** `root/.claude/skills/**`, `root/docs/ai/**`.
 
+## 2026-08-06 — Conversation simulation mode
+
+- Added and documented the immutable runner migration separating simulated demo/simulator conversations from real WhatsApp conversations.
+- Backfilled legacy simulated rows using persisted simulator state and demo-generated client/account evidence.
+- Updated the conversations table guide, relationship guide, DB map and ERD.
+
 <!--
 ### YYYY-MM-DD — <title>
 - **What:** ...

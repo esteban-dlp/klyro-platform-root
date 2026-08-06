@@ -1,5 +1,11 @@
 # CHANGES — Root / Infrastructure
 
+## 2026-08-06 - Separate simulated and real WhatsApp conversations
+
+- Added runner migration `2026-08-06-13-conversation-simulation-mode.sql` with `conversations.is_simulated` and a mode-aware open-conversation uniqueness index.
+- Added runner migration `2026-08-06-14-backfill-simulated-conversations.sql` so legacy demo/simulator rows remain blocked from external delivery.
+- Documented that one demo business may host both the public simulated demo and real WhatsApp/Kapso conversations.
+
 ## 2026-08-06 - Lemon Squeezy plan mapping
 
 - Added runner migration `2026-08-06-12-map-plan-lemonsqueezy-ids.sql` with the approved product and variant ids for Agenda, WhatsApp, WhatsApp Pro and WhatsApp Business.
