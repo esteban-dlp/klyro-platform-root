@@ -8,6 +8,7 @@
 | --- | --- |
 | `backend/database/migrations/2026-08-06-01..06-*.sql` | Immutable response events; prepaid orders/batches/wallet/ledger; client limits and durable blocks; trials and WhatsApp claim hashes; billing webhook idempotency; response-economics platform settings. Runner-only, no Compose mount. |
 | `backend/database/migrations/2026-08-06-07-launch-plan-catalog-v3.sql` | Versioned automated-response/trial/pack/client-limit fields plus five immutable published plan versions and their cost-run evidence. Runner-only. |
+| `backend/database/migrations/2026-08-06-08-consume-automated-response.sql` | Atomic per-message consumption: trial/included first, FIFO prepaid second, exactly-once event and non-negative exhaustion. Runner-only. |
 
 `backend/database/migrations/2026-08-04-01-messaging-operational-issues.sql` creates normalized operational incidents and durable message delivery holds. `2026-08-04-02-messaging-delivery-capacity.sql` adds distributed account/recipient token buckets.
 
