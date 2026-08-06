@@ -1,5 +1,10 @@
 # TASKS-LOG — Root / Infrastructure
 
+## 2026-08-06 — Automated-response billing schema foundation
+
+- Added six immutable, additive runner migrations and documented the new response event, prepaid-credit, client-limit/block, trial and billing-webhook structures.
+- Applied the six files twice against local PostgreSQL 16 and verified ledger immutability. No Compose mount or historical migration changed.
+
 ## 2026-08-04 — Messaging incident and hold schema
 
 - Added and documented `messaging_operational_issues` and `message_delivery_holds` through a new immutable runner migration.

@@ -1,5 +1,10 @@
 # CHANGES — Root / Infrastructure
 
+## 2026-08-06 - Automated-response accounting schema
+
+- Added six runner-only migrations for response events, prepaid credit, client limits/blocks, trials/claims, webhook idempotency and response economics. No `docker-compose.yml` mount was added because the migrations service discovers the folder directly.
+- Updated the database map/ERD. The files are idempotent on PostgreSQL 16; an existing local migration ledger/schema drift before these filenames remains a separate operational issue.
+
 ### 2026-08-04 — Messaging reliability state
 
 - Added runner migration `2026-08-04-02-messaging-delivery-capacity.sql` with distributed token buckets keyed by WhatsApp account and capacity scope.

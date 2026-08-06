@@ -20,6 +20,8 @@ When schema, seeds, compose, or env setup changes.
 
 ## State
 
+The response-billing foundation (migrations `2026-08-06-01` through `06`) is additive and runner-only: immutable response evidence, prepaid credit accounting, client controls, trials, webhook idempotency and operator economics now have database contracts. Application enforcement is intentionally deferred to later implementation phases.
+
 | Item | Status | Notes |
 | --- | --- | --- |
 | Docker Compose (postgres/backend/frontend) | 🚧 | postgres healthcheck; backend `start:dev`; volumes mounted. **2026-07-12:** backend no longer overrides `DATABASE_URL` with an invalid empty value, so its valid URL or documented discrete DB credentials can boot the service. |

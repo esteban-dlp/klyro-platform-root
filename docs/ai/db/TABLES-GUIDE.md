@@ -1,5 +1,20 @@
 # TABLES-GUIDE
 
+## Automated-response billing and controls (2026-08-06)
+
+| Table | Business meaning |
+| --- | --- |
+| `automated_response_events` | Immutable evidence for one customer-visible automated outbound message, funded by included, prepaid or trial capacity. |
+| `topup_orders` | Idempotently reconciled purchases of prepaid automated responses. |
+| `automated_response_credit_batches` | FIFO-ready grants of prepaid responses with their own lifecycle and expiry. |
+| `business_ai_credit_wallets` | Fast, nonnegative cached prepaid balance per business. |
+| `automated_response_credit_ledger` | Append-only audit trail for every prepaid grant, debit, expiry, reversal or adjustment. |
+| `business_client_ai_limits` | Optional per-client monthly response cap and manual hard-block policy within a tenant. |
+| `automated_response_blocks` | Durable explanation of why a client/conversation cannot receive AI and what event can release it. |
+| `business_ai_trials` | One controlled AI trial lifecycle per business. |
+| `whatsapp_trial_claims` | Hashed global phone claims that prevent repeated WhatsApp trials without storing the phone number. |
+| `billing_webhook_events` | Provider event inbox that makes payment handling replay-safe and observable. |
+
 ## Messaging reliability tables (2026-08-04)
 
 | Table | Business meaning |
