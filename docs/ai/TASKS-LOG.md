@@ -1,5 +1,10 @@
 # TASKS-LOG — Root / Infrastructure
 
+## 2026-08-06 — Automated-response catalog v3
+
+- Added and twice applied the runner-only v3 plan migration; exactly five published versions resolve with the approved prices, response/trial allowances and WhatsApp-number caps.
+- Updated the clean-bootstrap plan seed. No Compose mount or fake payment-provider identifier was added.
+
 ## 2026-08-06 — Automated-response billing schema foundation
 
 - Added six immutable, additive runner migrations and documented the new response event, prepaid-credit, client-limit/block, trial and billing-webhook structures.

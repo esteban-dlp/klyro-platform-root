@@ -1,5 +1,10 @@
 # CHANGES — Root / Infrastructure
 
+## 2026-08-06 - Five-plan automated-response catalog
+
+- Added runner migration `2026-08-06-07-launch-plan-catalog-v3.sql`: new versioned plan fields, three cost-run evidence rows, five immutable published versions, and coherent legacy identities. Applied twice against local PostgreSQL 16.
+- Free/Agenda are one-time trials, while paid plans expose 4,000/10,000/20,000 responses. Operational Lemon Squeezy variant ids are intentionally not invented by database code.
+
 ## 2026-08-06 - Automated-response accounting schema
 
 - Added six runner-only migrations for response events, prepaid credit, client limits/blocks, trials/claims, webhook idempotency and response economics. No `docker-compose.yml` mount was added because the migrations service discovers the folder directly.
