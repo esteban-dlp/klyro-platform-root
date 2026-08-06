@@ -1,5 +1,11 @@
 # CHANGES — Root / Infrastructure
 
+## 2026-08-06 - Approval-gated response backfill and subscription repricing
+
+- Added the production runbook for the read-only impact report, exact reviewed A/B classification, message-fact backfill, reconciliation and the two mandatory owner stops.
+- Backfill sequence is `10`, followed by the production-variant mapping at `11`; sequence `09` was already applied and is not renamed.
+- Local rehearsal generated the read-only report, proved the backfill idempotent under rollback and ran the repricing report with zero local subscriptions. No production mutation was performed.
+
 ## 2026-08-06 - Five-plan automated-response catalog
 
 - Added runner migration `2026-08-06-07-launch-plan-catalog-v3.sql`: new versioned plan fields, three cost-run evidence rows, five immutable published versions, and coherent legacy identities. Applied twice against local PostgreSQL 16.

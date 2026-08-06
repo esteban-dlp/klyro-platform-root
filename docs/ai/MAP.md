@@ -23,6 +23,7 @@ When files or folders are added/moved/removed. (Detailed SQL-file tables live in
 | `database/docs/database-der.mmd` | ERD (Mermaid) |
 | `scripts/` | Helper scripts |
 | `README.md` | Root readme |
+| `docs/ai/AUTOMATED-RESPONSES-ROLLOUT.md` | Approval-gated production backfill, repricing, reconciliation and rollback runbook |
 
 ## Common needs → location
 

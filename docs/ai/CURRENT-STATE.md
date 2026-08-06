@@ -20,7 +20,7 @@ When schema, seeds, compose, or env setup changes.
 
 ## State
 
-The response-billing foundation (migrations `2026-08-06-01` through `06`) is additive and runner-only: immutable response evidence, prepaid credit accounting, client controls, trials, webhook idempotency and operator economics now have database contracts. Application enforcement is intentionally deferred to later implementation phases.
+The automated-response program is implemented through the public catalog, runtime enforcement, prepaid packs, client limits, trials, notifications, reconciliation, dashboard and landing. Production data mutation remains deliberately pending the owner-reviewed dry run: migration `10` backfills approved historical facts and migration `11` maps operator-created Lemon Squeezy variants. See `AUTOMATED-RESPONSES-ROLLOUT.md`.
 
 | Item | Status | Notes |
 | --- | --- | --- |
