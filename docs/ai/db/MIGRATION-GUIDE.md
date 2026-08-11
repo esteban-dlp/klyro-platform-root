@@ -1,5 +1,9 @@
 # MIGRATION-GUIDE
 
+## Current dashboard analytics indexes (2026-08-10)
+
+`2026-08-10-01-dashboard-message-analytics-indexes.sql` is an idempotent runner-only migration. It creates partial active-record indexes for the tenant/date message aggregation and non-simulated conversation recency used by Home Activity. It does not alter tables, relationships or historical migrations, and does not need a Compose mount.
+
 ## Latest migration (2026-08-06)
 
 `2026-08-06-12-map-plan-lemonsqueezy-ids.sql` maps the operator-approved

@@ -2,6 +2,8 @@
 
 ## Latest messaging migration
 
+`2026-08-10-01-dashboard-message-analytics-indexes.sql` adds two idempotent partial indexes backing the Home Activity aggregated read: active messages by tenant/time and non-simulated conversations by tenant/latest message. Runner-only; no table shape or ER relationship changes.
+
 `2026-08-06-13-conversation-simulation-mode.sql` adds `conversations.is_simulated` and separates the open-conversation uniqueness guard by simulation mode, so a demo thread and a real WhatsApp thread cannot be mixed. Runner-only.
 
 `2026-08-06-14-backfill-simulated-conversations.sql` marks legacy simulator/demo conversations using their persisted simulator state or demo-generated client without a bound WhatsApp account. Runner-only.

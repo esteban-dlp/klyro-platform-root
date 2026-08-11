@@ -1,5 +1,10 @@
 # CHANGES — Root / Infrastructure
 
+## 2026-08-10 - Home activity analytics indexes
+
+- Added runner-only migration `2026-08-10-01-dashboard-message-analytics-indexes.sql` for active `messages (business_id, created_at DESC)` and non-simulated `conversations (business_id, last_message_at DESC)` reads.
+- No `docker-compose.yml` mount was added: the migrations service discovers normal files in `backend/database/migrations/` directly.
+
 ## 2026-08-06 - Separate simulated and real WhatsApp conversations
 
 - Added runner migration `2026-08-06-13-conversation-simulation-mode.sql` with `conversations.is_simulated` and a mode-aware open-conversation uniqueness index.
