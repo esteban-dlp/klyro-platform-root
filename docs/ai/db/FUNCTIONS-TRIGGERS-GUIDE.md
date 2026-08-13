@@ -43,7 +43,7 @@ Source: `backend/database/migrations/2026-08-06-08-consume-automated-response.sq
 
 | Function | Purpose (business) |
 | --- | --- |
-| `consume_automated_response(...)` | The only commercial response mutation. It locks the business-cycle row, spends trial/included capacity before the oldest active prepaid batch, inserts one immutable event per message, and returns `counted=false` rather than creating debt. The caller runs it in the same transaction as message + outbox. |
+| `consume_automated_response(...)` | The only commercial response mutation. It locks the business-cycle row, uses active monthly plan capacity before considering trial/prepaid capacity, inserts one immutable event per message, and returns `counted=false` rather than creating debt. The caller runs it in the same transaction as message + outbox. |
 
 > Since 2026-08-06, conversation-window functions below are cost-analysis artifacts. Opening a window does **not** consume a published commercial unit; one persisted automated outbound message does.
 

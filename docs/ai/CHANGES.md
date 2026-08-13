@@ -1,5 +1,10 @@
 # CHANGES — Root / Infrastructure
 
+## 2026-08-13 - Plan/trial response-capacity migration
+
+- Added runner-only migration `2026-08-13-02-effective-plan-response-capacity.sql`.
+- It converts historical trials superseded by active monthly plans and makes `consume_automated_response` use the same effective-capacity rule. No `docker-compose.yml` change is required.
+
 ## 2026-08-10 - Home activity analytics indexes
 
 - Added runner-only migration `2026-08-10-01-dashboard-message-analytics-indexes.sql` for active `messages (business_id, created_at DESC)` and non-simulated `conversations (business_id, last_message_at DESC)` reads.

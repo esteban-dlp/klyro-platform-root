@@ -1,5 +1,7 @@
 # CURRENT-STATE — Root / Infrastructure
 
+**2026-08-13 effective response capacity:** the runner now includes a compatibility migration that converts stale trial rows when an active plan owns monthly response capacity and updates the atomic consumption function to honor that precedence. No table shape or Compose mount changed.
+
 ## Purpose
 
 Snapshot of the infra/DB area right now.
