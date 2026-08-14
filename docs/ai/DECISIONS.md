@@ -1,5 +1,10 @@
 # DECISIONS — Root / Infrastructure
 
+## 2026-08-14 — Client appointment actions do not require a dashboard user
+
+- **Decision:** allow `created_by_type = 'client'` in `chk_appointment_events_user_creator_required` while keeping `created_by_user_id` nullable for client, AI and system actors.
+- **Reason:** public email and WhatsApp actions are authenticated by appointment-action state/token or conversation context, not by a Klyro dashboard user. The audit trail should preserve that actor type instead of inventing a user identity.
+
 ## 2026-08-04 — Delivery holds are first-class rows
 
 Operational issues, diagnostic error occurrences and held outbound messages use separate tables. This preserves one deduplicated incident while retaining message-specific scheduling, freshness and release state without consuming provider retry attempts.

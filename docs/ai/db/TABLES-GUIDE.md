@@ -90,7 +90,7 @@ When a table or column is added, changed, or removed. Add a detailed block per t
 | --- | --- |
 | `appointments` | A booking. `start_at`/`end_at` are customer-visible; `blocked_start_at`/`blocked_end_at` reserve worker capacity including service buffers. |
 | `appointment_holds`, `appointment_hold_extras` | Short-lived, one-active-per-conversation scheduling holds. Holds store the same visible and blocked intervals used by final appointments. `branch_id` is nullable as of `2026-07-08-01-service-location-mode.sql` so online holds can be branchless. |
-| `appointment_events` | State-change history of an appointment |
+| `appointment_events` | State-change history of an appointment. `created_by_type = client` records a public email-link or WhatsApp reminder action and intentionally has no dashboard `users` foreign-key value; authenticated `user` events still require one. |
 | `reminders` | Scheduled reminders for appointments |
 | `business_reminder_settings` | Per-business email/WhatsApp reminder enablement and lead-hour preferences. |
 | `business_public_booking_settings` | Per-business public "Booking by Link" page: whether it is enabled, its public URL slug (`booking_slug`, unique, separate from the dashboard slug), an optional brand theme color, optional email CTA button color/text-color overrides (else WCAG-derived from the theme color), and the "Powered by Klyro" footer toggle. Lets anyone book without logging in at `/book/<booking_slug>`; the theme + button colors also brand the confirmation/reminder emails sent to that business's clients. |

@@ -1,5 +1,10 @@
 # TASKS-LOG — Root / Infrastructure
 
+## 2026-08-14 — Repair client appointment-event constraint
+
+- Added `backend/database/migrations/2026-08-14-01-appointment-event-client-creator-constraint.sql` after Railway rejected public cancel/reschedule audit rows with `chk_appointment_events_user_creator_required`.
+- The migration is additive to deployment history, transaction-safe, tenant-neutral, and runner-only; no existing init script, applied migration or Compose service was changed.
+
 ## 2026-08-06 — Lemon Squeezy plan mapping
 
 - Added the immutable runner migration `2026-08-06-12-map-plan-lemonsqueezy-ids.sql` for the four operator-approved plan mappings.

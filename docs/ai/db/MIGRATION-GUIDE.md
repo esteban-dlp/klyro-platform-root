@@ -1,5 +1,9 @@
 # MIGRATION-GUIDE
 
+## Public appointment action audit constraint (2026-08-14)
+
+`2026-08-14-01-appointment-event-client-creator-constraint.sql` replaces the original `appointment_events` creator check with the same authenticated-user rule plus support for `client` actors with a NULL dashboard user id. It is transaction-safe, runner-only and safe for existing rows; no Compose mount is needed.
+
 ## Current dashboard analytics indexes (2026-08-10)
 
 `2026-08-10-01-dashboard-message-analytics-indexes.sql` is an idempotent runner-only migration. It creates partial active-record indexes for the tenant/date message aggregation and non-simulated conversation recency used by Home Activity. It does not alter tables, relationships or historical migrations, and does not need a Compose mount.

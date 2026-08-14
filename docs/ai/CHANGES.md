@@ -1,5 +1,10 @@
 # CHANGES — Root / Infrastructure
 
+## 2026-08-14 - Public appointment action audit constraint
+
+- Added runner-only migration `2026-08-14-01-appointment-event-client-creator-constraint.sql`.
+- It preserves the authenticated-user requirement and allows `appointment_events.created_by_type = 'client'` with no dashboard user id, fixing public email-link cancel/reschedule failures. No Compose mount change is required because the migrations service discovers normal files directly.
+
 ## 2026-08-13 - Plan/trial response-capacity migration
 
 - Added runner-only migration `2026-08-13-02-effective-plan-response-capacity.sql`.

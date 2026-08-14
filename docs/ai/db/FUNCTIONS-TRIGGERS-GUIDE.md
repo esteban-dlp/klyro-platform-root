@@ -1,5 +1,9 @@
 # FUNCTIONS-TRIGGERS-GUIDE
 
+## Appointment-event creator constraint (2026-08-14)
+
+`chk_appointment_events_user_creator_required` requires `created_by_user_id` only for authenticated `user` events. `ai`, `system` and `client` events are intentionally allowed without a dashboard user; the `client` case covers public email-link and WhatsApp reminder mutations.
+
 ## Messaging reliability triggers (2026-08-04)
 
 `trg_messaging_operational_issues_set_updated_at` and `trg_message_delivery_holds_set_updated_at` reuse `set_updated_at()`. Check constraints enforce valid origins, severities, scopes, owners, hold states, freshness policies and resolution timestamps.

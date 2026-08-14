@@ -1,5 +1,9 @@
 # DB-MAP
 
+## Latest appointment-action audit migration (2026-08-14)
+
+`backend/database/migrations/2026-08-14-01-appointment-event-client-creator-constraint.sql` updates the existing `appointment_events` creator check so public client cancel/reschedule actions can persist `created_by_type = 'client'` with no dashboard user id. It is runner-only and does not change relationships, tables or Compose mounts.
+
 ## Latest messaging migration
 
 `2026-08-10-01-dashboard-message-analytics-indexes.sql` adds two idempotent partial indexes backing the Home Activity aggregated read: active messages by tenant/time and non-simulated conversations by tenant/latest message. Runner-only; no table shape or ER relationship changes.
