@@ -1,5 +1,7 @@
 # CURRENT-STATE — Root / Infrastructure
 
+**2026-08-17 AI Simulator session migration:** the database now supports one reusable active Test Agent conversation per business. The runner-only migration pair performs the one-time scoped cleanup/purge and creates the partial unique index; no init or Compose change is needed.
+
 **2026-08-14 appointment-action audit constraint:** migration `2026-08-14-01-appointment-event-client-creator-constraint.sql` aligns `appointment_events` with the already-deployed `client` creator enum value. Public client mutations can now record audit history without a dashboard user id; normal `user` events remain required to reference a user.
 
 **2026-08-13 effective response capacity:** the runner now includes a compatibility migration that converts stale trial rows when an active plan owns monthly response capacity and updates the atomic consumption function to honor that precedence. No table shape or Compose mount changed.

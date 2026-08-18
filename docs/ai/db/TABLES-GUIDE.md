@@ -1,5 +1,9 @@
 # TABLES-GUIDE
 
+## AI Simulator session reuse (2026-08-17)
+
+`conversations` remains the durable owner of the Test Agent transcript. Active rows with `state->>'simulator' = 'true'` are unique per `business_id`; reset reuses that row and soft-deletes its visible messages instead of creating another conversation. The linked `clients` row is the single fictitious client record and its canonical `name` field is reset to `NULL`.
+
 ## Automated-response billing and controls (2026-08-06)
 
 | Table | Business meaning |

@@ -1,5 +1,10 @@
 # TASKS-LOG — Root / Infrastructure
 
+## 2026-08-17 — Reuse one Test Agent conversation
+
+- Added `2026-08-17-01-ai-simulator-single-session.sql` and `2026-08-17-02-purge-retired-ai-simulator-sessions.sql` for the one-time cleanup/purge of old explicit simulator rows and the one-active-session-per-business index.
+- The migration is idempotent, runner-only and scoped by `conversations.state->>'simulator'`; no existing migration, init script or Compose service was changed.
+
 ## 2026-08-14 — Repair client appointment-event constraint
 
 - Added `backend/database/migrations/2026-08-14-01-appointment-event-client-creator-constraint.sql` after Railway rejected public cancel/reschedule audit rows with `chk_appointment_events_user_creator_required`.

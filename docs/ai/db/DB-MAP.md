@@ -1,5 +1,9 @@
 # DB-MAP
 
+## AI Simulator single-session migration (2026-08-17)
+
+`backend/database/migrations/2026-08-17-01-ai-simulator-single-session.sql` retires historical `state.simulator = true` conversations and adds `conversations_one_active_simulator_per_business_idx`; `2026-08-17-02-purge-retired-ai-simulator-sessions.sql` permanently purges those retired synthetic rows and dependencies. Both are runner-only; no init script or Compose mount changes.
+
 ## Latest appointment-action audit migration (2026-08-14)
 
 `backend/database/migrations/2026-08-14-01-appointment-event-client-creator-constraint.sql` updates the existing `appointment_events` creator check so public client cancel/reschedule actions can persist `created_by_type = 'client'` with no dashboard user id. It is runner-only and does not change relationships, tables or Compose mounts.

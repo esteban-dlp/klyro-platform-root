@@ -1,5 +1,10 @@
 # CHANGES — Root / Infrastructure
 
+## 2026-08-17 - AI Simulator single-session cleanup and invariant
+
+- Added runner-only migration `2026-08-17-01-ai-simulator-single-session.sql`.
+- It retires and permanently purges explicitly marked historical Test Agent sessions/contact state and adds one active simulator conversation per business. No Compose mount change is required.
+
 ## 2026-08-14 - Public appointment action audit constraint
 
 - Added runner-only migration `2026-08-14-01-appointment-event-client-creator-constraint.sql`.

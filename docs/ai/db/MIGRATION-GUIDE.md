@@ -50,6 +50,8 @@ After adding a migration; when the process changes.
 
 ## Current state
 
+- **2026-08-17:** `2026-08-17-01-ai-simulator-single-session.sql` plus `2026-08-17-02-purge-retired-ai-simulator-sessions.sql` are runner-only migrations. Together they retire, then permanently purge, explicitly marked historical Test Agent sessions and synthetic dependencies, and create the partial unique index that permits one active simulator session per business. They do not modify real conversations or require a Compose mount.
+
 - Latest migration: `backend/database/migrations/2026-07-30-08-public-ai-budgets.sql`. Adds `public_ai_budgets`, `public_ai_budget_daily`, `public_ai_budget_identity_daily`, `business_simulator_usage`, the simulator columns on `plan_versions`, and the atomic consume/settle functions. **Drops `guest_ai_daily_spend` and `demo_message_rate_limits`** — both held ephemeral daily state only. Verified functionally: exactly 20 of 25 attempts allowed for one device, another device unaffected, the money cap blocking before the message count, and a request denied for global exhaustion NOT consuming the identity's own quota.
 
 - Previous: `backend/database/migrations/2026-07-30-07-ai-budget-pools.sql`. Adds `ai_budget_pools`, `ai_budget_pool_contributions` and `ensure_ai_budget_pool` / `record_pool_contribution` / `increment_pool_spend`. Runner-only, verified idempotent, and verified functionally: a replayed webhook contributes once (`record_pool_contribution` returns false), the platform grant accrues separately from contributions, and spend lands on the calendar month regardless of the date within it.

@@ -1,5 +1,9 @@
 # RELATIONSHIPS-GUIDE
 
+## AI Simulator session relationship (2026-08-17)
+
+Each business owns at most one active Test Agent conversation through the partial unique index on `conversations(business_id)` filtered by `state->>'simulator' = 'true'` and `deleted_at IS NULL`. That conversation keeps one linked DEMO client; reset clears the child message/booking state in place and does not create a new conversation/client relationship.
+
 ## Messaging reliability relationships (2026-08-04)
 
 `businesses 1:N messaging_operational_issues`; an issue optionally references `business_whatsapp_accounts`, `conversations` and `messages`. `messages 1:N message_delivery_holds` historically, with at most one active hold; a hold optionally references the issue that caused it.
