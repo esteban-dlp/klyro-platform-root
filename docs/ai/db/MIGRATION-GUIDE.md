@@ -106,3 +106,8 @@ After adding a migration; when the process changes.
 - [ ] Considered backend TypeORM entity impact (flag to backend).
 
 > Must reflect the real current migration process, not assumptions.
+
+## Zernio WhatsApp migrations (2026-08-22)
+
+- Apply `2026-08-22-01` through `04` in numeric order through the normal migration service. The enum value is isolated in its own file; later files may safely reference `zernio`.
+- `business_whatsapp_accounts` accepts `credential_source = project_env` only for Kapso and Zernio. `conversations.provider_conversation_id` is nullable and is populated only by conversation-addressed transports.

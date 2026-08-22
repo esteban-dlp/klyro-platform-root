@@ -333,3 +333,7 @@ After every meaningful change, append an entry at the top. Flag changes affectin
 -->
 
 > Must reflect real changes, not assumptions.
+
+## 2026-08-22 — Zernio WhatsApp migrations
+
+- The backend migration runner now receives four additive Zernio migrations: provider enum, project credential constraint/index, provider conversation id, and Zernio outbox event types. No Docker Compose mount or historical init script changed.
