@@ -1,5 +1,9 @@
 # DB-MAP
 
+## Conversation-state hard cutover (2026-08-26)
+
+`backend/database/migrations/2026-08-26-06-reset-conversation-state.sql` is a one-time, data-only cutover: resets `conversations.state.conversation` on every row to the current version-5 shape, releases any `appointment_holds` left `status = 'active'` by a pre-cutover draft, and normalizes historical `ai_conversation_turns.runtime_version` to `'conversation'`. No schema/table/ER change. Runner-only (not a Compose mount). Applied and verified against a fresh local Postgres volume; not yet applied to Railway/production.
+
 ## AI Simulator single-session migration (2026-08-17)
 
 `backend/database/migrations/2026-08-17-01-ai-simulator-single-session.sql` retires historical `state.simulator = true` conversations and adds `conversations_one_active_simulator_per_business_idx`; `2026-08-17-02-purge-retired-ai-simulator-sessions.sql` permanently purges those retired synthetic rows and dependencies. Both are runner-only; no init script or Compose mount changes.
