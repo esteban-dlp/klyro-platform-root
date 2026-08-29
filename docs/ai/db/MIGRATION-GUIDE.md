@@ -1,5 +1,13 @@
 # MIGRATION-GUIDE
 
+## Dated AI price corrections
+
+Price corrections must append a new `ai_model_prices` fact by closing the
+currently open row and inserting a new effective row. Never update an applied
+price amount in place, because usage events retain the applied `model_price_id`
+for historical reconciliation. `2026-08-29-01-correct-ai-cache-prices.sql`
+follows this rule for cached-input rates.
+
 ## Public appointment action audit constraint (2026-08-14)
 
 `2026-08-14-01-appointment-event-client-creator-constraint.sql` replaces the original `appointment_events` creator check with the same authenticated-user rule plus support for `client` actors with a NULL dashboard user id. It is transaction-safe, runner-only and safe for existing rows; no Compose mount is needed.

@@ -1,5 +1,14 @@
 # CHANGES — Root / Infrastructure
 
+## 2026-08-29 — Correct dated AI cached-input prices
+
+- Added runner-only `2026-08-29-01-correct-ai-cache-prices.sql` to append the
+  provider-standard cached-input rates for GPT-5.6 Luna, GPT-5 mini and Gemini
+  2.5 Flash-Lite without rewriting historical usage events.
+- No Compose mount was added: the existing migrations service discovers normal
+  files in `backend/database/migrations/` directly, and the legacy bootstrap
+  cutoff remains unchanged.
+
 ## 2026-08-17 - AI Simulator single-session cleanup and invariant
 
 - Added runner-only migration `2026-08-17-01-ai-simulator-single-session.sql`.

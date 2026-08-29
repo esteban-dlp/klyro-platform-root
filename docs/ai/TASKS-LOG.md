@@ -1,5 +1,11 @@
 # TASKS-LOG — Root / Infrastructure
 
+## 2026-08-29 — AI price correction migration
+
+- Added and locally applied the idempotent dated-price correction migration.
+- Verified the active cache rates and a second `npm run db:migrate` run with no
+  pending migrations. Existing usage events retain their original price facts.
+
 ## 2026-08-17 — Reuse one Test Agent conversation
 
 - Added `2026-08-17-01-ai-simulator-single-session.sql` and `2026-08-17-02-purge-retired-ai-simulator-sessions.sql` for the one-time cleanup/purge of old explicit simulator rows and the one-active-session-per-business index.

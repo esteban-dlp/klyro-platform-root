@@ -1,5 +1,12 @@
 # DB-MAP
 
+## AI model cache pricing correction (2026-08-29)
+
+`backend/database/migrations/2026-08-29-01-correct-ai-cache-prices.sql` closes
+the current zero-cache-rate facts and appends provider-standard cached-input
+rates for GPT-5.6 Luna, GPT-5 mini and Gemini 2.5 Flash-Lite. It is a
+runner-only, data-only migration; historical usage events are not rewritten.
+
 ## Conversation-state hard cutover (2026-08-26)
 
 `backend/database/migrations/2026-08-26-06-reset-conversation-state.sql` is a one-time, data-only cutover: resets `conversations.state.conversation` on every row to the current version-5 shape, releases any `appointment_holds` left `status = 'active'` by a pre-cutover draft, and normalizes historical `ai_conversation_turns.runtime_version` to `'conversation'`. No schema/table/ER change. Runner-only (not a Compose mount). Applied and verified against a fresh local Postgres volume; not yet applied to Railway/production.
