@@ -1,5 +1,12 @@
 # TASKS-LOG — Root / Infrastructure
 
+## 2026-08-31 — Railway migration retry fix
+
+Fixed `2026-08-31-01-message-reactions.sql`: its `updated_at` trigger now calls
+the schema's existing `set_updated_at()` function instead of the nonexistent
+`update_updated_at_column()`. The failed Railway transaction was rolled back,
+so no cleanup migration is required.
+
 ## 2026-08-29 — AI price correction migration
 
 - Added and locally applied the idempotent dated-price correction migration.

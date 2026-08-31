@@ -1,5 +1,11 @@
 # CHANGES — Root / Infrastructure
 
+## 2026-08-31 — Railway message-reactions migration trigger fix
+
+Corrected the pending `2026-08-31-01-message-reactions.sql` migration to use
+the existing shared `set_updated_at()` trigger function. Railway rolled back
+the failed transaction, so the same migration can be retried safely.
+
 ## 2026-08-29 — Correct dated AI cached-input prices
 
 - Added runner-only `2026-08-29-01-correct-ai-cache-prices.sql` to append the

@@ -80,6 +80,7 @@ Source: `database/migrations/2026-07-30-01-platform-settings.sql`.
 | `trg_business_channel_accounts_set_updated_at` | `business_channel_accounts` | BEFORE UPDATE | `set_updated_at()` | Stamp `updated_at` on channel-account changes |
 | `trg_channel_onboarding_sessions_set_updated_at` | `channel_onboarding_sessions` | BEFORE UPDATE | `set_updated_at()` | Stamp `updated_at` on onboarding-session changes |
 | `trg_client_channel_identities_set_updated_at` | `client_channel_identities` | BEFORE UPDATE | `set_updated_at()` | Stamp `updated_at` on identity changes |
+| `trg_message_reactions_updated_at` | `message_reactions` | BEFORE UPDATE | `set_updated_at()` | Stamp `updated_at` on reaction-state changes |
 | `trg_platform_settings_bump_version` | `platform_settings` | BEFORE UPDATE | `platform_settings_bump_version()` | Bump `version` + `updated_at` only when the value actually changed |
 | `trg_platform_settings_write_audit` | `platform_settings` | AFTER INSERT OR UPDATE | `platform_settings_write_audit()` | Record the before/after of every commercial-number change, including manual `psql` edits |
 

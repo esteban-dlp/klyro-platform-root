@@ -1,5 +1,12 @@
 # DB-MAP
 
+## Message reactions migration (2026-08-31)
+
+`backend/database/migrations/2026-08-31-01-message-reactions.sql` adds the
+tenant-scoped current reaction state for WhatsApp messages. Its `updated_at`
+trigger reuses the bootstrap `set_updated_at()` function so the migration is
+compatible with Railway's existing schema.
+
 ## AI model cache pricing correction (2026-08-29)
 
 `backend/database/migrations/2026-08-29-01-correct-ai-cache-prices.sql` closes
