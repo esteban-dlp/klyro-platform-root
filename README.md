@@ -109,7 +109,7 @@ Each service also has its own `.env.example` for running **without Docker**:
 ## Database
 
 Init SQL scripts live in `../backend/database/init/` and run automatically when Postgres starts for the first time.
-For existing volumes, new SQL files in `../backend/database/migrations/` are applied by the `migrations` service during `docker compose up --build`.
+For existing volumes, new SQL files in `../backend/database/migrations/` (for example the `message_reactions` state table) are applied by the `migrations` service during `docker compose up --build`; no per-file Docker mount is needed.
 
 To reset the database:
 

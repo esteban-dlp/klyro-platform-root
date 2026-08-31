@@ -118,6 +118,8 @@ services:
     env_file:
       - ../backend/.env
     volumes:
+      # `npm run db:migrate` scans backend/database/migrations at runtime;
+      # new migrations (including message_reactions) need no per-file mount.
       - ../backend:/app
       - /app/node_modules
     command: npm run db:migrate
